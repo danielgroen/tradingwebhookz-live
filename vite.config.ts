@@ -10,6 +10,10 @@ export default defineConfig({
     react(), 
     // nodePolyfills({ protocolImports: true })
   ],
+
+  build: {
+    outDir: 'docs', // Specify the output directory
+  },
   resolve: {
     alias: {
       // 'https-proxy-agent': resolve('https-proxy-agent'),

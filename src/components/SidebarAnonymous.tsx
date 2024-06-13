@@ -163,7 +163,7 @@ export function SidebarAnonymous() {
 
   return (
     <>
-      {!restClient && <FormLogin />}
+{!restClient && <FormLogin />}
       {restClient && (
         <>
           <div className="flex items-center justify-between mb-6">
@@ -191,7 +191,6 @@ export function SidebarAnonymous() {
               // onClick={() => router.push(ROUTES.LOGIN)}
             />
           </div>
-
           {!showSettings && <FormPlaceOrder />}
           {showSettings && <FormSettings />}
         </>

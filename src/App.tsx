@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { SidebarAnonymous } from './components/SidebarAnonymous';
+import { TradingviewComponent } from './components/TradingviewComponent';
 import { Box } from '@mui/material';
 
 // Utility function to load external script
@@ -38,6 +39,7 @@ export default function App() {
     <div className="overflow-x-hidden">
       <div className="bg-gradient" />
       <Box sx={{ display: 'flex' }}>
+        <TradingviewComponent />
         <div
           style={{
             width: '400px',
