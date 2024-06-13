@@ -11,9 +11,11 @@
   },
   "dependencies": {
     "ccxt": "^4.3.44",
+    "charting_library": "github:tradingview/charting_library",
     "crypto-browserify": "^3.12.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "rollup-plugin-copy": "^3.5.0",
     "stream-browserify": "^3.0.0"
   },
   "devDependencies": {

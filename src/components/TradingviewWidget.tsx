@@ -5,7 +5,7 @@ import {
 	ChartingLibraryWidgetOptions,
 	LanguageCode,
 	ResolutionString,
-} from '@src/charting_library';
+} from 'charting_library';
 import * as React from 'react';
 
 export interface ChartContainerProps {
