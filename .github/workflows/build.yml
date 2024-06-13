@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - development
 
 env:
   OUTPUT_DIR: dist

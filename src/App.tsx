@@ -1,4 +1,4 @@
-import { TradingviewComponent } from '@components/TradingviewComponent';
+import { TradingviewWidget } from '@components/TradingviewWidget';
 import { SidebarAnonymous } from '@components/SidebarAnonymous';
 import { Box } from '@mui/material';
 
@@ -8,7 +8,7 @@ export default function App() {
     <div className="overflow-x-hidden">
       <div className="bg-gradient" />
       <Box sx={{ display: 'flex' }}>
-        <TradingviewComponent />
+        <TradingviewWidget />
         <div
           style={{
             width: '400px',
