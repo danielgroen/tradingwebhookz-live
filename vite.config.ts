@@ -12,7 +12,7 @@ export default defineConfig({
   ],
 
   build: {
-    outDir: 'docs', // Specify the output directory
+    outDir: 'dist', // Specify the output directory
   },
   resolve: {
     alias: {

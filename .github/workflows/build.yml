@@ -6,7 +6,7 @@ on:
       - master # Replace with your main branch name
 
 env:
-  OUTPUT_DIR: docs
+  OUTPUT_DIR: dist
 
 jobs:
   build:
