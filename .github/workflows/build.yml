@@ -29,10 +29,10 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Configure Git
-        run: |
-          git config user.email "groendaniel@gmail.com"
-          git config user.name "danielgroen"
+      # - name: Configure Git
+      #   run: |
+      #     git config user.email "groendaniel@gmail.com"
+      #     git config user.name "danielgroen"
 
       - name: Create .npmrc
         run: echo "//npm.pkg.github.com/:_authToken=${GH_PAT}" >> .npmrc
