@@ -3,7 +3,7 @@ name: Build and Deploy to gh-pages
 on:
   push:
     branches:
-      - main  # Replace with your main branch name
+      - master  # Replace with your main branch name
 
 variables: 
   OUTPUT_DIR: docs
