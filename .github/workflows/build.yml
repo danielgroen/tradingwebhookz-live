@@ -24,6 +24,17 @@ jobs:
         with:
           token: ${{ secrets.GH_PAT }} # Use the PAT for authentication
 
+      - name: Configure SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          ssh-keyscan npm.pkg.github.com >> ~/.ssh/known_hosts
+          ssh-keyscan ssh.github.com >> ~/.ssh/known_hosts
+          ssh -T git@github.com
+          ssh -T git@npm.pkg.github.com
+
       - name: Create .npmrc
         run: echo "//npm.pkg.github.com/:_authToken=${GH_PAT}" >> .npmrc
 
@@ -31,9 +42,7 @@ jobs:
         run: npm cache clean --force
 
       - name: Install dependencies
-        run: |
-          npm config list
-          npm ci
+        run: npm ci
 
       - name: Build project
         run: npm run build
