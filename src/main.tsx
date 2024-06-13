@@ -19,8 +19,6 @@ const darkTheme = createTheme({
   },
 });
 
-(window as any).global = window;
-
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ThemeProvider theme={darkTheme}>

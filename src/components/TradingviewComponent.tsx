@@ -1,5 +1,5 @@
 // https://www.tradingview.com/widget-docs/widgets/charts/advanced-chart/
-import React, { useEffect, useRef, memo } from 'react';
+import { useEffect, useRef, memo } from 'react';
 
 function TradingViewWidget() {
   const container = useRef<HTMLDivElement>(null);

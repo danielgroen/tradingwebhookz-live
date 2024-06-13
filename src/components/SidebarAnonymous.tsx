@@ -1,31 +1,33 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { TextField, Button, Chip, FormControlLabel, Switch, Typography } from '@mui/material';
-import { RestClientV5 } from 'bybit-api';
+// import {version, exchanges} from 'ccxt';
 import { FaGear } from 'react-icons/fa6';
 import { FaChevronLeft } from 'react-icons/fa';
 import { IoClose } from 'react-icons/io5';
 
-
 export function SidebarAnonymous() {
   const [apiKey, setApiKey] = useState('2CsRgnKhTpvOuol7EE');
   const [apiSecret, setApiSecret] = useState('TLAzJpunuJ7QRcyhhdI9xQR7snEI4N4RfR2M');
-  const [restClient, setRestClient] = useState<RestClientV5 | null>(null);
-  const [balance, setBalance] = useState<any>(null);
+  const [restClient, setRestClient] = useState(false);
+  // const [balance, setBalance] = useState<any>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [isTestnet, setIsTestnet] = useState(true);
 
-  const handleLogin = () => {
-    setRestClient(
-      new RestClientV5({
-        key: apiKey,
-        secret: apiSecret,
-        testnet: isTestnet,
-      })
-    );
+  const handleLogin = async () => {
+    const exchange = new (window as any).ccxt.binance();
+    const ticker = await exchange.fetchTicker('BTC/USDT');
+    console.log(ticker);
+    // setRestClient(
+    //   new RestClientV5({
+    //     key: apiKey,
+    //     secret: apiSecret,
+    //     testnet: isTestnet,
+    //   })
+    // );
   };
 
   const handleReset = () => {
-    setRestClient(null);
+    setRestClient(false);
     setApiKey('');
     setApiSecret('');
   };
@@ -88,7 +90,7 @@ export function SidebarAnonymous() {
 
   const FormPlaceOrder = () =>
     useMemo(() => {
-      if (!balance) return <></>;
+      // if (!balance) return <></>;
       return (
         <>
           <div>
@@ -129,7 +131,7 @@ export function SidebarAnonymous() {
             />
           </div>
           <div style={{ marginBottom: 8, marginTop: 'auto' }}>
-            <div>Balance: $ {(+balance)?.toFixed(2)}</div>
+            {/* <div>Balance: $ {(+balance)?.toFixed(2)}</div> */}
             <div>PNL of current trade: $ 0.00</div>
           </div>
           <Button variant="outlined" fullWidth>
@@ -139,25 +141,25 @@ export function SidebarAnonymous() {
       );
     }, []);
 
-  useEffect(() => {
-    if (!restClient) return;
-    const fetchData = async () => {
-      try {
-        await restClient
-          .getWalletBalance({
-            accountType: 'CONTRACT',
-            coin: 'USDT',
-          })
-          .then(({ result }) => {
-            setBalance(result?.list[0].coin[0]?.walletBalance);
-          });
-      } catch (error) {
-        console.error(error);
-      }
-    };
+  // useEffect(() => {
+  //   if (!restClient) return;
+  //   const fetchData = async () => {
+  //     try {
+  //       await restClient
+  //         .getWalletBalance({
+  //           accountType: 'CONTRACT',
+  //           coin: 'USDT',
+  //         })
+  //         .then(({ result }) => {
+  //           setBalance(result?.list[0].coin[0]?.walletBalance);
+  //         });
+  //     } catch (error) {
+  //       console.error(error);
+  //     }
+  //   };
 
-    fetchData();
-  }, [restClient]);
+  //   fetchData();
+  // }, [restClient]);
 
   return (
     <>
