@@ -21,18 +21,18 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v2
-        with:
-          token: ${{ secrets.GH_PAT }} # Use the PAT for authentication
+        # with:
+        #   token: ${{ secrets.GH_PAT }} # Use the PAT for authentication
 
-      - name: Configure SSH key
+      - name: Set up SSH key
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Configure Git
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
-          ssh-keyscan -t rsa npm.pkg.github.com >> ~/.ssh/known_hosts
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no git@github.com
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no git@npm.pkg.github.com
+          git config user.email "groendaniel@gmail.com"
+          git config user.name "danielgroen"
 
       - name: Create .npmrc
         run: echo "//npm.pkg.github.com/:_authToken=${GH_PAT}" >> .npmrc
