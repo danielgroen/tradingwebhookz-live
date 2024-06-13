@@ -9,25 +9,25 @@ function TradingViewWidget() {
     script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
     script.type = 'text/javascript';
     script.async = true;
-    script.innerHTML = `
+    script.innerHTML = JSON.stringify(
         {
-          "autosize": true,
-          "symbol": "BINANCE:BTCUSDT",
-          "interval": "5",
-          "timezone": "Etc/UTC",
-          "theme": "dark",
-          "style": "1",
-          "locale": "en",
-          "gridColor": "rgba(240, 243, 250, 0)",
-          "backgroundColor": "rgba(2, 6, 23, .5)",
-          "hide_top_toolbar": false,
-          "withdateranges": false,
-          "hide_side_toolbar": false,
-          "allow_symbol_change": true,
-          "calendar": false,
-          "hide_volume": true,
+          autosize: true,
+          symbol: "BINANCE:BTCUSDT",
+          interval: "5",
+          timezone: "Etc/UTC",
+          theme: "dark",
+          style: "1",
+          locale: "en",
+          gridColor: "rgba(240, 243, 250, 0)",
+          backgroundColor: "rgba(2, 6, 23, .5)",
+          hide_top_toolbar: false,
+          withdateranges: false,
+          hide_side_toolbar: false,
+          allow_symbol_change: true,
+          calendar: false,
+          hide_volume: true,
           "support_host": "https://www.tradingview.com"
-        }`;
+        })
     container.current?.appendChild(script);
   }, []);
 

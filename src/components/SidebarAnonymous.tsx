@@ -26,6 +26,29 @@ export function SidebarAnonymous() {
     // setSecret('');
   };
 
+  // poll balance
+  useEffect(() => {
+    if (!balance) return;
+    
+    const interval = setInterval(async () => {
+      const getBalance = await restClient.fetchBalance();
+      setBalance(getBalance.free.USDT)
+    }, 1000);
+    return () => clearInterval(interval);
+
+  }, [balance]);
+
+  // init get balance
+  useEffect(() => {
+    if (!restClient) return;
+    const fetchData = async () => {
+      const getBalance = await restClient.fetchBalance();
+      setBalance(getBalance.free.USDT)
+    };
+
+    fetchData();
+  }, [restClient]);
+
   const FormLogin = () =>
     useMemo(() => {
       if (restClient) return <></>;
@@ -134,16 +157,6 @@ export function SidebarAnonymous() {
         </>
       );
     }, []);
-
-  useEffect(() => {
-    if (!restClient) return;
-    const fetchData = async () => {
-      const getBalance = await restClient.fetchBalance();
-      setBalance(getBalance.free.USDT)
-    };
-
-    fetchData();
-  }, [restClient]);
 
   return (
     <>
