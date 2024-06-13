@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "ccxt": "^4.3.44",
-    "charting_library": "git+ssh://git@github.com:tradingview/charting_library.git",
+    "charting_library": "github:tradingview/charting_library",
     "crypto-browserify": "^3.12.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
