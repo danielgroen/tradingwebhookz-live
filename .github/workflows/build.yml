@@ -29,11 +29,10 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-          ssh-keyscan npm.pkg.github.com >> ~/.ssh/known_hosts
-          ssh-keyscan ssh.github.com >> ~/.ssh/known_hosts
-          ssh -T git@github.com
-          ssh -T git@npm.pkg.github.com
+          ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+          ssh-keyscan -t rsa npm.pkg.github.com >> ~/.ssh/known_hosts
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no git@github.com
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no git@npm.pkg.github.com
 
       - name: Create .npmrc
         run: echo "//npm.pkg.github.com/:_authToken=${GH_PAT}" >> .npmrc
@@ -52,4 +51,3 @@ jobs:
         with:
           github_token: ${{ secrets.GH_PAT }} # Use the PAT for authentication
           publish_dir: ${{ env.OUTPUT_DIR }}
-#
