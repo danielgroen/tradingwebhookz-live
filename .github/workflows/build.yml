@@ -21,18 +21,11 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v2
-        # with:
-        #   token: ${{ secrets.GH_PAT }} # Use the PAT for authentication
 
       - name: Set up SSH key
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      # - name: Configure Git
-      #   run: |
-      #     git config user.email "groendaniel@gmail.com"
-      #     git config user.name "danielgroen"
 
       - name: Create .npmrc
         run: echo "//npm.pkg.github.com/:_authToken=${GH_PAT}" >> .npmrc
@@ -49,5 +42,5 @@ jobs:
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:
-          github_token: ${{ secrets.GH_PAT }} # Use the PAT for authentication
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ${{ env.OUTPUT_DIR }}
