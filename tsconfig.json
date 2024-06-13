@@ -6,22 +6,23 @@
     "module": "ESNext",
     "skipLibCheck": true,
     "baseUrl": "src",
-
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx",
+    "jsx": "preserve",
 
     /* Linting */
     "strict": true,
+    "noImplicitAny": false,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
       "@src/*": ["./*"],
+      "@ccxt": ["_npm/ccxt"],
       "@components/*": ["components/*"]
     }
   },

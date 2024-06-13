@@ -1,6 +1,5 @@
-
-import { TradingviewComponent } from './components/TradingviewComponent';
-import { SidebarAnonymous } from './components/SidebarAnonymous';
+import { TradingviewComponent } from '@components/TradingviewComponent';
+import { SidebarAnonymous } from '@components/SidebarAnonymous';
 import { Box } from '@mui/material';
 
 
@@ -20,7 +19,6 @@ export default function App() {
           }}
         >
           <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-            hey there!
             <SidebarAnonymous />
           </Box>
         </div>
