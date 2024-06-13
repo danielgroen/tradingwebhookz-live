@@ -1,2 +1,0 @@
-//npm.pkg.github.com/:_authToken=${GH_PAT}
-registry=https://registry.npmjs.org/

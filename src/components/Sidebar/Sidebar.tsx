@@ -6,7 +6,7 @@ import { IoClose } from 'react-icons/io5';
 import {default as ccxt} from '@ccxt';
 
 // https://docs.ccxt.com/#/exchanges/bybit
-export function SidebarAnonymous() {
+export function Sidebar() {
   const [apiKey, setApiKey] = useState('2CsRgnKhTpvOuol7EE');
   const [secret, setSecret] = useState('TLAzJpunuJ7QRcyhhdI9xQR7snEI4N4RfR2M');
   const [restClient, setRestClient] = useState<any | null>(null);
