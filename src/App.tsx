@@ -1,6 +1,7 @@
-import {TradingviewWidget, Sidebar} from '@components/index';
 import { Box } from '@mui/material';
+import { TradingviewWidget, Sidebar } from '@components/index';
 
+import './globals.css';
 
 export default function App() {
   return (

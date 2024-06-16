@@ -1,57 +1,112 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './TradingviewWidget.css';
-import { widget, ChartingLibraryWidgetOptions, ResolutionString, ThemeName } from 'charting_library';
-import * as React from 'react';
+import { widget, type ChartingLibraryWidgetOptions as WidgetOptions } from 'charting_library';
+import Data from './Data';
 
 export const TradingviewWidget = () => {
-	const chartContainerRef = useRef<HTMLDivElement>() as React.MutableRefObject<HTMLInputElement>;
+  const chartContainerRef = useRef<HTMLDivElement>() as React.MutableRefObject<HTMLInputElement>;
+  const [datafeed, setDatafeed] = useState([]);
 
-	useEffect(() => {
-		const widgetOptions: ChartingLibraryWidgetOptions = {
-      symbol: 'AAPL',
+  useEffect(() => {
+    (async () => {
+      try {
+        const response = await fetch(
+          'https://api.bybit.com/v5/market/kline?category=linear&symbol=BTCUSDT&interval=60&start=1670601600000&end=1670608800000'
+        );
+        const data = await response.json();
 
-			// BEWARE: no trailing slash is expected in feed URL
-			datafeed: new (window as any).Datafeeds.UDFCompatibleDatafeed('https://demo_feed.tradingview.com'),
-			interval: 'D' as ResolutionString,
-			container: chartContainerRef.current,
-			library_path: '/charting_library/',
-			locale:  'en',
-			disabled_features: ['use_localstorage_for_settings'],
-			enabled_features: ['study_templates'],
-			charts_storage_url: 'https://saveload.tradingview.com',
-			charts_storage_api_version: '1.1',
-			client_id: 'tradingview.com',
-      user_id: 'Tradingmaestro12',
-			fullscreen: false,
+        const formattedData =
+          data?.result?.list?.map((d) => ({
+            // time: +d[0] / 1000,
+            time: +d[0],
+            low: parseFloat(d[3]),
+            high: parseFloat(d[2]),
+            open: parseFloat(d[1]),
+            close: parseFloat(d[4]),
+            volume: +d[5],
+          })) || [];
+
+        setDatafeed(formattedData);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (!datafeed?.length) return;
+    console.log(datafeed);
+
+    const widgetOptions: WidgetOptions = {
+      symbol: 'BTCUSDT',
+
+      // BEWARE: no trailing slash is expected in feed URL
+      // datafeed: new (window as any).Datafeeds.UDFCompatibleDatafeed(datafeed),
+      // datafeed: new (window as any).Datafeeds.UDFCompatibleDatafeed(datafeed),
+      datafeed: new Data(datafeed),
+      locale: 'en',
+      interval: '60' as WidgetOptions['interval'],
+      container: chartContainerRef.current,
+      library_path: '/charting_library/',
+      disabled_features: ['use_localstorage_for_settings'],
+      charts_storage_url: 'https://saveload.tradingview.com',
+      charts_storage_api_version: '1.1',
+      client_id: location?.host,
+      user_id: 'tradingmaestro12',
       autosize: true,
-			studies_overrides: {},
-      // enabled_features: ['chart_property_page_trading'],
-      theme: 'Dark' as ThemeName, 
-		};
+      studies_overrides: {},
+      debug: true,
+      // enabled_features: ['chart_property_page_trading', 'trading_template', 'trading_hotkeys_feature'],
+      enabled_features: ['chart_property_page_trading', 'show_exchange_logos', 'show_symbol_logos'],
+      theme: 'Dark' as WidgetOptions['theme'],
+      overrides: {
+        'trading.paneProperties.legend.trades': true,
+      },
+    };
 
-		const tvWidget = new widget(widgetOptions);
+    //  https://docs.ccxt.com/#/exchanges/bybit?id=watchorderbook
 
-		tvWidget.onChartReady(() => {
-      
-			tvWidget.headerReady().then(() => {
-				const button = tvWidget.createButton();
-				button.setAttribute('title', 'Click to show a notification popup');
-				button.classList.add('apply-common-tooltip');
-				button.addEventListener('click', () => tvWidget.showNoticeDialog({
-						title: 'Notification',
-						body: 'TradingView Charting Library API works correctly',
-						callback: () => {
-							console.log('Noticed!');
-						},
-					}));
-				button.innerHTML = 'Check API';
-			});
-		});
+    const chartWidget = new widget(widgetOptions);
 
-		return () => {
-			tvWidget.remove();
-		};
-	});
+    chartWidget.onChartReady(() => {
+      // this places arrows over the chart, so you can see where the buy/sell signals are
+      // chartWidget.activeChart().createExecutionShape().setDirection("buy").setTime(chartWidget.activeChart().getVisibleRange().to).setPrice(160);
 
-	return <div ref={ chartContainerRef } className={ 'TVChartContainer' } />
+      chartWidget.headerReady().then(() => {
+        const button = chartWidget.createButton();
+        button.setAttribute('title', 'Click to activate the Long Position tool');
+        button.classList.add('apply-common-tooltip', 'tv-header-toolbar__button', 'tv-header-toolbar__button--active');
+        button.addEventListener('click', () => {
+          // chartWidget.chart().createPositionLine()
+          // .onModify(function() {
+          //     this.setText("onModify called");
+          // })
+          // .onReverse("onReverse called", function(text) {
+          //     this.setText(text);
+          // })
+          // .onClose("onClose called", function(text) {
+          //     this.setText(text);
+          // })
+          // .setText("PROFIT: 71.1 (3.31%)")
+          // .setTooltip("Additional position information")
+          // .setProtectTooltip("Protect position")
+          // .setCloseTooltip("Close position")
+          // .setReverseTooltip("Reverse position")
+          // .setQuantity("8.235")
+          // .setPrice(160)
+          // .setExtendLeft(true)
+          // .setLineStyle(0)
+          // .setLineLength(25);
+          // chartWidget.chart().executeActionById('showSymbolInfoDialog');
+        });
+        button.innerHTML = 'Long Position';
+      });
+    });
+
+    return () => {
+      chartWidget.remove();
+    };
+  }, [datafeed]);
+
+  return <div ref={chartContainerRef} className="TVChartContainer" />;
 };

@@ -1,10 +1,8 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.tsx'
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import React from 'react';
 import CssBaseline from '@mui/material/CssBaseline';
-
-import './index.css'
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import ReactDOM from 'react-dom/client';
+import App from './App';
 
 const darkTheme = createTheme({
   palette: {
@@ -22,9 +20,9 @@ const darkTheme = createTheme({
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ThemeProvider theme={darkTheme}>
-    <CssBaseline />
+      <CssBaseline />
 
-    <App />
+      <App />
     </ThemeProvider>
-  </React.StrictMode>,
-)
+  </React.StrictMode>
+);
