@@ -6,15 +6,12 @@
     "module": "ESNext",
     "skipLibCheck": true,
     "baseUrl": "src",
-    /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "preserve",
-
-    /* Linting */
     "strict": true,
     "noImplicitAny": false,
     "noUnusedLocals": true,
@@ -23,9 +20,13 @@
     "paths": {
       "@src/*": ["./*"],
       "@ccxt": ["_npm/ccxt"],
+      "@states/*": ["states/*"],
+      "@hooks/*": ["hooks/*"],
+      "@utils/*": ["utils/*"],
+      "@constants/*": ["constants/*"],
       "@components/*": ["components/*"]
     }
   },
-  "include": ["src"],
+  "include": ["src", ".eslintrc.cjs", "tailwind.config.cjs", "vite.config.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

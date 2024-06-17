@@ -1,14 +1,14 @@
-import { TradingviewComponent } from '@components/TradingviewComponent';
-import { SidebarAnonymous } from '@components/SidebarAnonymous';
 import { Box } from '@mui/material';
+import { TradingviewWidget, Sidebar } from '@components/index';
 
+import './globals.css';
 
 export default function App() {
   return (
     <div className="overflow-x-hidden">
       <div className="bg-gradient" />
       <Box sx={{ display: 'flex' }}>
-        <TradingviewComponent />
+        <TradingviewWidget />
         <div
           style={{
             width: '400px',
@@ -19,7 +19,7 @@ export default function App() {
           }}
         >
           <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-            <SidebarAnonymous />
+            <Sidebar />
           </Box>
         </div>
       </Box>

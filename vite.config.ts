@@ -1,31 +1,29 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import react from '@vitejs/plugin-react';
+import copy from 'rollup-plugin-copy';
+import { defineConfig } from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
-// import { nodePolyfills } from 'vite-plugin-node-polyfills'
-import path from 'path';
-
-const resolve = (module: string) => path.resolve(__dirname, 'node_modules', module);
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    react(), 
+    react(),
     tsconfigPaths(),
-    // nodePolyfills({ protocolImports: true })
-  ],
 
+    copy({
+      targets: [
+        { src: 'node_modules/charting_library/datafeeds', dest: 'public' },
+        { src: 'node_modules/charting_library/charting_library', dest: 'public' },
+      ],
+    }),
+  ],
   build: {
     outDir: 'dist', // Specify the output directory
-  },
-  resolve: {
-    alias: {
-      // 'https-proxy-agent': resolve('https-proxy-agent'),
-      // 'node:net': 'node-stdlib-browser/esm/net.js', // Alias for the `net` module
-      // Additional aliases for other Node.js modules if needed
+    rollupOptions: {
+      external: ['ccxt'],
     },
   },
   server: {
     port: 3000,
     open: true,
-  }
-})
+  },
+});
