@@ -24,3 +24,6 @@ dist-ssr
 
 public/charting_library
 public/datafeeds
+
+.env
+!.env.example

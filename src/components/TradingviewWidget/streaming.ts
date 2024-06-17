@@ -1,7 +1,11 @@
 import { io } from 'socket.io-client';
 import { parseFullSymbol } from './helpers.js';
 
-const socket = io('wss://streamer.cryptocompare.com');
+const socket = io(
+  'wss://streamer.cryptocompare.com?api_key=090a1e34ec5ea2203312d5922aa0bd1ff006f2fa55c0653e76c39950e1fa428e'
+);
+
+console.log('ALSKDFJLASDJKFASLJKDFJLK ASDFJ KLASD', import.meta.env.VITE_CCDATA_API_KEY);
 
 function getNextDailyBarTime(barTime) {
   const date = new Date(barTime * 1000);

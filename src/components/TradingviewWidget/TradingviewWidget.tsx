@@ -11,7 +11,7 @@ export const TradingviewWidget = () => {
       symbol: 'BTC/USDT',
       datafeed: Datafeed,
       locale: 'en',
-      interval: '60' as WidgetOptions['interval'],
+      interval: '5' as WidgetOptions['interval'],
       container: chartContainerRef.current,
       library_path: '/charting_library/',
       charts_storage_url: 'https://saveload.tradingview.com',

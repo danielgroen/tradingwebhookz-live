@@ -131,6 +131,8 @@ export default {
         }
       });
       if (firstDataRequest) {
+        console.log('[getBars]: First history request. Bars:', bars.length);
+
         lastBarsCache.set(`${symbolInfo.exchange}:${symbolInfo.name}`, { ...bars[bars.length - 1] });
       }
       console.log(`[getBars]: returned ${bars.length} bar(s)`);
