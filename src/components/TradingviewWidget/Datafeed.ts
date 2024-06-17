@@ -14,37 +14,50 @@ const configurationData = {
 // Use it to keep a record of the most recent bar on the chart
 const lastBarsCache = new Map();
 
-// Obtains all symbols for all exchanges supported by CryptoCompare API
-async function getAllSymbols() {
-  const data = await makeApiRequest('data/v3/all/exchanges');
-  console.log(data);
+// Sample implementation of subscribeOnStream
+function subscribeOnStream(
+  symbolInfo,
+  resolution,
+  onRealtimeCallback,
+  subscriberUID,
+  onResetCacheNeededCallback,
+  lastBar
+) {
+  console.log('[subscribeOnStream]: Subscribing to stream with subscriberUID:', subscriberUID);
 
-  let allSymbols = [];
+  // Sample WebSocket connection
+  const socket = new WebSocket('wss://example.com/socket');
 
-  for (const exchange of configurationData.exchanges) {
-    const pairs = data.Data[exchange.value].pairs;
+  socket.onopen = () => {
+    console.log('[WebSocket]: Connection opened');
+    socket.send(JSON.stringify({ type: 'subscribe', symbol: symbolInfo.name }));
+  };
 
-    for (const leftPairPart of Object.keys(pairs)) {
-      const symbols = pairs[leftPairPart].map((rightPairPart) => {
-        const symbol = generateSymbol(exchange.value, leftPairPart, rightPairPart);
-
-        return {
-          symbol: symbol.short,
-          full_name: symbol.full,
-          description: symbol.short,
-          exchange: exchange.value,
-          exchange_logo: 'https://s3-symbol-logo.tradingview.com/provider/bybit.svg',
-          type: 'crypto',
-          logo_urls: [
-            `https://s3-symbol-logo.tradingview.com/crypto/XTVC${leftPairPart}.svg`,
-            `https://s3-symbol-logo.tradingview.com/crypto/XTVC${rightPairPart}.svg`,
-          ],
-        };
+  socket.onmessage = (event) => {
+    const message = JSON.parse(event.data);
+    if (message.type === 'bar') {
+      console.log('[WebSocket]: New bar data received', message.data);
+      onRealtimeCallback({
+        time: message.data.time * 1000,
+        low: message.data.low,
+        high: message.data.high,
+        open: message.data.open,
+        close: message.data.close,
+        volume: message.data.volume,
       });
-      allSymbols = [...allSymbols, ...symbols];
     }
-  }
-  return allSymbols;
+  };
+
+  socket.onclose = () => {
+    console.log('[WebSocket]: Connection closed');
+  };
+
+  socket.onerror = (error) => {
+    console.error('[WebSocket]: Error occurred', error);
+  };
+
+  // Store socket connection for unsubscribing later
+  lastBarsCache.set(subscriberUID, socket);
 }
 
 export default {
