@@ -1,9 +1,9 @@
-// import { type bybit } from 'ccxt';
+import { type bybit } from 'ccxt';
 import { create } from 'zustand';
 
 interface BrokerStateProps {
-  brokerInstance: any | null;
-  setBrokerInstance: (brokerInstance: any | null) => void;
+  brokerInstance: bybit | null;
+  setBrokerInstance: (brokerInstance: bybit | null) => void;
 
   apiKey: string;
   setApiKey: (apiKey: string) => void;
