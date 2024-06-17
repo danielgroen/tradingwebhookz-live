@@ -11,7 +11,7 @@ export const TradingviewWidget = () => {
       symbol: 'BTC/USDT',
       datafeed: Datafeed,
       locale: 'en',
-      interval: '5' as WidgetOptions['interval'],
+      interval: 'D' as WidgetOptions['interval'],
       container: chartContainerRef.current,
       library_path: '/charting_library/',
       charts_storage_url: 'https://saveload.tradingview.com',
@@ -20,7 +20,8 @@ export const TradingviewWidget = () => {
       user_id: 'tradingmaestro12',
       autosize: true,
       studies_overrides: {},
-      // debug: true,
+      debug: true,
+      drawings_access: { type: 'black', tools: [{ name: 'Long Position' }, { name: 'Short Position' }] },
       enabled_features: ['chart_property_page_trading', 'show_exchange_logos', 'show_symbol_logos'],
       disabled_features: ['items_favoriting', 'header_quick_search', 'header_saveload'],
       theme: 'Dark' as WidgetOptions['theme'],
@@ -38,10 +39,15 @@ export const TradingviewWidget = () => {
       // chartWidget.activeChart().createExecutionShape().setDirection("buy").setTime(chartWidget.activeChart().getVisibleRange().to).setPrice(160);
 
       chartWidget.headerReady().then(() => {
-        const button = chartWidget.createButton();
-        button.setAttribute('title', 'Click to activate the Long Position tool');
-        button.classList.add('apply-common-tooltip', 'tv-header-toolbar__button', 'tv-header-toolbar__button--active');
-        button.addEventListener('click', () => {
+        const buttonLong = chartWidget.createButton();
+        buttonLong.setAttribute('title', 'Click to activate the Long Position tool');
+        buttonLong.classList.add(
+          'apply-common-tooltip',
+          'tv-header-toolbar__button',
+          'tv-header-toolbar__button--active'
+        );
+        buttonLong.addEventListener('click', () => {
+          chartWidget.selectLineTool('long_position');
           // chartWidget.chart().createPositionLine()
           // .onModify(function() {
           //     this.setText("onModify called");
@@ -64,7 +70,17 @@ export const TradingviewWidget = () => {
           // .setLineLength(25);
           // chartWidget.chart().executeActionById('showSymbolInfoDialog');
         });
-        button.innerHTML = 'Long Position';
+
+        buttonLong.innerHTML = '🌲 Long Position';
+
+        const buttonShort = chartWidget.createButton();
+        buttonShort.setAttribute('title', 'Click to activate the Long Position tool');
+        buttonShort.classList.add('apply-common-tooltip', 'tv-header-toolbar__button');
+        buttonShort.innerHTML = '🔻 Short Position';
+        buttonShort.addEventListener('click', () => {
+          buttonShort.classList.add('tv-header-toolbar__button--active');
+          chartWidget.selectLineTool('short_position');
+        });
       });
     });
 

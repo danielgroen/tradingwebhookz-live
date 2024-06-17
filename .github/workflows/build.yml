@@ -9,6 +9,7 @@ on:
 env:
   OUTPUT_DIR: dist
   NODE_VERSION: 20
+  VITE_CCDATA_API_KEY: ${{ secrets.VITE_CCDATA_API_KEY }}
 
 jobs:
   build:

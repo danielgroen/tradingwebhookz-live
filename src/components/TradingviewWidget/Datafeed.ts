@@ -5,6 +5,7 @@ import { subscribeOnStream, unsubscribeFromStream } from './streaming';
 const configurationData = {
   // Represents the resolutions for bars supported by your datafeed
   supported_resolutions: ['1', '5', '15', '30', '60', '240', 'D', 'W', 'M'],
+  intraday_multipliers: ['1', '5', '15', '30', '60'],
   // The `exchanges` arguments are used for the `searchSymbols` method if a user selects the exchange
   exchanges: [{ value: 'bybit', name: 'Bybit', desc: 'Bybit' }],
   // The `symbols_types` arguments are used for the `searchSymbols` method if a user selects this symbol type
@@ -68,7 +69,6 @@ export default {
     console.log('[resolveSymbol]: Method call', symbolName);
     const symbols = await getAllSymbols();
     const symbolItem = symbols.find(({ full_name }) => full_name === symbolName);
-    console.log(symbolName);
 
     if (!symbolItem && symbolName.includes(':')) {
       console.log('[resolveSymbol]: Cannot resolve symbol', symbolName);
@@ -87,7 +87,7 @@ export default {
       exchange: symbolItem?.exchange ?? 'bybit',
       minmov: 1,
       pricescale: 100,
-      has_intraday: false,
+      has_intraday: true,
       visible_plots_set: 'ohlc',
       has_weekly_and_monthly: false,
       supported_resolutions: configurationData.supported_resolutions,
@@ -111,7 +111,7 @@ export default {
       .map((name) => `${name}=${encodeURIComponent(urlParameters[name])}`)
       .join('&');
     try {
-      const data = await makeApiRequest(`data/histoday?${query}`);
+      const data = await makeApiRequest(`data/histoday?api_key=${import.meta.env.VITE_CCDATA_API_KEY}&${query}`);
       if ((data.Response && data.Response === 'Error') || data.Data.length === 0) {
         return onHistoryCallback([], { noData: true });
       }

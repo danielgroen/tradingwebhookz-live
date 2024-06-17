@@ -2,3 +2,7 @@
 	/* height: calc(100vh - 80px); */
   width: 100%;
 }
+
+.tv-header-toolbar__button--active {
+  background-color: red !important;
+}
