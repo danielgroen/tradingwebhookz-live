@@ -1,11 +1,36 @@
+import { useEffect, useState } from 'react';
 import { TextField, Typography, Button } from '@mui/material';
-// import { FaGear } from 'react-icons/fa6';
-// import { IoClose } from 'react-icons/io5';
-// import { BybitState, GlobalState } from '@states/index';
+import { BrokerState } from '@states/index';
 
+// https://docs.ccxt.com/#/exchanges/bybit
 export const OrderForm = () => {
-  // const { isLoggedIn, apiKey, isTestnet } = BybitState();
-  // const { isSettingsOpen, setIsSettingsOpen } = GlobalState();
+  const { brokerInstance } = BrokerState();
+  const [balance, setBalance] = useState(0);
+
+  // poll balance
+  useEffect(() => {
+    if (!balance) return;
+
+    const interval = setInterval(async () => {
+      const getBalance = await brokerInstance?.fetchBalance();
+
+      setBalance(getBalance?.USDT?.free || 0);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [balance]);
+
+  // init get balance
+  useEffect(() => {
+    if (!brokerInstance) return;
+    const fetchData = async () => {
+      const getBalance = await brokerInstance?.fetchBalance();
+      console.log(getBalance);
+
+      setBalance(getBalance?.USDT?.free || 0);
+    };
+
+    fetchData();
+  }, [brokerInstance]);
 
   return (
     <>
@@ -21,7 +46,7 @@ export const OrderForm = () => {
         <TextField fullWidth color="success" focused size="small" sx={{ mb: 2, pl: 0.5, width: '50%' }} label="TP" />
       </div>
       <div style={{ marginBottom: 8, marginTop: 'auto' }}>
-        {/* <div>Balance: $ {(+balance)?.toFixed(2)}</div> */}
+        <div>Balance: $ {(+balance)?.toFixed(2)}</div>
         <div>PNL of current trade: $ 0.00</div>
       </div>
       <Button variant="outlined" fullWidth>

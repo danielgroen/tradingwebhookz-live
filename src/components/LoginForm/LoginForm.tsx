@@ -1,15 +1,15 @@
 import { TextField, Button, FormControlLabel, Switch } from '@mui/material';
-import { default as ccxt } from '@ccxt';
-import { BybitState } from '@states/index';
+import ccxt from 'ccxt';
+import { BrokerState, GlobalState } from '@states/index';
 
 export const LoginForm = () => {
-  const { setIsLoggedIn, setBybitInstance, apiKey, setApiKey, secret, setSecret, isTestnet, setIsTestnet } =
-    BybitState();
+  const { setBrokerInstance, apiKey, setApiKey, secret, setSecret, isTestnet, setIsTestnet } = BrokerState();
+  const { setIsLoggedIn } = GlobalState();
 
   const handleLogin = async () => {
     const account = new ccxt.bybit({ apiKey, secret });
     await account.setSandboxMode(isTestnet);
-    setBybitInstance(account);
+    setBrokerInstance(account);
     setIsLoggedIn(true);
   };
 

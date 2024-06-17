@@ -1,11 +1,9 @@
+import { type bybit } from 'ccxt';
 import { create } from 'zustand';
 
-interface BybitStateProps {
-  isLoggedIn: boolean;
-  setIsLoggedIn: (isLoggedIn: boolean) => void;
-
-  bybitInstance: any | null;
-  setBybitInstance: (bybitInstance: any | null) => void;
+interface BrokerStateProps {
+  brokerInstance: bybit | null;
+  setBrokerInstance: (brokerInstance: bybit | null) => void;
 
   apiKey: string;
   setApiKey: (apiKey: string) => void;
@@ -17,12 +15,9 @@ interface BybitStateProps {
   setIsTestnet: (isTestnet: boolean) => void;
 }
 
-export const BybitState = create<BybitStateProps>((set) => ({
-  isLoggedIn: false,
-  setIsLoggedIn: (isLoggedIn) => set({ isLoggedIn }),
-
-  bybitInstance: null,
-  setBybitInstance: (bybitInstance) => set({ bybitInstance }),
+export const BrokerState = create<BrokerStateProps>((set) => ({
+  brokerInstance: null,
+  setBrokerInstance: (brokerInstance) => set({ brokerInstance }),
 
   apiKey: '2CsRgnKhTpvOuol7EE',
   setApiKey: (apiKey) => set({ apiKey }),

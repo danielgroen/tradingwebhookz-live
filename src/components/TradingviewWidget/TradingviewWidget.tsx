@@ -1,49 +1,19 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import './TradingviewWidget.css';
 import { widget, type ChartingLibraryWidgetOptions as WidgetOptions } from 'charting_library';
 import Data from './Data';
 
 export const TradingviewWidget = () => {
   const chartContainerRef = useRef<HTMLDivElement>() as React.MutableRefObject<HTMLInputElement>;
-  const [datafeed, setDatafeed] = useState([]);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const response = await fetch(
-          'https://api.bybit.com/v5/market/kline?category=linear&symbol=BTCUSDT&interval=60&start=1670601600000&end=1670608800000'
-        );
-        const data = await response.json();
-
-        const formattedData =
-          data?.result?.list?.map((d) => ({
-            // time: +d[0] / 1000,
-            time: +d[0],
-            low: parseFloat(d[3]),
-            high: parseFloat(d[2]),
-            open: parseFloat(d[1]),
-            close: parseFloat(d[4]),
-            volume: +d[5],
-          })) || [];
-
-        setDatafeed(formattedData);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    })();
-  }, []);
-
-  useEffect(() => {
-    if (!datafeed?.length) return;
-    console.log(datafeed);
-
     const widgetOptions: WidgetOptions = {
       symbol: 'BTCUSDT',
 
       // BEWARE: no trailing slash is expected in feed URL
       // datafeed: new (window as any).Datafeeds.UDFCompatibleDatafeed(datafeed),
       // datafeed: new (window as any).Datafeeds.UDFCompatibleDatafeed(datafeed),
-      datafeed: new Data(datafeed),
+      datafeed: new Data(),
       locale: 'en',
       interval: '60' as WidgetOptions['interval'],
       container: chartContainerRef.current,
@@ -55,7 +25,7 @@ export const TradingviewWidget = () => {
       user_id: 'tradingmaestro12',
       autosize: true,
       studies_overrides: {},
-      debug: true,
+      // debug: true,
       // enabled_features: ['chart_property_page_trading', 'trading_template', 'trading_hotkeys_feature'],
       enabled_features: ['chart_property_page_trading', 'show_exchange_logos', 'show_symbol_logos'],
       theme: 'Dark' as WidgetOptions['theme'],
@@ -106,7 +76,7 @@ export const TradingviewWidget = () => {
     return () => {
       chartWidget.remove();
     };
-  }, [datafeed]);
+  }, []);
 
   return <div ref={chartContainerRef} className="TVChartContainer" />;
 };

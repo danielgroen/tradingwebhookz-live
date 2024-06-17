@@ -1,14 +1,14 @@
 import { Chip, Typography } from '@mui/material';
 import { FaGear } from 'react-icons/fa6';
 import { IoClose } from 'react-icons/io5';
-import { BybitState, GlobalState } from '@states/index';
+import { BrokerState, GlobalState } from '@states/index';
 
 export const Header = () => {
-  const { isLoggedIn, apiKey, isTestnet } = BybitState();
-  const { isSettingsOpen, setIsSettingsOpen } = GlobalState();
+  const { apiKey, isTestnet } = BrokerState();
+  const { isLoggedIn, isSettingsOpen, setIsSettingsOpen } = GlobalState();
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between mb-4">
       {isLoggedIn ? (
         <>
           <Chip label={`${isTestnet ? '🚧' : '🟢'} ${apiKey.substring(0, 4)}*******${apiKey.substring(11)}`} />

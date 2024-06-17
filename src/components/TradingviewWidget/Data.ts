@@ -10,17 +10,15 @@ const defaultConfiguration = {
 };
 
 class CustomDatafeed {
-  data: any[];
-
-  constructor(data) {
-    this.data = data;
-  }
+  // constructor() {
+  // this.data = data;
+  // }
 
   onReady(callback) {
     setTimeout(() => callback(defaultConfiguration), 0);
   }
 
-  resolveSymbol(symbolName, onSymbolResolvedCallback, onResolveErrorCallback) {
+  resolveSymbol(symbolName, onSymbolResolvedCallback) {
     setTimeout(() => {
       onSymbolResolvedCallback({
         name: symbolName,
@@ -41,33 +39,56 @@ class CustomDatafeed {
     }, 0);
   }
 
-  getBars(symbolInfo, resolution, periodParams, onHistoryCallback, onErrorCallback) {
-    const { from, to } = periodParams;
+  async getBars(symbolInfo, resolution, periodParams, onHistoryCallback, onErrorCallback) {
+    console.log('GET BARS SYMBOL INFO', resolution);
+
     try {
-      const bars = this.data
-        .filter((bar) => bar.time >= from * 1000 && bar.time <= to * 1000)
-        .map((bar) => ({
-          time: bar.time,
-          low: bar.low,
-          high: bar.high,
-          open: bar.open,
-          close: bar.close,
-          volume: bar.volume,
+      // Calculate start and end timestamps based on periodParams
+      const startTimestamp = periodParams.from * 1000; // Convert seconds to milliseconds
+      const endTimestamp = periodParams.to * 1000; // Convert seconds to milliseconds
+
+      // Example URL for Bybit API (adjust according to your actual API endpoint)
+      const apiUrl = `https://api.bybit.com/v5/market/kline?category=linear&symbol=${symbolInfo.ticker}&interval=${resolution}&start=${startTimestamp}&end=${endTimestamp}`;
+
+      const response = await fetch(apiUrl);
+      const data = await response.json();
+
+      // Format data according to library requirements
+      let formattedData = [];
+
+      if (data?.result?.list?.length > 0) {
+        formattedData = data.result.list.map((d) => ({
+          time: +d[0], // Convert timestamp to number
+          low: parseFloat(d[3]),
+          high: parseFloat(d[2]),
+          open: parseFloat(d[1]),
+          close: parseFloat(d[4]),
+          volume: +d[5],
         }));
 
-      if (!!this.data?.length) {
-        onHistoryCallback(this.data, { noData: !!this.data?.length });
+        // Sort data by time in ascending order
+        formattedData.sort((a: any, b: any) => a.time - b.time);
+      }
+
+      // Ensure correct amount of data is returned
+      if (formattedData.length < periodParams.countBack) {
+        // Fetch additional earlier bars if available (simulating if necessary)
+        // Example: fetch more data or adjust according to your data source
+      }
+
+      // Return data to TradingView library
+      if (formattedData.length > 0) {
+        onHistoryCallback(formattedData, { noData: false });
       } else {
-        console.log('getBars: No data found');
         onHistoryCallback([], { noData: true });
       }
     } catch (error) {
-      console.log('getBars error:', error);
+      console.error('Error fetching data:', error);
       onErrorCallback(error);
     }
   }
 
-  searchSymbols(userInput: string, exchange: string, symbolType: string, onResult: SearchSymbolsCallback): void {
+  searchSymbols(_userInput: string, _exchange: string, _symbolType: string, onResult: SearchSymbolsCallback): void {
     onResult([
       {
         symbol: 'BTCUSDT.P',
@@ -76,17 +97,29 @@ class CustomDatafeed {
           'https://s3-symbol-logo.tradingview.com/crypto/XTVCBTC.svg',
           'https://s3-symbol-logo.tradingview.com/crypto/XTVCUSDT.svg',
         ],
-        full_name: 'BYBIT:BTCUSDT', // e.g. BTCE:BTCUSD
+        full_name: 'BYBIT:BTCUSDT',
         description: 'BTCUSDT PERPETUAL CONTRACT',
-        exchange: 'BYBIT',
+        exchange: 'bybit',
         ticker: 'BTCUSDT',
-        type: 'crypto', // "futures"/"crypto"/"forex"/"index"
+        type: 'crypto',
+      },
+      {
+        symbol: 'ETHUSDT.P',
+        exchange_logo: 'https://s3-symbol-logo.tradingview.com/provider/bybit.svg',
+        logo_urls: [
+          'https://s3-symbol-logo.tradingview.com/crypto/XTVCETH.svg',
+          'https://s3-symbol-logo.tradingview.com/crypto/XTVCUSDT.svg',
+        ],
+        full_name: 'BYBIT:ETHUSDT',
+        description: 'ETHUSDT PERPETUAL CONTRACT',
+        exchange: 'bybit',
+        ticker: 'ETHUSDT',
+        type: 'crypto',
       },
     ]);
-    // Implement the searchSymbols method here
   }
 
-  subscribeBars(symbolInfo, resolution, onRealtimeCallback, subscribeUID, onResetCacheNeededCallback) {
+  subscribeBars(_symbolInfo, _resolution, _onRealtimeCallback, subscribeUID) {
     console.log('Subscribing bars:', subscribeUID);
   }
 
