@@ -18,9 +18,9 @@ export default defineConfig({
   ],
   build: {
     outDir: 'dist', // Specify the output directory
-    rollupOptions: {
-      external: ['ccxt'],
-    },
+    // rollupOptions: {
+    //   external: ['ccxt'],
+    // },
   },
   server: {
     port: 3000,

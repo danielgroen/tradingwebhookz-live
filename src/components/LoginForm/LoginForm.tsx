@@ -1,5 +1,5 @@
 import { TextField, Button, FormControlLabel, Switch } from '@mui/material';
-import ccxt from 'ccxt';
+import ccxt from '@ccxt';
 import { BrokerState, GlobalState } from '@states/index';
 
 export const LoginForm = () => {
