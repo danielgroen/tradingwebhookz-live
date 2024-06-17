@@ -1,41 +1,41 @@
 import { create } from 'zustand';
 
 interface OrderStateProps {
-  amount: number | null;
-  setAmount: (amount: number | null) => void;
+  amount: string;
+  setAmount: (amount: string) => void;
 
   symbol: string;
   setSymbol: (symbol: string) => void;
 
-  price: number | null;
-  setPrice: (price: number | null) => void;
+  price: string;
+  setPrice: (price: string) => void;
 
-  leverage: number | null;
-  setLeverage: (leverage: number | null) => void;
+  leverage: string;
+  setLeverage: (leverage: string) => void;
 
-  stoploss: number | null;
-  setStoploss: (stoploss: number | null) => void;
+  stopLoss: string;
+  setStopLoss: (stopLoss: string) => void;
 
-  takeProfit: number | null;
-  setTakeProfit: (takeProfit: number | null) => void;
+  takeProfit: string;
+  setTakeProfit: (takeProfit: string) => void;
 }
 
 export const OrderState = create<OrderStateProps>((set) => ({
-  amount: null,
+  amount: '',
   setAmount: (amount) => set({ amount }),
 
   symbol: '',
   setSymbol: (symbol) => set({ symbol }),
 
-  price: null,
+  price: '',
   setPrice: (price) => set({ price }),
 
-  leverage: null,
+  leverage: '',
   setLeverage: (leverage) => set({ leverage }),
 
-  stoploss: null,
-  setStoploss: (stoploss) => set({ stoploss }),
+  stopLoss: '',
+  setStopLoss: (stopLoss) => set({ stopLoss }),
 
-  takeProfit: null,
+  takeProfit: '',
   setTakeProfit: (takeProfit) => set({ takeProfit }),
 }));
