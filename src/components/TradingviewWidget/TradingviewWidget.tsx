@@ -1,24 +1,19 @@
 import { useEffect, useRef } from 'react';
 import './TradingviewWidget.css';
 import { widget, type ChartingLibraryWidgetOptions as WidgetOptions } from 'charting_library';
-import Data from './Data';
+import Datafeed from './Datafeed';
 
 export const TradingviewWidget = () => {
   const chartContainerRef = useRef<HTMLDivElement>() as React.MutableRefObject<HTMLInputElement>;
 
   useEffect(() => {
     const widgetOptions: WidgetOptions = {
-      symbol: 'BTCUSDT',
-
-      // BEWARE: no trailing slash is expected in feed URL
-      // datafeed: new (window as any).Datafeeds.UDFCompatibleDatafeed(datafeed),
-      // datafeed: new (window as any).Datafeeds.UDFCompatibleDatafeed(datafeed),
-      datafeed: new Data(),
+      symbol: 'BTC/USDT',
+      datafeed: Datafeed,
       locale: 'en',
       interval: '60' as WidgetOptions['interval'],
       container: chartContainerRef.current,
       library_path: '/charting_library/',
-      disabled_features: ['use_localstorage_for_settings'],
       charts_storage_url: 'https://saveload.tradingview.com',
       charts_storage_api_version: '1.1',
       client_id: location?.host,
@@ -26,11 +21,11 @@ export const TradingviewWidget = () => {
       autosize: true,
       studies_overrides: {},
       // debug: true,
-      // enabled_features: ['chart_property_page_trading', 'trading_template', 'trading_hotkeys_feature'],
       enabled_features: ['chart_property_page_trading', 'show_exchange_logos', 'show_symbol_logos'],
+      disabled_features: ['items_favoriting', 'header_quick_search', 'header_saveload'],
       theme: 'Dark' as WidgetOptions['theme'],
       overrides: {
-        'trading.paneProperties.legend.trades': true,
+        // 'trading.paneProperties.legend.trades': true,
       },
     };
 
