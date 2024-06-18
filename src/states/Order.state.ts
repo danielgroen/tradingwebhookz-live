@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 
 interface OrderStateProps {
-  amount: string;
-  setAmount: (amount: string) => void;
+  contracts: string;
+  setContracts: (contracts: string) => void;
 
   symbol: string;
   setSymbol: (symbol: string) => void;
@@ -27,8 +27,8 @@ interface OrderStateProps {
 }
 
 export const OrderState = create<OrderStateProps>((set) => ({
-  amount: '',
-  setAmount: (amount) => set({ amount }),
+  contracts: '',
+  setContracts: (contracts) => set({ contracts }),
 
   symbol: 'BTCUSDT',
   setSymbol: (symbol) => set({ symbol }),
