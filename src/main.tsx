@@ -12,6 +12,7 @@ const darkTheme = createTheme({
       default: '#0e1526',
     },
     primary: {
+      // green: '#66bb6a',
       main: '#00b0ff',
     },
   },

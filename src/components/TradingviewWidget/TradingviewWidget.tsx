@@ -7,7 +7,7 @@ import Datafeed from './Datafeed';
 export const TradingviewWidget = () => {
   const chartContainerRef = useRef<HTMLDivElement>() as React.MutableRefObject<HTMLInputElement>;
   const { isLoggedIn, toggleSidebar } = GlobalState();
-  // const { setCollateral } = SettingsState();
+  const { setCollateral } = SettingsState();
   const { setStopLoss, setSymbol, setTakeProfit, setPrice, setRiskReward } = OrderState();
   const [chartWidget, setChartWidget] = useState<any>(null);
   const buttonLongRef = useRef<HTMLButtonElement | null>(null);
@@ -88,6 +88,7 @@ export const TradingviewWidget = () => {
         .onSymbolChanged()
         .subscribe(null, ({ name }) => {
           setSymbol(name);
+          setCollateral(name.split('/')[1]);
         });
     });
 

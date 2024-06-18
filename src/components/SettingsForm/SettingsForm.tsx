@@ -3,6 +3,7 @@ import { SettingsState } from '@states/index';
 
 export const SettingsForm = () => {
   const { risk, setRisk, collateral, setCollateral } = SettingsState();
+
   return (
     <>
       <div>

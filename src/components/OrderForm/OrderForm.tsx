@@ -47,30 +47,30 @@ export const OrderForm = () => {
   } = OrderState();
   const { risk, collateral } = SettingsState();
 
-  const [accountBalance, setAccountBalance] = useState(0);
+  const [accountBalance, setAccountBalance] = useState(null);
   const [potentialProfit, setPotentialProfit] = useState(0);
   const [potentialLoss, setPotentialLoss] = useState(0);
 
   // Poll balance
   useEffect(() => {
-    if (!accountBalance) return;
+    if (!accountBalance || !collateral) return;
 
     const interval = setInterval(async () => {
       const getBalance = await brokerInstance?.fetchBalance();
-      setAccountBalance(getBalance?.USDT?.free || 0);
+      setAccountBalance(getBalance[collateral]?.free || 0);
     }, 1000);
     return () => clearInterval(interval);
-  }, [accountBalance]);
+  }, [accountBalance, collateral]);
 
   // Init get balance
   useEffect(() => {
-    if (!brokerInstance) return;
+    if (!brokerInstance || !collateral) return;
     const fetchData = async () => {
       const getBalance = await brokerInstance?.fetchBalance();
-      setAccountBalance(getBalance?.USDT?.free || 0);
+      setAccountBalance(getBalance[collateral]?.free || 0);
     };
     fetchData();
-  }, [brokerInstance]);
+  }, [brokerInstance, collateral]);
 
   // Calculate position size, leverage, potential profit, and potential loss
   useEffect(() => {
@@ -104,6 +104,8 @@ export const OrderForm = () => {
     else if (+stopLoss < +price || +takeProfit > +price) setDirection('long');
   }, [stopLoss, takeProfit, price]);
 
+  if (accountBalance === 0) return <div>Insufficient balance, try a different collateral than {collateral}</div>;
+
   return (
     <>
       <div>
@@ -123,8 +125,8 @@ export const OrderForm = () => {
           fullWidth
           size="small"
           sx={{ mb: 2 }}
-          label="Order in USDT"
-          InputProps={{ endAdornment: 'USDT' }}
+          label={`Order in ${collateral}`}
+          InputProps={{ endAdornment: collateral }}
         />
         <TextField
           disabled
@@ -168,21 +170,42 @@ export const OrderForm = () => {
           color="success"
           focused
           size="small"
-          sx={{ mb: 1, pl: 0.5, width: '50%' }}
+          sx={{ mb: 2, pl: 0.5, width: '50%' }}
           label="TP"
         />
-        <Typography variant="caption" sx={{ ml: 1 }} className="block">
-          Risk/Reward Ratio: {riskReward}
-        </Typography>
-        <Typography variant="caption" sx={{ ml: 1 }} className="block">
-          Profit: {potentialProfit} {collateral}
-        </Typography>
-        <Typography variant="caption" sx={{ mb: 2, ml: 1 }} className="block">
-          Loss: {potentialLoss} {collateral}
-        </Typography>
+        <div className="flex justify-between">
+          {potentialLoss > 0 && (
+            <Typography variant="caption" sx={{ display: 'block' }}>
+              L:{' '}
+              <Typography variant="caption" color="error">
+                {potentialLoss}
+              </Typography>{' '}
+              {collateral}
+            </Typography>
+          )}
+          {riskReward && (
+            <Typography variant="caption" sx={{ display: 'block' }}>
+              RR:{' '}
+              <Typography variant="caption" color="primary.main">
+                {riskReward}
+              </Typography>
+            </Typography>
+          )}
+          {potentialProfit > 0 && (
+            <Typography variant="caption" sx={{ display: 'block' }}>
+              P:{' '}
+              <Typography variant="caption" color="success.light">
+                {potentialProfit}
+              </Typography>{' '}
+              {collateral}
+            </Typography>
+          )}
+        </div>
       </div>
       <div style={{ marginBottom: 8, marginTop: 'auto' }}>
-        <div>Balance: $ {(+accountBalance)?.toFixed(2)}</div>
+        <div>
+          Balance: {(+accountBalance)?.toFixed(2)} {collateral}
+        </div>
         <div>PNL of current trade: $ 0.00</div>
       </div>
       <Button variant="outlined" fullWidth>
