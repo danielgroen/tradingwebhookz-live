@@ -30,7 +30,7 @@ export const OrderState = create<OrderStateProps>((set) => ({
   qty: '',
   setQty: (qty) => set({ qty }),
 
-  symbol: 'BTCUSDT',
+  symbol: 'BTC/USDT',
   setSymbol: (symbol) => set({ symbol }),
 
   price: '',

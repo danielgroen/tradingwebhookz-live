@@ -22,17 +22,17 @@ async function getAllSymbols() {
   let allSymbols = [];
 
   for (const exchange of configurationData.exchanges) {
-    const pairs = data.Data[exchange.value].pairs;
+    const pairs = data.Data[exchange?.value ?? 'bybit'].pairs;
 
     for (const leftPairPart of Object.keys(pairs)) {
       const symbols = pairs[leftPairPart].map((rightPairPart) => {
-        const symbol = generateSymbol(exchange.value, leftPairPart, rightPairPart);
+        const symbol = generateSymbol(exchange?.value ?? 'bybit', leftPairPart, rightPairPart);
 
         return {
           symbol: symbol.short,
           full_name: symbol.full,
           description: symbol.short,
-          exchange: exchange.value,
+          exchange: exchange?.value ?? 'bybit',
           exchange_logo: 'https://s3-symbol-logo.tradingview.com/provider/bybit.svg',
           type: 'crypto',
           logo_urls: [

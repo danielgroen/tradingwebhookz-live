@@ -46,13 +46,13 @@ export const Header = () => {
               onClick={() => setIsSettingsOpen(false)}
             />
           )}
-          <IoClose style={{ cursor: 'pointer', marginLeft: 12 }} size={24} onClick={() => setShowSidebar(false)} />
         </>
       ) : (
         <Typography variant="h6" className="block">
           Log in
         </Typography>
       )}
+      <IoClose style={{ cursor: 'pointer', marginLeft: 12 }} size={24} onClick={() => setShowSidebar(false)} />
     </div>
   );
 };

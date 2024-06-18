@@ -22,11 +22,12 @@ export const TradingviewWidget = () => {
       if (toolName === 'LineToolRiskRewardShort' || toolName === 'LineToolRiskRewardLong') {
         setTimeout(() => {
           const curDrawingPoints = drawing.getPoints();
-          const props = drawing.getProperties();
+          // const props = drawing.getProperties();
 
           const priceEntry = +curDrawingPoints[0].price;
           const priceTakeProfit = parseFloat(drawing?._source?._profitPriceAxisView?._axisRendererData?.text);
           const priceStopLoss = parseFloat(drawing?._source?._stopPriceAxisView?._axisRendererData?.text);
+          console.log('stoploss', drawing?._source);
 
           const computedRR = (Math.abs(priceEntry - priceTakeProfit) / Math.abs(priceEntry - priceStopLoss)).toFixed(2);
           const getAllDrawings = chartWidget.chart().getAllShapes();

@@ -97,7 +97,10 @@ export const OrderForm = () => {
   }, [stopLoss, takeProfit, price, risk, accountBalance]);
 
   const handlePlaceOrder = async () => {
-    if (!direction || !symbol || !qty || !price || !stopLoss || !takeProfit || !leverage) alert('Fill all fields');
+    if (!direction || !symbol || !qty || !price || !stopLoss || !takeProfit || !leverage) {
+      alert('Fill all fields');
+      return;
+    }
 
     // Set leverage
     try {
@@ -107,25 +110,24 @@ export const OrderForm = () => {
     }
 
     // Place order
-    console.log(parseFloat(stopLoss), parseFloat(takeProfit));
-
     try {
+      const orderDirection = direction === 'long' ? 'buy' : 'sell'; // Adjust for short orders
       const placeOrder = await brokerInstance?.createOrder(
         symbol,
         'limit',
-        direction === 'long' ? 'buy' : 'sell',
+        orderDirection,
         parseFloat(qty) / parseFloat(price),
         parseFloat(price),
         {
           marketUnit: 'quoteCoin',
           stopLoss: {
-            type: 'limit', // or 'market', this field is not necessary if limit price is specified
-            price: parseFloat(stopLoss), // limit price for a limit stop loss order
-            triggerPrice: parseFloat(stopLoss), // stop price for a stop market order
+            type: 'limit',
+            price: parseFloat(stopLoss),
+            triggerPrice: parseFloat(stopLoss),
           },
           takeProfit: {
-            type: 'limit', // please, no limit price for a market take profit order (ignored)
-            price: parseFloat(takeProfit), // this field is not necessary for a market take profit order
+            type: 'limit',
+            price: parseFloat(takeProfit),
             triggerPrice: parseFloat(takeProfit),
           },
         }
@@ -169,17 +171,25 @@ export const OrderForm = () => {
           )}
         </Typography>
         <TextField
-          value={qty}
           fullWidth
           size="small"
-          sx={{ mb: 2 }}
+          value={qty || 0}
+          sx={{ mb: 2, pr: 1, width: '50%', opacity: 0.5 }}
+          label={`Order in ${collateral}`}
+          InputProps={{ endAdornment: collateral }}
+        />
+        <TextField
+          value={(parseFloat(qty) / parseFloat(price) || 0).toFixed(3)}
+          fullWidth
+          size="small"
+          sx={{ mb: 2, pl: 1, width: '50%', opacity: 0.5 }}
           label="Order by qty"
-          InputProps={{ endAdornment: symbol.split(collateral)[0] }}
+          InputProps={{ endAdornment: symbol.split('/')[0] }}
         />
         <TextField
           disabled
           fullWidth
-          value={symbol}
+          value={symbol.replaceAll('/', '')}
           size="small"
           sx={{ mb: 2, pr: 1, width: '50%', opacity: 0.5 }}
           label="Symbol"
@@ -222,11 +232,11 @@ export const OrderForm = () => {
           label="TP"
         />
         <div className="flex justify-between">
-          {potentialLoss > 0 && (
+          {potentialLoss !== 0 && (
             <Typography variant="caption" sx={{ display: 'block' }}>
               L:{' '}
               <Typography variant="caption" color="error">
-                {potentialLoss}
+                {-Math.abs(potentialLoss).toFixed(2)}
               </Typography>{' '}
               {collateral}
             </Typography>
@@ -239,11 +249,11 @@ export const OrderForm = () => {
               </Typography>
             </Typography>
           )}
-          {potentialProfit > 0 && (
+          {potentialProfit !== 0 && (
             <Typography variant="caption" sx={{ display: 'block' }}>
               P:{' '}
               <Typography variant="caption" color="success.light">
-                {potentialProfit}
+                {Math.abs(potentialProfit).toFixed(2)}
               </Typography>{' '}
               {collateral}
             </Typography>
@@ -256,7 +266,12 @@ export const OrderForm = () => {
         </div>
         <div>PNL of current trade: $ 0.00</div>
       </div>
-      <Button onClick={handlePlaceOrder} disabled={!accountBalance} variant="outlined" fullWidth>
+      <Button
+        //onClick={handlePlaceOrder}\
+        disabled={!accountBalance}
+        variant="outlined"
+        fullWidth
+      >
         Place order
       </Button>
     </>
