@@ -3,6 +3,9 @@
   [ ] if ajusting "order in usdt" field, the rest should update
   [ ] if ajusting "order in btc" field, the rest should update
 
+[ ] place more notifications
+  [ ] e.d: fetch balance doesnt have one yet
+
 [ ] split up orderform: 
   - calculations (utils)
   - orderform

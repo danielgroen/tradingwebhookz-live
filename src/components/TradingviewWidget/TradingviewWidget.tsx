@@ -1,6 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import './TradingviewWidget.css';
-import { widget, type ChartingLibraryWidgetOptions as WidgetOptions } from 'charting_library';
+import {
+  widget,
+  type ChartingLibraryWidgetOptions as WidgetOptions,
+  type IChartingLibraryWidget,
+} from 'charting_library';
+import { enqueueSnackbar } from 'notistack';
 import { GlobalState, OrderState, SettingsState } from '@states/index';
 import Datafeed from './Datafeed';
 
@@ -14,7 +19,7 @@ export const TradingviewWidget = () => {
   const buttonTradingPanelRef = useRef<HTMLButtonElement | null>(null);
   const buttonShortRef = useRef<HTMLButtonElement | null>(null);
 
-  const handleDrawingEvent = async (drawingId: string, eventName: any, chartWidget: any) => {
+  const handleDrawingEvent = async (drawingId: string, eventName: any, chartWidget: IChartingLibraryWidget) => {
     try {
       const drawing = chartWidget.chart()?.getShapeById(drawingId);
       const toolName = drawing?._source?.toolname;
@@ -29,6 +34,12 @@ export const TradingviewWidget = () => {
           const priceStopLoss = parseFloat(drawing?._source?._stopPriceAxisView?._axisRendererData?.text);
           const computedRR = (Math.abs(priceEntry - priceTakeProfit) / Math.abs(priceEntry - priceStopLoss)).toFixed(2);
           const getAllDrawings = chartWidget.chart().getAllShapes();
+
+          // TODO: add a check if the long order is place below the current price & short order above
+          // enqueueSnackbar('helloowz!', {
+          //   variant: 'warning',
+          //   autoHideDuration: 2000,
+          // });
 
           const result = getAllDrawings
             .filter(({ name }) => name === 'long_position' || name === 'short_position')
