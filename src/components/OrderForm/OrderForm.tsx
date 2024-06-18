@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Box, TextField, Typography, Button, Chip, CircularProgress } from '@mui/material';
+import { Alert, Box, TextField, Typography, Button, Chip, CircularProgress } from '@mui/material';
 import { BrokerState, OrderState, SettingsState } from '@states/index';
 
 // Calculation functions
@@ -104,7 +104,7 @@ export const OrderForm = () => {
 
     // Set leverage
     try {
-      await brokerInstance?.setLeverage(parseFloat(leverage), symbol);
+      await brokerInstance?.setLeverage(parseFloat(leverage), symbol.replaceAll('/', ''));
     } catch (error) {
       console.log(error);
     }
@@ -113,7 +113,7 @@ export const OrderForm = () => {
     try {
       const orderDirection = direction === 'long' ? 'buy' : 'sell'; // Adjust for short orders
       const placeOrder = await brokerInstance?.createOrder(
-        symbol,
+        symbol.replaceAll('/', ''),
         'limit',
         orderDirection,
         parseFloat(qty) / parseFloat(price),
@@ -260,18 +260,20 @@ export const OrderForm = () => {
           )}
         </div>
       </div>
+      <Alert severity="error" sx={{ mb: 2 }}>
+        TODO:: error if trade was unsuccessfull
+      </Alert>
+      <Alert severity="warning" sx={{ mb: 2 }}>
+        TODO:: warning if user can get liquidated with current trade
+      </Alert>
       <div style={{ marginBottom: 8, marginTop: 'auto' }}>
         <div>
           Balance: {(+accountBalance)?.toFixed(2)} {collateral}
         </div>
         <div>PNL of current trade: $ 0.00</div>
       </div>
-      <Button
-        //onClick={handlePlaceOrder}\
-        disabled={!accountBalance}
-        variant="outlined"
-        fullWidth
-      >
+
+      <Button onClick={handlePlaceOrder} disabled={!accountBalance} variant="outlined" fullWidth>
         Place order
       </Button>
     </>
