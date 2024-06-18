@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import './TradingviewWidget.css';
 import { widget, type ChartingLibraryWidgetOptions as WidgetOptions } from 'charting_library';
-import { GlobalState, OrderState } from '@states/index';
+import { GlobalState, OrderState, SettingsState } from '@states/index';
 import Datafeed from './Datafeed';
 
 export const TradingviewWidget = () => {
   const chartContainerRef = useRef<HTMLDivElement>() as React.MutableRefObject<HTMLInputElement>;
   const { isLoggedIn, toggleSidebar } = GlobalState();
-  const { setStopLoss, setTakeProfit, setPrice } = OrderState();
+  // const { setCollateral } = SettingsState();
+  const { setStopLoss, setSymbol, setTakeProfit, setPrice, setRiskReward } = OrderState();
   const [chartWidget, setChartWidget] = useState<any>(null);
   const buttonLongRef = useRef<HTMLButtonElement | null>(null);
   const buttonTradingPanelRef = useRef<HTMLButtonElement | null>(null);
@@ -19,22 +20,30 @@ export const TradingviewWidget = () => {
       const toolName = drawing?._source?.toolname;
 
       if (toolName === 'LineToolRiskRewardShort' || toolName === 'LineToolRiskRewardLong') {
-        const curDrawingPoints = drawing.getPoints();
-        const curPrice = curDrawingPoints[0].price;
+        setTimeout(() => {
+          const curDrawingPoints = drawing.getPoints();
+          const props = drawing.getProperties();
 
-        const getAllDrawings = chartWidget.chart().getAllShapes();
+          const priceEntry = +curDrawingPoints[0].price;
+          const priceTakeProfit = parseFloat(drawing?._source?._profitPriceAxisView?._axisRendererData?.text);
+          const priceStopLoss = parseFloat(drawing?._source?._stopPriceAxisView?._axisRendererData?.text);
 
-        const result = getAllDrawings
-          .filter(({ name }) => name === 'long_position' || name === 'short_position')
-          .map((drawing) => drawing.id);
+          const computedRR = (Math.abs(priceEntry - priceTakeProfit) / Math.abs(priceEntry - priceStopLoss)).toFixed(2);
+          const getAllDrawings = chartWidget.chart().getAllShapes();
 
-        result.pop();
+          const result = getAllDrawings
+            .filter(({ name }) => name === 'long_position' || name === 'short_position')
+            .map((drawing) => drawing.id);
 
-        [...result].forEach((id) => chartWidget.chart().removeEntity(id));
+          result.pop();
 
-        setPrice(`${curPrice}`);
-        setTakeProfit(`${drawing?._source?._profitPriceAxisView?._axisRendererData?.text}`);
-        setStopLoss(`${drawing?._source?._stopPriceAxisView?._axisRendererData?.text}`);
+          [...result].forEach((id) => chartWidget.chart().removeEntity(id));
+
+          setRiskReward(`${computedRR}`.replace('.', ':'));
+          setPrice(`${priceEntry}`);
+          setTakeProfit(`${priceTakeProfit}`);
+          setStopLoss(`${priceStopLoss}`);
+        }, 0);
       }
     } catch (error) {}
   };
@@ -53,14 +62,11 @@ export const TradingviewWidget = () => {
       user_id: 'tradingmaestro12',
       autosize: true,
       studies_overrides: {},
-      debug: true,
+      // debug: true,
       drawings_access: { type: 'black', tools: [{ name: 'Long Position' }, { name: 'Short Position' }] },
       enabled_features: ['chart_property_page_trading', 'show_exchange_logos', 'show_symbol_logos'],
-      disabled_features: ['items_favoriting', 'header_quick_search', 'header_saveload'],
+      disabled_features: ['items_favoriting', 'header_quick_search', 'header_saveload', 'popup_hints'],
       theme: 'Dark' as WidgetOptions['theme'],
-      overrides: {
-        // 'trading.paneProperties.legend.trades': true,
-      },
     };
 
     const chartWidgetInstance = new widget(widgetOptions);
@@ -76,6 +82,13 @@ export const TradingviewWidget = () => {
         if (buttonLongRef.current) buttonLongRef.current.style.color = 'inherit';
         if (buttonShortRef.current) buttonShortRef.current.style.color = 'inherit';
       });
+
+      chartWidgetInstance
+        .activeChart()
+        .onSymbolChanged()
+        .subscribe(null, ({ name }) => {
+          setSymbol(name);
+        });
     });
 
     return () => {
@@ -93,7 +106,6 @@ export const TradingviewWidget = () => {
         buttonTradingPanel.classList.add('apply-common-tooltip', 'tv-header-toolbar__button');
         buttonTradingPanel.addEventListener('click', () => {
           toggleSidebar();
-          console.log(buttonTradingPanel.style.color);
 
           if (buttonTradingPanel.style.color === '') {
             buttonTradingPanel.style.color = '#2962ff';

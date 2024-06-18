@@ -1,4 +1,4 @@
-import { TextField, Button, FormControlLabel, Switch } from '@mui/material';
+import { TextField, Button, FormControlLabel, Switch, Typography, Link } from '@mui/material';
 import ccxt from '@ccxt';
 import { BrokerState, GlobalState } from '@states/index';
 
@@ -29,17 +29,24 @@ export const LoginForm = () => {
         type="password"
         fullWidth
         size="small"
-        sx={{ mb: 2 }}
+        sx={{ mb: 1 }}
         label="bybit api secret"
       />
       <FormControlLabel
-        sx={{ mb: 2 }}
+        sx={{ mb: 4, mr: 0 }}
         control={<Switch checked={isTestnet} onChange={() => setIsTestnet(!isTestnet)} />}
-        label="🚧 Testnet"
+        label="Testnet"
+        labelPlacement="start"
       />
-      <Button variant="outlined" sx={{ mb: 2 }} fullWidth onClick={handleLogin}>
+      <Button variant="outlined" sx={{ mb: 1, mt: 'auto' }} fullWidth onClick={handleLogin}>
         Login
       </Button>
+      <Typography variant="caption" sx={{ ml: 1 }}>
+        Or register an account at{' '}
+        <Link href="https://www.bybit.com/invite?ref=GDRBYQD" target="_blank">
+          Bybit
+        </Link>
+      </Typography>
     </>
   );
 };

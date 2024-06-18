@@ -18,7 +18,6 @@ const lastBarsCache = new Map();
 // Obtains all symbols for all exchanges supported by CryptoCompare API
 async function getAllSymbols() {
   const data = await makeApiRequest('data/v3/all/exchanges');
-  console.log(data);
 
   let allSymbols = [];
 

@@ -21,13 +21,16 @@ interface OrderStateProps {
 
   direction: 'long' | 'short' | null;
   setDirection: (direction: 'long' | 'short' | null) => void;
+
+  riskReward: string;
+  setRiskReward: (riskReward: string) => void;
 }
 
 export const OrderState = create<OrderStateProps>((set) => ({
   amount: '',
   setAmount: (amount) => set({ amount }),
 
-  symbol: '',
+  symbol: 'BTCUSDT',
   setSymbol: (symbol) => set({ symbol }),
 
   price: '',
@@ -44,4 +47,7 @@ export const OrderState = create<OrderStateProps>((set) => ({
 
   direction: null,
   setDirection: (direction) => set({ direction }),
+
+  riskReward: '',
+  setRiskReward: (riskReward) => set({ riskReward }),
 }));

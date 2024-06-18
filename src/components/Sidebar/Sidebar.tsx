@@ -8,10 +8,12 @@ export const Sidebar = () => {
   return (
     <div
       style={{
-        width: showSidebar ? '400px' : '0px',
-        display: 'flex',
+        display: showSidebar ? 'flex' : 'none',
+        width: '315px',
+        minWidth: '315px',
         height: '100vh',
         flexDirection: 'column',
+        boxShadow: '0 0 10px rgba(0, 0, 0, 0.5)',
       }}
     >
       <Box sx={{ flexGrow: 1, display: 'flex', p: 2, flexDirection: 'column' }}>
