@@ -18,6 +18,9 @@ interface OrderStateProps {
 
   takeProfit: string;
   setTakeProfit: (takeProfit: string) => void;
+
+  direction: 'long' | 'short' | null;
+  setDirection: (direction: 'long' | 'short' | null) => void;
 }
 
 export const OrderState = create<OrderStateProps>((set) => ({
@@ -38,4 +41,7 @@ export const OrderState = create<OrderStateProps>((set) => ({
 
   takeProfit: '',
   setTakeProfit: (takeProfit) => set({ takeProfit }),
+
+  direction: null,
+  setDirection: (direction) => set({ direction }),
 }));

@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { TextField, Typography, Button } from '@mui/material';
+import { TextField, Typography, Button, Chip } from '@mui/material';
 import { BrokerState, OrderState } from '@states/index';
 
 // https://docs.ccxt.com/#/exchanges/bybit
 export const OrderForm = () => {
   const { brokerInstance } = BrokerState();
-  const { stopLoss, setStopLoss, takeProfit, setTakeProfit, price, setPrice } = OrderState();
+  const { stopLoss, setStopLoss, takeProfit, setTakeProfit, price, setPrice, setDirection, direction } = OrderState();
 
   const [balance, setBalance] = useState(0);
 
@@ -33,11 +33,25 @@ export const OrderForm = () => {
     fetchData();
   }, [brokerInstance]);
 
+  useEffect(() => {
+    if (stopLoss === '' && takeProfit === '') setDirection(null);
+    else if (+stopLoss > +price || +takeProfit < +price) setDirection('short');
+    else if (+stopLoss < +price || +takeProfit > +price) setDirection('long');
+  }, [stopLoss, takeProfit, price]);
+
   return (
     <>
       <div>
         <Typography variant="h6" sx={{ mb: 2 }} className="block">
           Place order
+          {direction && (
+            <Chip
+              sx={{ ml: 1, opacity: 0.9 }}
+              color={direction === 'long' ? 'success' : 'error'}
+              size="small"
+              label={direction}
+            />
+          )}
         </Typography>
         <TextField fullWidth size="small" sx={{ mb: 2 }} label="Amount" InputProps={{ endAdornment: 'contracts' }} />
         <TextField fullWidth size="small" sx={{ mb: 2 }} label="Symbol" />
