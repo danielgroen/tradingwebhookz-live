@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { TextField, Button, FormControlLabel, Switch, Typography, Link, Checkbox } from '@mui/material';
-import ccxt from 'ccxt';
 import { enqueueSnackbar } from 'notistack';
+import ccxt from '@ccxt';
 import { GlobalState, BrokerState } from '@states/index'; // Adjust the import based on your project structure
 
 export const LoginForm = () => {

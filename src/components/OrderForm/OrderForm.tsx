@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, Box, TextField, Typography, Button, Chip, CircularProgress } from '@mui/material';
+import { Box, TextField, Typography, Button, Chip, CircularProgress } from '@mui/material';
 import { enqueueSnackbar } from 'notistack';
 import { BrokerState, OrderState, SettingsState } from '@states/index';
 
