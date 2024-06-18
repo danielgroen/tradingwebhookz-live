@@ -1,0 +1,22 @@
+{
+  "name": "Tradingwebhookz",
+  "short_name": "Twh",
+  "description": "Tradingwebhookz",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/<generated>"
+    },
+    {
+      "src": "/apple-icon.png",
+      "sizes": "any",
+      "type": "image/<generated>"
+    }
+  ],
+  "theme_color": "#FFFFFF",
+  "background_color": "#FFFFFF",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait"
+}
