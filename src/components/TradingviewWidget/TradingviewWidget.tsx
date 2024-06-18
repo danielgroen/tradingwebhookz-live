@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import './TradingviewWidget.css';
 import { widget, type ChartingLibraryWidgetOptions as WidgetOptions } from 'charting_library';
 import { GlobalState, OrderState, BrokerState } from '@states/index';
@@ -9,6 +9,33 @@ export const TradingviewWidget = () => {
   const { isLoggedIn } = GlobalState();
   const { setStopLoss, setTakeProfit, setPrice } = OrderState();
   const { brokerInstance } = BrokerState();
+
+  const handleDrawingEvent = async (drawingId: string, eventName: any, chartWidget: any) => {
+    try {
+      const drawing = chartWidget.chart()?.getShapeById(drawingId);
+      const toolName = drawing?._source?.toolname;
+
+      if (toolName === 'LineToolRiskRewardShort' || toolName === 'LineToolRiskRewardLong') {
+        const curDrawingPoints = drawing.getPoints();
+        const curPrice = curDrawingPoints[0].price;
+
+        const getAllDrawings = chartWidget.chart().getAllShapes();
+
+        const result = getAllDrawings
+          .filter(({ name }) => name === 'long_position' || name === 'short_position')
+          .map((drawing) => drawing.id);
+
+        result.pop();
+
+        [...result].forEach((id) => chartWidget.chart().removeEntity(id));
+
+        // if (!isLoggedIn) return;
+        setPrice(`${curPrice}`);
+        setTakeProfit(`${drawing?._source?._profitPriceAxisView?._axisRendererData?.text}`);
+        setStopLoss(`${drawing?._source?._stopPriceAxisView?._axisRendererData?.text}`);
+      }
+    } catch (error) {}
+  };
 
   useEffect(() => {
     const widgetOptions: WidgetOptions = {
@@ -56,36 +83,16 @@ export const TradingviewWidget = () => {
         buttonShort.style.color = '#2962ff';
         chartWidget.selectLineTool('short_position');
       });
-    });
 
-    chartWidget.subscribe('drawing_event', async (drawingId) => {
-      // if (!isLoggedIn) return;
+      chartWidget.subscribe('drawing_event', (drawingId, eventName) => {
+        handleDrawingEvent(drawingId, eventName, chartWidget);
+      });
 
-      const drawing = chartWidget.chart().getShapeById(drawingId);
-      const toolName = drawing?._source?.toolname;
-
-      // TODO:: remember drawingID so if we draw a new long/short pos we remove the older one
-      // Don't forget to add the watcher in the useEffect array
-      // chartWidget.chart().removeEntity(drawingId);
-
-      if (toolName === 'LineToolRiskRewardShort' || toolName === 'LineToolRiskRewardLong') {
-        const curDrawingPoints = drawing.getPoints();
-        const curPrice = curDrawingPoints[0].price;
-        const { profitLevel, stopLevel } = drawing.getProperties();
-
-        console.log(drawing);
-
-        // const getTickSize = await brokerInstance?.fetchTicker('BTC/USDT');
-        // console.log(123123123, getTickSize);
-
-        // const realStopLoss = curPrice - tickSize * stopLevel;
-        // const realTakeProfit = curPrice + tickSize * profitLevel;
-
-        setPrice(`${curPrice}`);
-        // TODO:: change tickers to the price of the current symbol
-        setTakeProfit(`${drawing?._source?._profitPriceAxisView?._axisRendererData?.text}`);
-        setStopLoss(`${drawing?._source?._stopPriceAxisView?._axisRendererData?.text}`);
-      }
+      chartWidget.subscribe('drawing', (drawingId) => {
+        console.log('drawing', drawingId);
+        buttonLong.style.color = 'inherit';
+        buttonShort.style.color = 'inherit';
+      });
     });
 
     return () => {
