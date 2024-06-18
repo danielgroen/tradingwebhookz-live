@@ -17,7 +17,7 @@ export const SettingsForm = () => {
           sx={{ mb: 2, pr: 1, width: '50%' }}
           inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
           InputProps={{ endAdornment: '%' }}
-          label="risk"
+          label="Max risk"
         />
         <TextField
           value={collateral}

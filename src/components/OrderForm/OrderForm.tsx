@@ -3,8 +3,9 @@ import { TextField, Typography, Button, Chip } from '@mui/material';
 import { BrokerState, OrderState, SettingsState } from '@states/index';
 
 // Calculation functions
+// Calculation functions
 const calculatePositionSize = (initialInvestment, risk, entryPrice, stopLossPrice) => {
-  const positionSize = (initialInvestment * risk) / (entryPrice - stopLossPrice);
+  const positionSize = (initialInvestment * risk) / Math.abs(entryPrice - stopLossPrice);
   return positionSize;
 };
 
