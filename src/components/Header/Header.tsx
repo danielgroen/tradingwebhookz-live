@@ -18,7 +18,10 @@ export const Header = () => {
   };
 
   return (
-    <div className="flex items-center justify-between mb-6">
+    <div
+      className="flex items-center justify-between mb-8 pb-4"
+      style={{ borderBottom: '1px solid rgba(43, 58, 96, 0.54)' }}
+    >
       {isLoggedIn ? (
         <>
           <Chip label={`${isTestnet ? '🚧' : '🟢'} ${apiKey.substring(0, 4)}*******${apiKey.substring(11)}`} />

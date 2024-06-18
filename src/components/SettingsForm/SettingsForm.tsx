@@ -26,6 +26,7 @@ export const SettingsForm = () => {
           size="small"
           sx={{ mb: 2, pl: 0.5, width: '50%' }}
           label="Collateral"
+          disabled
         />
         <TextField value="0.02%" disabled size="small" sx={{ mb: 2, pr: 1, width: '50%' }} label="Fees" />
       </div>
