@@ -1,8 +1,9 @@
 import { Typography, TextField } from '@mui/material';
+import { enqueueSnackbar } from 'notistack';
 import { SettingsState } from '@states/index';
 
 export const SettingsForm = () => {
-  const { risk, setRisk, collateral, setCollateral } = SettingsState();
+  const { risk, setRisk, collateral, setCollateral, orderbook, setOrderbook } = SettingsState();
 
   return (
     <>
@@ -29,6 +30,20 @@ export const SettingsForm = () => {
           disabled
         />
         <TextField value="0.02%" disabled size="small" sx={{ mb: 2, pr: 1, width: '50%' }} label="Fees" />
+        <TextField
+          value={orderbook}
+          onChange={(e) => setOrderbook(e.target.value)}
+          onBlur={(e) => {
+            enqueueSnackbar(`Saved in your local storage`, {
+              variant: 'info',
+              autoHideDuration: 2000,
+            });
+          }}
+          size="small"
+          // sx={{ mb: 2, pl: 0.5, width: '50%' }}
+          label="Link to your orderbook"
+          InputProps={{ startAdornment: 'https://' }}
+        />
       </div>
     </>
   );

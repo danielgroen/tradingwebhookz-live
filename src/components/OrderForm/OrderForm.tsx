@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Alert, Box, TextField, Typography, Button, Chip, CircularProgress } from '@mui/material';
+import { enqueueSnackbar } from 'notistack';
 import { BrokerState, OrderState, SettingsState } from '@states/index';
 
-// Calculation functions
 // Calculation functions
 const calculatePositionSize = (initialInvestment, risk, entryPrice, stopLossPrice) => {
   const positionSize = (initialInvestment * risk) / Math.abs(entryPrice - stopLossPrice);
@@ -104,13 +104,27 @@ export const OrderForm = () => {
 
     // Set leverage
     try {
-      await brokerInstance?.setLeverage(parseFloat(leverage), symbol.replaceAll('/', ''));
+      const result = await brokerInstance?.fetchLeverage(symbol.replaceAll('/', ''));
+      const { leverage: ApiLeverage, contracts: minimumContracts } = result?.info;
+
+      if (ApiLeverage !== +leverage) {
+        await brokerInstance?.setLeverage(parseFloat(leverage), symbol.replaceAll('/', ''));
+        enqueueSnackbar(`New Leverage: ${leverage}`, {
+          variant: 'info',
+          autoHideDuration: 2000,
+        });
+      }
     } catch (error) {
       console.log(error);
+      enqueueSnackbar(`${error}`, {
+        variant: 'error',
+      });
     }
 
     // Place order
     try {
+      console.log(parseFloat(qty) / parseFloat(price));
+
       const orderDirection = direction === 'long' ? 'buy' : 'sell'; // Adjust for short orders
       const placeOrder = await brokerInstance?.createOrder(
         symbol.replaceAll('/', ''),
@@ -132,8 +146,16 @@ export const OrderForm = () => {
           },
         }
       );
+      enqueueSnackbar(`New order placed: `, {
+        variant: 'success',
+        autoHideDuration: 2000,
+      });
       console.log(placeOrder);
     } catch (error) {
+      enqueueSnackbar(`${error}`, {
+        variant: 'error',
+        autoHideDuration: 6000,
+      });
       console.log(error);
     }
   };
@@ -147,6 +169,7 @@ export const OrderForm = () => {
   }, [stopLoss, takeProfit, price]);
 
   if (accountBalance === 0) return <div>Insufficient balance, try a different collateral than {collateral}</div>;
+
   if (!accountBalance)
     return (
       <Box sx={{ alignSelf: 'center', mt: 'auto', mb: 'auto' }}>
@@ -174,7 +197,7 @@ export const OrderForm = () => {
           fullWidth
           size="small"
           value={qty || 0}
-          sx={{ mb: 2, pr: 1, width: '50%', opacity: 0.5 }}
+          sx={{ mb: 2, pr: 1, width: '50%' }}
           label={`Order in ${collateral}`}
           InputProps={{ endAdornment: collateral }}
         />
@@ -182,7 +205,7 @@ export const OrderForm = () => {
           value={(parseFloat(qty) / parseFloat(price) || 0).toFixed(3)}
           fullWidth
           size="small"
-          sx={{ mb: 2, pl: 1, width: '50%', opacity: 0.5 }}
+          sx={{ mb: 2, pl: 1, width: '50%' }}
           label="Order by qty"
           InputProps={{ endAdornment: symbol.split('/')[0] }}
         />
@@ -260,12 +283,6 @@ export const OrderForm = () => {
           )}
         </div>
       </div>
-      <Alert severity="error" sx={{ mb: 2 }}>
-        TODO:: error if trade was unsuccessfull
-      </Alert>
-      <Alert severity="warning" sx={{ mb: 2 }}>
-        TODO:: warning if user can get liquidated with current trade
-      </Alert>
       <div style={{ marginBottom: 8, marginTop: 'auto' }}>
         <div>
           Balance: {(+accountBalance)?.toFixed(2)} {collateral}

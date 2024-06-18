@@ -1,0 +1,26 @@
+[ ] make order by qty computed in zustand
+  [ ] get minimum contracts out of bybit api
+  [ ] if ajusting "order in usdt" field, the rest should update
+  [ ] if ajusting "order in btc" field, the rest should update
+
+[ ] split up orderform: 
+  - calculations (utils)
+  - orderform
+  - orderform.hooks
+  - submitform
+
+[ ] try to calculate max leverage instead of min leverage instead
+  [ ] never go beyond max leverage so user can get liquidated
+  [ ] Take fees in consitherations
+  [ ] make sure to never go beyond max leverage
+
+[ ] make "pnl of current trade" work
+[ ] make option to disable auto leverage calculation
+
+[ ] fix live data-feed from bybit
+
+--- FUTURE
+
+[ ] Plot previous trades on chart
+[ ] plot current trade on chart
+[ ] disable context menu popup of long/short order drawing

@@ -1,6 +1,7 @@
 import React from 'react';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { SnackbarProvider } from 'notistack';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 
@@ -12,7 +13,6 @@ const darkTheme = createTheme({
       default: '#0e1526',
     },
     primary: {
-      // green: '#66bb6a',
       main: '#00b0ff',
     },
   },
@@ -21,9 +21,11 @@ const darkTheme = createTheme({
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ThemeProvider theme={darkTheme}>
-      <CssBaseline />
+      <SnackbarProvider preventDuplicate autoHideDuration={8000}>
+        <CssBaseline />
 
-      <App />
+        <App />
+      </SnackbarProvider>
     </ThemeProvider>
   </React.StrictMode>
 );
