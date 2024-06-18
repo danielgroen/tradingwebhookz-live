@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { TextField, Typography, Button, Chip } from '@mui/material';
+import { Box, TextField, Typography, Button, Chip, CircularProgress } from '@mui/material';
 import { BrokerState, OrderState, SettingsState } from '@states/index';
 
 // Calculation functions
@@ -9,13 +9,13 @@ const calculatePositionSize = (initialInvestment, risk, entryPrice, stopLossPric
   return positionSize;
 };
 
-const calculateContracts = (positionSize, entryPrice) => {
+const calculate = (positionSize, entryPrice) => {
   return positionSize * entryPrice;
 };
 
-const calculateLeverage = (contracts, accountBalance) => {
-  if (contracts <= accountBalance) return 1;
-  return contracts / accountBalance;
+const calculateLeverage = (qty, accountBalance) => {
+  if (qty <= accountBalance) return 1;
+  return qty / accountBalance;
 };
 
 const calculatePotentialProfit = (takeProfitPrice, entryPrice, positionSize) => {
@@ -40,8 +40,8 @@ export const OrderForm = () => {
     symbol,
     riskReward,
     setRiskReward,
-    contracts,
-    setContracts,
+    qty,
+    setQty,
     leverage,
     setLeverage,
   } = OrderState();
@@ -83,10 +83,10 @@ export const OrderForm = () => {
     const riskPercentage = parseFloat(risk) / 100;
 
     const positionSize = calculatePositionSize(initialInvestment, riskPercentage, entryPrice, stopLossPrice);
-    const _contracts = calculateContracts(positionSize, entryPrice);
-    const _leverage = calculateLeverage(_contracts, accountBalance);
+    const _qty = calculate(positionSize, entryPrice);
+    const _leverage = calculateLeverage(_qty, accountBalance);
 
-    setContracts(_contracts.toFixed(2));
+    setQty(_qty.toFixed(2));
     setLeverage(_leverage.toFixed(2));
 
     const _potentialProfit = calculatePotentialProfit(takeProfitPrice, entryPrice, positionSize);
@@ -95,6 +95,46 @@ export const OrderForm = () => {
     setPotentialProfit(_potentialProfit.toFixed(2));
     setPotentialLoss(_potentialLoss.toFixed(2));
   }, [stopLoss, takeProfit, price, risk, accountBalance]);
+
+  const handlePlaceOrder = async () => {
+    if (!direction || !symbol || !qty || !price || !stopLoss || !takeProfit || !leverage) alert('Fill all fields');
+
+    // Set leverage
+    try {
+      await brokerInstance?.setLeverage(parseFloat(leverage), symbol);
+    } catch (error) {
+      console.log(error);
+    }
+
+    // Place order
+    console.log(parseFloat(stopLoss), parseFloat(takeProfit));
+
+    try {
+      const placeOrder = await brokerInstance?.createOrder(
+        symbol,
+        'limit',
+        direction === 'long' ? 'buy' : 'sell',
+        parseFloat(qty) / parseFloat(price),
+        parseFloat(price),
+        {
+          marketUnit: 'quoteCoin',
+          stopLoss: {
+            type: 'limit', // or 'market', this field is not necessary if limit price is specified
+            price: parseFloat(stopLoss), // limit price for a limit stop loss order
+            triggerPrice: parseFloat(stopLoss), // stop price for a stop market order
+          },
+          takeProfit: {
+            type: 'limit', // please, no limit price for a market take profit order (ignored)
+            price: parseFloat(takeProfit), // this field is not necessary for a market take profit order
+            triggerPrice: parseFloat(takeProfit),
+          },
+        }
+      );
+      console.log(placeOrder);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     if (stopLoss === '' && takeProfit === '') {
@@ -105,6 +145,14 @@ export const OrderForm = () => {
   }, [stopLoss, takeProfit, price]);
 
   if (accountBalance === 0) return <div>Insufficient balance, try a different collateral than {collateral}</div>;
+  if (!accountBalance)
+    return (
+      <Box sx={{ alignSelf: 'center', mt: 'auto', mb: 'auto' }}>
+        <Typography variant="h6" sx={{ mb: 2, opacity: 0.7 }} className="inline">
+          <CircularProgress size={20} sx={{ mr: 1, mb: -0.5 }} />
+        </Typography>
+      </Box>
+    );
 
   return (
     <>
@@ -121,12 +169,12 @@ export const OrderForm = () => {
           )}
         </Typography>
         <TextField
-          value={contracts}
+          value={qty}
           fullWidth
           size="small"
           sx={{ mb: 2 }}
-          label={`Order in ${collateral}`}
-          InputProps={{ endAdornment: collateral }}
+          label="Order by qty"
+          InputProps={{ endAdornment: symbol.split(collateral)[0] }}
         />
         <TextField
           disabled
@@ -208,7 +256,7 @@ export const OrderForm = () => {
         </div>
         <div>PNL of current trade: $ 0.00</div>
       </div>
-      <Button variant="outlined" fullWidth>
+      <Button onClick={handlePlaceOrder} disabled={!accountBalance} variant="outlined" fullWidth>
         Place order
       </Button>
     </>
