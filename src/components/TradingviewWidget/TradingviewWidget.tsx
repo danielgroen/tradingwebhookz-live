@@ -9,6 +9,9 @@ export const TradingviewWidget = () => {
   const { isLoggedIn } = GlobalState();
   const { setStopLoss, setTakeProfit, setPrice } = OrderState();
   const { brokerInstance } = BrokerState();
+  const [chartWidget, setChartWidget] = useState<any>(null);
+  const buttonLongRef = useRef<HTMLButtonElement | null>(null);
+  const buttonShortRef = useRef<HTMLButtonElement | null>(null);
 
   const handleDrawingEvent = async (drawingId: string, eventName: any, chartWidget: any) => {
     try {
@@ -29,7 +32,6 @@ export const TradingviewWidget = () => {
 
         [...result].forEach((id) => chartWidget.chart().removeEntity(id));
 
-        // if (!isLoggedIn) return;
         setPrice(`${curPrice}`);
         setTakeProfit(`${drawing?._source?._profitPriceAxisView?._axisRendererData?.text}`);
         setStopLoss(`${drawing?._source?._stopPriceAxisView?._axisRendererData?.text}`);
@@ -61,44 +63,73 @@ export const TradingviewWidget = () => {
       },
     };
 
-    //  https://docs.ccxt.com/#/exchanges/bybit?id=watchorderbook
+    const chartWidgetInstance = new widget(widgetOptions);
 
-    const chartWidget = new widget(widgetOptions);
+    chartWidgetInstance.onChartReady(() => {
+      setChartWidget(chartWidgetInstance);
 
-    chartWidget.onChartReady(() => {
-      const buttonLong = chartWidget.createButton();
-      buttonLong.setAttribute('title', 'Click to activate the Long Position tool');
-      buttonLong.innerHTML = '🌲 Long Position';
-      buttonLong.classList.add('apply-common-tooltip', 'tv-header-toolbar__button');
-      buttonLong.addEventListener('click', () => {
-        chartWidget.selectLineTool('long_position');
-        buttonLong.style.color = '#2962ff';
+      chartWidgetInstance.subscribe('drawing_event', (drawingId, eventName) => {
+        handleDrawingEvent(drawingId, eventName, chartWidgetInstance);
       });
 
-      const buttonShort = chartWidget.createButton();
-      buttonShort.setAttribute('title', 'Click to activate the Short Position tool');
-      buttonShort.classList.add('apply-common-tooltip', 'tv-header-toolbar__button');
-      buttonShort.innerHTML = '🔻 Short Position';
-      buttonShort.addEventListener('click', () => {
-        buttonShort.style.color = '#2962ff';
-        chartWidget.selectLineTool('short_position');
-      });
-
-      chartWidget.subscribe('drawing_event', (drawingId, eventName) => {
-        handleDrawingEvent(drawingId, eventName, chartWidget);
-      });
-
-      chartWidget.subscribe('drawing', (drawingId) => {
-        console.log('drawing', drawingId);
-        buttonLong.style.color = 'inherit';
-        buttonShort.style.color = 'inherit';
+      chartWidgetInstance.subscribe('drawing', (drawingId) => {
+        if (buttonLongRef.current) buttonLongRef.current.style.color = 'inherit';
+        if (buttonShortRef.current) buttonShortRef.current.style.color = 'inherit';
       });
     });
 
     return () => {
-      chartWidget.remove();
+      chartWidgetInstance.remove();
     };
   }, []);
+
+  useEffect(() => {
+    if (chartWidget) {
+      if (isLoggedIn) {
+        if (!buttonLongRef.current) {
+          const buttonLong = chartWidget.createButton();
+          buttonLong.setAttribute('title', 'Click to activate the Long Position tool');
+          buttonLong.innerHTML = '🌲 Long Position';
+          buttonLong.classList.add('apply-common-tooltip', 'tv-header-toolbar__button');
+          buttonLong.addEventListener('click', () => {
+            chartWidget.selectLineTool('long_position');
+            buttonLong.style.color = '#2962ff';
+            buttonLong.style.display = 'block !important';
+          });
+          buttonLongRef.current = buttonLong;
+
+          const buttonShort = chartWidget.createButton();
+          buttonShort.setAttribute('title', 'Click to activate the Short Position tool');
+          buttonShort.classList.add('apply-common-tooltip', 'tv-header-toolbar__button');
+          buttonShort.innerHTML = '🔻 Short Position';
+          buttonShort.addEventListener('click', () => {
+            buttonShort.style.color = '#2962ff';
+            buttonShort.style.display = 'block !important';
+
+            chartWidget.selectLineTool('short_position');
+          });
+          buttonShortRef.current = buttonShort;
+        } else if (buttonLongRef.current && buttonShortRef.current) {
+          // display parent parent node
+          buttonLongRef.current.parentNode.parentNode.style.display = 'block';
+          buttonLongRef.current.parentNode.parentNode.previousSibling.style.display = 'flex';
+          // display parent parent node previous sibling
+
+          buttonShortRef.current.parentNode.parentNode.style.display = 'block';
+          buttonShortRef.current.parentNode.parentNode.previousSibling.style.display = 'flex';
+        }
+      } else {
+        if (buttonLongRef.current) {
+          buttonLongRef.current.parentNode.parentNode.style.display = 'none';
+          buttonLongRef.current.parentNode.parentNode.previousSibling.style.display = 'none';
+        }
+        if (buttonShortRef.current) {
+          buttonShortRef.current.parentNode.parentNode.style.display = 'none';
+          buttonShortRef.current.parentNode.parentNode.previousSibling.style.display = 'none';
+        }
+      }
+    }
+  }, [chartWidget, isLoggedIn]);
 
   return <div ref={chartContainerRef} className="TVChartContainer" />;
 };
