@@ -5,15 +5,14 @@ import {
   type ChartingLibraryWidgetOptions as WidgetOptions,
   type IChartingLibraryWidget,
 } from 'charting_library';
-import { enqueueSnackbar } from 'notistack';
-import { GlobalState, OrderState, SettingsState } from '@states/index';
+import { GlobalState, OrderState, MarketState } from '@states/index';
 import Datafeed from './Datafeed';
 
 export const TradingviewWidget = () => {
   const chartContainerRef = useRef<HTMLDivElement>() as React.MutableRefObject<HTMLInputElement>;
   const { isLoggedIn, toggleSidebar } = GlobalState();
-  const { setCollateral } = SettingsState();
-  const { setStopLoss, setSymbol, setTakeProfit, setPrice, setRiskReward } = OrderState();
+  const { setStopLoss, setTakeProfit, setPrice, setRiskReward } = OrderState();
+  const { setTradingPair, tradingPair } = MarketState();
   const [chartWidget, setChartWidget] = useState<any>(null);
   const buttonLongRef = useRef<HTMLButtonElement | null>(null);
   const buttonTradingPanelRef = useRef<HTMLButtonElement | null>(null);
@@ -60,7 +59,7 @@ export const TradingviewWidget = () => {
 
   useEffect(() => {
     const widgetOptions: WidgetOptions = {
-      symbol: 'BTC/USDT',
+      symbol: tradingPair,
       datafeed: Datafeed,
       locale: 'en',
       interval: 'D' as WidgetOptions['interval'],
@@ -97,8 +96,7 @@ export const TradingviewWidget = () => {
         .activeChart()
         .onSymbolChanged()
         .subscribe(null, ({ name }) => {
-          setSymbol(name);
-          setCollateral(name.split('/')[1]);
+          setTradingPair(name);
         });
     });
 

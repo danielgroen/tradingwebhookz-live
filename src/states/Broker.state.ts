@@ -21,7 +21,7 @@ interface BrokerStateProps {
   clearStore: () => void;
 }
 
-export const BrokerState = create<BrokerStateProps>(
+export const BrokerState = create<BrokerStateProps>()(
   persist(
     (set) => ({
       brokerInstance: null,
@@ -47,7 +47,7 @@ export const BrokerState = create<BrokerStateProps>(
       name: 'broker-storage',
       partialize: (state) =>
         state.rememberMe ? { apiKey: state.apiKey, secret: state.secret, isTestnet: state.isTestnet } : {},
-      merge: (persistedState, currentState) => ({
+      merge: (persistedState: any, currentState) => ({
         ...currentState,
         ...persistedState,
       }),

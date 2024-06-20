@@ -1,16 +1,19 @@
+import { useState } from 'react';
 import { Chip, Typography } from '@mui/material';
 import { enqueueSnackbar } from 'notistack';
 import { FaGear } from 'react-icons/fa6';
+import { GoInfo } from 'react-icons/go';
 import { IoClose, IoLogOutOutline, IoChevronBack } from 'react-icons/io5';
 import { SiMicrosoftexcel } from 'react-icons/si';
+import { InfoDialog } from '@components/index';
 import { BrokerState, GlobalState, SettingsState } from '@states/index';
 
 export const Header = () => {
   const { apiKey, isTestnet } = BrokerState();
   const { orderbook } = SettingsState();
   const { isLoggedIn, isSettingsOpen, setIsSettingsOpen, setShowSidebar, setIsLoggedIn } = GlobalState();
-
   const { setBrokerInstance, setApiKey, setSecret, clearStore } = BrokerState();
+  const [openDialog, setOpenDialog] = useState(false);
 
   const handleLogout = () => {
     clearStore();
@@ -50,7 +53,7 @@ export const Header = () => {
         <IoClose style={{ cursor: 'pointer', marginLeft: 12 }} size={24} onClick={() => setShowSidebar(false)} />
       </div>
       {isLoggedIn && (
-        <div className="flex items-center justify-end mb-0 gap-3">
+        <div className="flex items-center justify-end mb-[-26px] gap-3">
           {isSettingsOpen ? (
             <IoLogOutOutline
               style={{
@@ -63,6 +66,14 @@ export const Header = () => {
             />
           ) : (
             <>
+              <GoInfo
+                style={{ cursor: 'pointer' }}
+                size={24}
+                opacity={0.9}
+                onClick={() => {
+                  setOpenDialog(true);
+                }}
+              />
               {orderbook && (
                 <SiMicrosoftexcel
                   onClick={() => {
@@ -76,6 +87,7 @@ export const Header = () => {
           )}
         </div>
       )}
+      <InfoDialog open={openDialog} setOpen={setOpenDialog} />
     </>
   );
 };

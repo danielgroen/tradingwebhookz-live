@@ -1,0 +1,1 @@
+export { OrderFormFooter } from './OrderFormFooter';

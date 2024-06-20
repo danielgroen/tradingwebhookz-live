@@ -1,11 +1,9 @@
 import { create } from 'zustand';
+import { type SIDE } from '@constants/index';
 
 interface OrderStateProps {
-  qty: string; // rename to amount
+  qty: string;
   setQty: (qty: string) => void;
-
-  symbol: string;
-  setSymbol: (symbol: string) => void;
 
   price: string;
   setPrice: (price: string) => void;
@@ -19,8 +17,8 @@ interface OrderStateProps {
   takeProfit: string;
   setTakeProfit: (takeProfit: string) => void;
 
-  direction: 'long' | 'short' | null; // rename to side
-  setDirection: (direction: 'long' | 'short' | null) => void;
+  side: SIDE | null;
+  setSide: (side: SIDE | null) => void;
 
   riskReward: string;
   setRiskReward: (riskReward: string) => void;
@@ -29,9 +27,6 @@ interface OrderStateProps {
 export const OrderState = create<OrderStateProps>((set) => ({
   qty: '',
   setQty: (qty) => set({ qty }),
-
-  symbol: 'BTC/USDT',
-  setSymbol: (symbol) => set({ symbol }),
 
   price: '',
   setPrice: (price) => set({ price }),
@@ -45,8 +40,8 @@ export const OrderState = create<OrderStateProps>((set) => ({
   takeProfit: '',
   setTakeProfit: (takeProfit) => set({ takeProfit }),
 
-  direction: null,
-  setDirection: (direction) => set({ direction }),
+  side: null,
+  setSide: (side) => set({ side }),
 
   riskReward: '',
   setRiskReward: (riskReward) => set({ riskReward }),

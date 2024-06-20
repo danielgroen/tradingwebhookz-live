@@ -1,0 +1,1 @@
+export { InfoDialog } from './InfoDialog';
