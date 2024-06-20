@@ -27,12 +27,12 @@ export const AuthState = create<AuthStateProps>()(
       brokerInstance: null,
       setBrokerInstance: (brokerInstance) => set({ brokerInstance }),
 
-      apiKey: import.meta.env.DEV ? '2CsRgnKhTpvOuol7EE' : '',
-      // apiKey: '',
+      apiKey: '',
+      // apiKey: import.meta.env.DEV ? '2CsRgnKhTpvOuol7EE' : '',
       setApiKey: (apiKey) => set({ apiKey }),
 
-      secret: import.meta.env.DEV ? 'TLAzJpunuJ7QRcyhhdI9xQR7snEI4N4RfR2M' : '',
-      // secret: '',
+      secret: '',
+      // secret: import.meta.env.DEV ? 'TLAzJpunuJ7QRcyhhdI9xQR7snEI4N4RfR2M' : '',
       setSecret: (secret) => set({ secret }),
 
       isTestnet: true,
