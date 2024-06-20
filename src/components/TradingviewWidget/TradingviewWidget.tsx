@@ -96,17 +96,28 @@ export const TradingviewWidget = () => {
       user_id: 'tradingmaestro12',
       autosize: true,
       studies_overrides: {},
+      favorites: {
+        intervals: ['5', '15', '30', '1H', '4H', '1D', '1W'],
+      },
       // debug: true,
       drawings_access: { type: 'black', tools: [{ name: 'Long Position' }, { name: 'Short Position' }] },
       enabled_features: ['chart_property_page_trading', 'show_exchange_logos', 'show_symbol_logos'],
-      disabled_features: ['items_favoriting', 'header_quick_search', 'header_saveload', 'popup_hints'],
+      disabled_features: [
+        // 'items_favoriting',
+        'header_quick_search',
+        'header_saveload',
+        'popup_hints',
+        'header_indicators',
+      ],
       theme: 'Dark' as WidgetOptions['theme'],
     };
 
     const chartWidgetInstance = new widget(widgetOptions);
 
     chartWidgetInstance.onChartReady(() => {
-      setChartWidget(chartWidgetInstance);
+      chartWidgetInstance.headerReady().then(() => {
+        setChartWidget(chartWidgetInstance);
+      });
 
       chartWidgetInstance.subscribe('drawing_event', (drawingId, eventName) => {
         handleDrawingEvent(drawingId, eventName, chartWidgetInstance);
