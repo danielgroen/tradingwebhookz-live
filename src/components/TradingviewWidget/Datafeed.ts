@@ -51,12 +51,12 @@ async function getAllSymbols() {
 
 export default {
   onReady: (callback) => {
-    console.log('[onReady]: Method call');
+    // console.log('[onReady]: Method call');
     setTimeout(() => callback(configurationData));
   },
 
   searchSymbols: async (userInput, exchange, symbolType, onResultReadyCallback) => {
-    console.log('[searchSymbols]: Method call');
+    // console.log('[searchSymbols]: Method call');
     const symbols = await getAllSymbols();
     const newSymbols = symbols.filter((symbol) => {
       const isExchangeValid = exchange === '' || symbol.exchange === exchange;
@@ -67,17 +67,17 @@ export default {
   },
 
   resolveSymbol: async (symbolName, onSymbolResolvedCallback, onResolveErrorCallback) => {
-    console.log('[resolveSymbol]: Method call', symbolName);
+    // console.log('[resolveSymbol]: Method call', symbolName);
     const symbols = await getAllSymbols();
     const symbolItem = symbols.find(({ full_name }) => full_name === symbolName);
 
     if (!symbolItem && symbolName.includes(':')) {
-      console.log('[resolveSymbol]: Cannot resolve symbol', symbolName);
+      // console.log('[resolveSymbol]: Cannot resolve symbol', symbolName);
       onResolveErrorCallback('Cannot resolve symbol');
       return;
     }
     // Symbol information object
-    console.log('[resolveSymbol]: Symbol resolved', symbolItem);
+    // console.log('[resolveSymbol]: Symbol resolved', symbolItem);
     onSymbolResolvedCallback({
       ticker: symbolItem?.full_name ?? 'bybit:BTC/USDT',
       name: symbolItem?.symbol ?? 'BTC/USDT',
@@ -99,7 +99,7 @@ export default {
 
   getBars: async (symbolInfo, resolution, periodParams, onHistoryCallback, onErrorCallback) => {
     const { from, to, firstDataRequest } = periodParams;
-    console.log('[getBars]: Method call', symbolInfo, resolution, from, to);
+    // console.log('[getBars]: Method call', symbolInfo, resolution, from, to);
     const parsedSymbol = parseFullSymbol(`${symbolInfo.exchange}:${symbolInfo.name}`);
     const urlParameters = {
       e: parsedSymbol.exchange,
@@ -132,20 +132,20 @@ export default {
         }
       });
       if (firstDataRequest) {
-        console.log('[getBars]: First history request. Bars:', bars.length);
+        // console.log('[getBars]: First history request. Bars:', bars.length);
 
         lastBarsCache.set(`${symbolInfo.exchange}:${symbolInfo.name}`, { ...bars[bars.length - 1] });
       }
-      console.log(`[getBars]: returned ${bars.length} bar(s)`);
+      // console.log(`[getBars]: returned ${bars.length} bar(s)`);
       onHistoryCallback(bars, { noData: false });
     } catch (error) {
-      console.log('[getBars]: Get error', error);
+      // console.log('[getBars]: Get error', error);
       onErrorCallback(error);
     }
   },
 
   subscribeBars: (symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback) => {
-    console.log('[subscribeBars]: Method call with subscriberUID:', subscriberUID);
+    // console.log('[subscribeBars]: Method call with subscriberUID:', subscriberUID);
     subscribeOnStream(
       symbolInfo,
       resolution,
@@ -157,7 +157,7 @@ export default {
   },
 
   unsubscribeBars: (subscriberUID) => {
-    console.log('[unsubscribeBars]: Method call with subscriberUID:', subscriberUID);
+    // console.log('[unsubscribeBars]: Method call with subscriberUID:', subscriberUID);
     unsubscribeFromStream(subscriberUID);
   },
 };
