@@ -9,19 +9,19 @@ interface Props {
 }
 
 export const OrderFormFooter: FC<Props> = ({ accountBalance, setAccountBalance }) => {
-  const { getCounterAsset } = ApiState();
+  const { counterAsset } = ApiState();
 
   const { brokerInstance } = AuthState();
 
   const intervalTime = 3000;
 
   useEffect(() => {
-    if (!brokerInstance || !getCounterAsset()) return;
+    if (!brokerInstance || !counterAsset) return;
 
     const interval = setInterval(async () => {
       try {
         const getBalance = await brokerInstance?.fetchBalance();
-        setAccountBalance(getBalance[getCounterAsset()]?.free);
+        setAccountBalance(getBalance[counterAsset]?.free);
       } catch (error) {
         enqueueSnackbar(`${error}`, {
           variant: 'error',
@@ -30,14 +30,14 @@ export const OrderFormFooter: FC<Props> = ({ accountBalance, setAccountBalance }
     }, intervalTime);
 
     return () => clearInterval(interval);
-  }, [accountBalance, getCounterAsset()]);
+  }, [accountBalance, counterAsset]);
 
   return (
     <div style={{ marginBottom: 8, marginTop: 'auto' }}>
       <div>
         {accountBalance && (
           <>
-            Balance: {(+accountBalance)?.toFixed(2)} {getCounterAsset()}
+            Balance: {(+accountBalance)?.toFixed(2)} {counterAsset}
           </>
         )}
       </div>

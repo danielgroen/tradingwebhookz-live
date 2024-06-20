@@ -13,7 +13,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
   const [potentialProfit, setPotentialProfit] = useState(0);
   const [potentialLoss, setPotentialLoss] = useState(0);
   const { stopLoss, takeProfit, price, riskReward, setQty, setLocalLeverage } = OrderState();
-  const { getCounterAsset } = ApiState();
+  const { counterAsset } = ApiState();
 
   const { risk } = SettingsState();
 
@@ -50,7 +50,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
             <Typography variant="caption" color="error">
               {-Math.abs(potentialLoss).toFixed(2)}
             </Typography>{' '}
-            {getCounterAsset()}
+            {counterAsset}
           </Typography>
         )}
         {riskReward && (
@@ -67,7 +67,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
             <Typography variant="caption" color="success.light">
               {Math.abs(potentialProfit).toFixed(2)}
             </Typography>{' '}
-            {getCounterAsset()}
+            {counterAsset}
           </Typography>
         )}
       </div>
@@ -90,7 +90,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
             </Typography>{' '}
             %
             <Typography variant="caption" sx={{ opacity: 0, marginLeft: -1.5 }}>
-              {getCounterAsset()}
+              {counterAsset}
             </Typography>
           </Typography>
         )}

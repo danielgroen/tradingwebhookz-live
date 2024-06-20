@@ -5,26 +5,22 @@ import { AuthState, OrderState, ApiState, SettingsState } from '@states/index';
 
 export const OrderButton: FC = () => {
   const { brokerInstance } = AuthState();
-  const { stopLoss, takeProfit, price, side, qty, localLeverage } = OrderState();
   const { apiLeverage, setApiLeverage } = ApiState();
+  const { isOrderFilled, stopLoss, takeProfit, price, side, qty, localLeverage, clearOrder } = OrderState();
   const { orderTypeStoploss, orderTypeTakeProfit } = SettingsState();
-  const { getPrimaryPair } = ApiState();
+  const { primaryPair } = ApiState();
 
   const handlePlaceOrder = async () => {
-    if (!side || !getPrimaryPair() || !qty || !price || !stopLoss || !takeProfit || !localLeverage) {
-      alert('Fill all fields');
-      return;
-    }
-
     // Set leverage
     try {
       if (apiLeverage !== +localLeverage) {
-        await brokerInstance?.setLeverage(parseFloat(localLeverage), getPrimaryPair());
+        await brokerInstance?.setLeverage(parseFloat(localLeverage), primaryPair);
         enqueueSnackbar(`New Leverage: ${localLeverage}`, {
           variant: 'info',
           autoHideDuration: 2000,
         });
         setApiLeverage(+localLeverage);
+        clearOrder();
       }
     } catch (error) {
       console.log(error);
@@ -36,7 +32,7 @@ export const OrderButton: FC = () => {
     // Place order
     try {
       const placeOrder = await brokerInstance?.createOrder(
-        getPrimaryPair(),
+        primaryPair,
         'limit', // base order is always limit
         side,
         parseFloat(qty) / parseFloat(price),
@@ -69,7 +65,7 @@ export const OrderButton: FC = () => {
   };
 
   return (
-    <Button onClick={handlePlaceOrder} variant="outlined" fullWidth>
+    <Button onClick={handlePlaceOrder} disabled={!isOrderFilled()} variant="outlined" fullWidth>
       Place order
     </Button>
   );

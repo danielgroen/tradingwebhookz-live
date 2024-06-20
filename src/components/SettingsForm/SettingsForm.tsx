@@ -7,6 +7,8 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  FormControlLabel,
+  Switch,
 } from '@mui/material';
 import { enqueueSnackbar } from 'notistack';
 import { ORDER_TYPE } from '@constants/index';
@@ -23,6 +25,8 @@ export const SettingsForm = () => {
     setOrderTypeStoploss,
     orderTypeTakeProfit,
     setOrderTypeTakeProfit,
+    autoFill,
+    toggleAutoFill,
   } = SettingsState();
 
   return (
@@ -35,11 +39,20 @@ export const SettingsForm = () => {
         <TextField
           {...inputLeft}
           value={risk}
+          disabled={!autoFill}
           onChange={(e) => setRisk(e.target.value)}
           onClick={(e) => e.target?.select()}
           label="Max risk"
           inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
           InputProps={{ endAdornment: '%' }}
+        />
+
+        <FormControlLabel
+          // {...inputLeft}
+          sx={{ ml: 5 }}
+          control={<Switch checked={autoFill} onChange={toggleAutoFill} />}
+          label="Autofill"
+          labelPlacement="start"
         />
 
         <TextField

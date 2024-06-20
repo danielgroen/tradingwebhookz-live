@@ -6,8 +6,8 @@ interface SettingsStateProps {
   risk: string;
   setRisk: (risk: string) => void;
 
-  autofill: boolean;
-  setAutofill: (autofill: boolean) => void;
+  autoFill: boolean;
+  toggleAutoFill: () => void;
 
   orderbook: string;
   setOrderbook: (orderbook: string) => void;
@@ -21,12 +21,12 @@ interface SettingsStateProps {
 
 export const SettingsState = create<SettingsStateProps>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       risk: '1',
       setRisk: (risk) => set({ risk }),
 
-      autofill: true,
-      setAutofill: (autofill) => set({ autofill }),
+      autoFill: true,
+      toggleAutoFill: () => set({ autoFill: !get().autoFill }),
 
       orderbook: '',
       setOrderbook: (orderbook) => set({ orderbook }),

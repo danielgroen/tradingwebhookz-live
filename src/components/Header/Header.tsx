@@ -2,17 +2,20 @@ import { useState } from 'react';
 import { Chip, Typography } from '@mui/material';
 import { enqueueSnackbar } from 'notistack';
 import { FaGear } from 'react-icons/fa6';
+import { GiBroom } from 'react-icons/gi';
 import { GoInfo } from 'react-icons/go';
 import { IoClose, IoLogOutOutline, IoChevronBack } from 'react-icons/io5';
 import { SiMicrosoftexcel } from 'react-icons/si';
 import { InfoDialog } from '@components/index';
-import { AuthState, GlobalState, SettingsState } from '@states/index';
+import { AuthState, GlobalState, SettingsState, OrderState } from '@states/index';
 
 export const Header = () => {
   const { apiKey, isTestnet } = AuthState();
   const { orderbook } = SettingsState();
   const { isLoggedIn, isSettingsOpen, setIsSettingsOpen, setShowSidebar, setIsLoggedIn } = GlobalState();
   const { setBrokerInstance, setApiKey, setSecret, clearStore } = AuthState();
+  const { isOrderFilled, clearOrder } = OrderState();
+
   const [openDialog, setOpenDialog] = useState(false);
 
   const handleLogout = () => {
@@ -66,6 +69,16 @@ export const Header = () => {
             />
           ) : (
             <>
+              {isOrderFilled() && (
+                <GiBroom
+                  style={{ cursor: 'pointer' }}
+                  size={24}
+                  opacity={0.9}
+                  onClick={() => {
+                    clearOrder();
+                  }}
+                />
+              )}
               <GoInfo
                 style={{ cursor: 'pointer' }}
                 size={24}

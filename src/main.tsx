@@ -21,7 +21,7 @@ const darkTheme = createTheme({
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ThemeProvider theme={darkTheme}>
-      <SnackbarProvider preventDuplicate autoHideDuration={8000}>
+      <SnackbarProvider autoHideDuration={8000}>
         <CssBaseline />
 
         <App />

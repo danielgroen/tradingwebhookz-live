@@ -13,23 +13,21 @@ export const TradingviewWidget = () => {
   const chartContainerRef = useRef<HTMLDivElement>() as React.MutableRefObject<HTMLInputElement>;
   const { isLoggedIn, toggleSidebar } = GlobalState();
   const { brokerInstance } = AuthState();
-  const { setStopLoss, setTakeProfit, setPrice, setRiskReward } = OrderState();
-  const { setApiLeverage, setApiMinOrderSize, setTradingPair, tradingPair, getTradingPairFormatted } = ApiState();
+  const { setStopLoss, setTakeProfit, setPrice, setRiskReward, side } = OrderState();
+  const { setApiLeverage, setApiMinOrderSize, setTradingPair, tradingPair, tradingPairFormatted } = ApiState();
 
   const [chartWidget, setChartWidget] = useState<any>(null);
   const buttonLongRef = useRef<HTMLButtonElement | null>(null);
   const buttonTradingPanelRef = useRef<HTMLButtonElement | null>(null);
   const buttonShortRef = useRef<HTMLButtonElement | null>(null);
 
-  const setMetaParams = async (name = tradingPair) => {
-    if (!brokerInstance) return;
+  const setMetaParams = async (name) => {
+    if (!isLoggedIn) return;
     setTradingPair(name);
-
-    console.log(123123, getTradingPairFormatted(), name);
 
     // Set leverage & minimum contracts
     try {
-      const result = await brokerInstance?.fetchLeverage(getTradingPairFormatted());
+      const result = await brokerInstance?.fetchLeverage(tradingPairFormatted);
       const { leverage: ApiLeverage, contracts: minimumContracts } = result?.info;
 
       setApiLeverage(ApiLeverage);
@@ -37,13 +35,20 @@ export const TradingviewWidget = () => {
     } catch (error) {
       enqueueSnackbar(`${error}`, {
         variant: 'error',
+        autoHideDuration: 2000,
       });
     }
   };
 
   useEffect(() => {
-    setMetaParams();
+    setMetaParams(tradingPair);
   }, [isLoggedIn]);
+
+  useEffect(() => {
+    if (side) return;
+    // remove all drawings
+    chartWidget?.chart().removeAllShapes();
+  }, [side]);
 
   const handleDrawingEvent = async (drawingId: string, eventName: any, chartWidget: IChartingLibraryWidget) => {
     try {

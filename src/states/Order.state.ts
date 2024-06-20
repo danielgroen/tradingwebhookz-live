@@ -5,6 +5,9 @@ interface OrderStateProps {
   qty: string;
   setQty: (qty: string) => void;
 
+  orderPercent: number;
+  setOrderPercent: (orderPercent: number) => void;
+
   price: string;
   setPrice: (price: string) => void;
 
@@ -22,11 +25,17 @@ interface OrderStateProps {
 
   riskReward: string;
   setRiskReward: (riskReward: string) => void;
+
+  isOrderFilled: () => boolean;
+  clearOrder: () => void;
 }
 
-export const OrderState = create<OrderStateProps>((set) => ({
+export const OrderState = create<OrderStateProps>((set, get) => ({
   qty: '',
   setQty: (qty) => set({ qty }),
+
+  orderPercent: 100,
+  setOrderPercent: (orderPercent) => set({ orderPercent }),
 
   price: '',
   setPrice: (price) => set({ price }),
@@ -45,4 +54,20 @@ export const OrderState = create<OrderStateProps>((set) => ({
 
   riskReward: '',
   setRiskReward: (riskReward) => set({ riskReward }),
+
+  isOrderFilled: () => {
+    const { qty, price, localLeverage, stopLoss, takeProfit, side } = get();
+    return !!(+qty && +price && +localLeverage && +stopLoss && +takeProfit && side);
+  },
+
+  clearOrder: () =>
+    set({
+      qty: '',
+      price: '',
+      localLeverage: '',
+      stopLoss: '',
+      takeProfit: '',
+      side: null,
+      riskReward: '',
+    }),
 }));

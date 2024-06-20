@@ -3,7 +3,7 @@ import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, B
 import { ApiState } from '@states/index';
 
 export const InfoDialog: FC<any> = ({ open, setOpen }) => {
-  const { getApiLeverage, getApiLeverageMax, getTradingPairFormatted, apiMinOrderSize } = ApiState();
+  const { getApiLeverage, getApiLeverageMax, tradingPairFormatted, apiMinOrderSize } = ApiState();
 
   return (
     <Dialog
@@ -13,7 +13,7 @@ export const InfoDialog: FC<any> = ({ open, setOpen }) => {
         setOpen(false);
       }}
     >
-      <DialogTitle>Symbol info: {getTradingPairFormatted()}</DialogTitle>
+      <DialogTitle>Symbol info: {tradingPairFormatted}</DialogTitle>
       <DialogContent>
         <DialogContentText>
           <br />
