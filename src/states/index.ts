@@ -1,5 +1,5 @@
-export { BrokerState } from './Broker.state';
+export { AuthState } from './Auth.state';
 export { OrderState } from './Order.state';
 export { SettingsState } from './Settings.state';
 export { GlobalState } from './Global.state';
-export { MarketState } from './Market.state';
+export { ApiState } from './Api.state';

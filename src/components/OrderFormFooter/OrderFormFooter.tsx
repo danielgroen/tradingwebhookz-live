@@ -1,7 +1,7 @@
 import { type Dispatch, useEffect, type FC, type SetStateAction } from 'react';
 import { Typography } from '@mui/material';
 import { enqueueSnackbar } from 'notistack';
-import { BrokerState, MarketState } from '@states/index';
+import { AuthState, ApiState } from '@states/index';
 
 interface Props {
   accountBalance: number | null;
@@ -9,9 +9,9 @@ interface Props {
 }
 
 export const OrderFormFooter: FC<Props> = ({ accountBalance, setAccountBalance }) => {
-  const { getCounterAsset } = MarketState();
+  const { getCounterAsset } = ApiState();
 
-  const { brokerInstance } = BrokerState();
+  const { brokerInstance } = AuthState();
 
   const intervalTime = 3000;
 

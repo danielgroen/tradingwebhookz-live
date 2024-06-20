@@ -6,13 +6,13 @@ import { GoInfo } from 'react-icons/go';
 import { IoClose, IoLogOutOutline, IoChevronBack } from 'react-icons/io5';
 import { SiMicrosoftexcel } from 'react-icons/si';
 import { InfoDialog } from '@components/index';
-import { BrokerState, GlobalState, SettingsState } from '@states/index';
+import { AuthState, GlobalState, SettingsState } from '@states/index';
 
 export const Header = () => {
-  const { apiKey, isTestnet } = BrokerState();
+  const { apiKey, isTestnet } = AuthState();
   const { orderbook } = SettingsState();
   const { isLoggedIn, isSettingsOpen, setIsSettingsOpen, setShowSidebar, setIsLoggedIn } = GlobalState();
-  const { setBrokerInstance, setApiKey, setSecret, clearStore } = BrokerState();
+  const { setBrokerInstance, setApiKey, setSecret, clearStore } = AuthState();
   const [openDialog, setOpenDialog] = useState(false);
 
   const handleLogout = () => {

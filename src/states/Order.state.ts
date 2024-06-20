@@ -8,8 +8,8 @@ interface OrderStateProps {
   price: string;
   setPrice: (price: string) => void;
 
-  leverage: string;
-  setLeverage: (leverage: string) => void;
+  localLeverage: string;
+  setLocalLeverage: (localLeverage: string) => void;
 
   stopLoss: string;
   setStopLoss: (stopLoss: string) => void;
@@ -31,8 +31,8 @@ export const OrderState = create<OrderStateProps>((set) => ({
   price: '',
   setPrice: (price) => set({ price }),
 
-  leverage: '',
-  setLeverage: (leverage) => set({ leverage }),
+  localLeverage: '',
+  setLocalLeverage: (localLeverage) => set({ localLeverage }),
 
   stopLoss: '',
   setStopLoss: (stopLoss) => set({ stopLoss }),

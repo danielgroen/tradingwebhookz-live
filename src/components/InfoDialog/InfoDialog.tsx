@@ -1,7 +1,10 @@
 import { type FC } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button } from '@mui/material';
+import { ApiState } from '@states/index';
 
 export const InfoDialog: FC<any> = ({ open, setOpen }) => {
+  const { getApiLeverage, getApiLeverageMax, getTradingPairFormatted, apiMinOrderSize } = ApiState();
+
   return (
     <Dialog
       open={open}
@@ -10,14 +13,15 @@ export const InfoDialog: FC<any> = ({ open, setOpen }) => {
         setOpen(false);
       }}
     >
-      <DialogTitle>Symbol info</DialogTitle>
+      <DialogTitle>Symbol info: {getTradingPairFormatted()}</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          minimal contracts: ...
           <br />
-          current leverage: ...
+          minimal contracts: {apiMinOrderSize}
           <br />
-          maximal leverage: ...
+          current leverage: {getApiLeverage()}
+          <br />
+          maximal leverage: {getApiLeverageMax()}
           <br />
         </DialogContentText>
       </DialogContent>
@@ -27,7 +31,7 @@ export const InfoDialog: FC<any> = ({ open, setOpen }) => {
             setOpen(false);
           }}
         >
-          Ok!
+          Got it!
         </Button>
       </DialogActions>
     </Dialog>

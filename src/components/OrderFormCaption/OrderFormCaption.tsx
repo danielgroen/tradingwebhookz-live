@@ -1,6 +1,6 @@
 import { useEffect, useState, type FC } from 'react';
 import { Typography } from '@mui/material';
-import { OrderState, SettingsState, MarketState } from '@states/index';
+import { OrderState, SettingsState, ApiState } from '@states/index';
 import {
   calculatePositionSize,
   calculate,
@@ -12,8 +12,8 @@ import {
 export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
   const [potentialProfit, setPotentialProfit] = useState(0);
   const [potentialLoss, setPotentialLoss] = useState(0);
-  const { stopLoss, takeProfit, price, riskReward, setQty, setLeverage } = OrderState();
-  const { getCounterAsset } = MarketState();
+  const { stopLoss, takeProfit, price, riskReward, setQty, setLocalLeverage } = OrderState();
+  const { getCounterAsset } = ApiState();
 
   const { risk } = SettingsState();
 
@@ -32,7 +32,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
     const _leverage = calculateLeverage(_qty, accountBalance);
 
     setQty(_qty.toFixed(2));
-    setLeverage(_leverage.toFixed(2));
+    setLocalLeverage(_leverage.toFixed(2));
 
     const _potentialProfit = calculatePotentialProfit(takeProfitPrice, entryPrice, positionSize);
     const _potentialLoss = calculatePotentialLoss(entryPrice, stopLossPrice, positionSize);
@@ -42,33 +42,59 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
   }, [stopLoss, takeProfit, price, risk, accountBalance]);
 
   return (
-    <div className="flex justify-between">
-      {potentialLoss !== 0 && (
-        <Typography variant="caption" sx={{ display: 'block' }}>
-          L:{' '}
-          <Typography variant="caption" color="error">
-            {-Math.abs(potentialLoss).toFixed(2)}
-          </Typography>{' '}
-          {getCounterAsset()}
-        </Typography>
-      )}
-      {riskReward && (
-        <Typography variant="caption" sx={{ display: 'block' }}>
-          RR:{' '}
-          <Typography variant="caption" color="primary.main">
-            {riskReward}
+    <>
+      <div className="flex justify-between">
+        {potentialLoss !== 0 && (
+          <Typography variant="caption" sx={{ display: 'block' }}>
+            L:{' '}
+            <Typography variant="caption" color="error">
+              {-Math.abs(potentialLoss).toFixed(2)}
+            </Typography>{' '}
+            {getCounterAsset()}
           </Typography>
-        </Typography>
-      )}
-      {potentialProfit !== 0 && (
-        <Typography variant="caption" sx={{ display: 'block' }}>
-          P:{' '}
-          <Typography variant="caption" color="success.light">
-            {Math.abs(potentialProfit).toFixed(2)}
-          </Typography>{' '}
-          {getCounterAsset()}
-        </Typography>
-      )}
-    </div>
+        )}
+        {riskReward && (
+          <Typography variant="caption" sx={{ display: 'block' }}>
+            RR:{' '}
+            <Typography variant="caption" color="primary.main">
+              {riskReward}
+            </Typography>
+          </Typography>
+        )}
+        {potentialProfit !== 0 && (
+          <Typography variant="caption" sx={{ display: 'block' }}>
+            P:{' '}
+            <Typography variant="caption" color="success.light">
+              {Math.abs(potentialProfit).toFixed(2)}
+            </Typography>{' '}
+            {getCounterAsset()}
+          </Typography>
+        )}
+      </div>
+
+      <div className="flex justify-between">
+        {potentialLoss !== 0 && (
+          <Typography variant="caption" sx={{ display: 'block' }}>
+            L:{' '}
+            <Typography variant="caption" color="error">
+              {((-Math.abs(potentialLoss).toFixed(2) / accountBalance) * 100).toFixed(2)}
+            </Typography>{' '}
+            %
+          </Typography>
+        )}
+        {potentialProfit !== 0 && (
+          <Typography variant="caption" sx={{ display: 'block' }}>
+            P:{' '}
+            <Typography variant="caption" color="success.light">
+              {((Math.abs(potentialProfit).toFixed(2) / accountBalance) * 100).toFixed(2)}
+            </Typography>{' '}
+            %
+            <Typography variant="caption" sx={{ opacity: 0, marginLeft: -1.5 }}>
+              {getCounterAsset()}
+            </Typography>
+          </Typography>
+        )}
+      </div>
+    </>
   );
 };

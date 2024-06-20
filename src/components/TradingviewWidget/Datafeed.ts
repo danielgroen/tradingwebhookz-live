@@ -35,10 +35,12 @@ async function getAllSymbols() {
           exchange: exchange?.value ?? 'bybit',
           exchange_logo: 'https://s3-symbol-logo.tradingview.com/provider/bybit.svg',
           type: 'crypto',
-          logo_urls: [
-            `https://s3-symbol-logo.tradingview.com/crypto/XTVC${leftPairPart}.svg`,
-            `https://s3-symbol-logo.tradingview.com/crypto/XTVC${rightPairPart}.svg`,
-          ],
+          ...(import.meta.env.PROD && {
+            logo_urls: [
+              `https://s3-symbol-logo.tradingview.com/crypto/XTVC${leftPairPart}.svg`,
+              `https://s3-symbol-logo.tradingview.com/crypto/XTVC${rightPairPart}.svg`,
+            ],
+          }),
         };
       });
       allSymbols = [...allSymbols, ...symbols];

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { TextField, Typography, Chip, Button } from '@mui/material';
 import { OrderButton, OrderFormCaption, OrderFormFooter } from '@components/index';
 import { SIDE } from '@constants/index';
-import { OrderState, MarketState } from '@states/index';
+import { OrderState, ApiState } from '@states/index';
 import { inputLeft, inputRight, inputBase } from '@utils/index';
 
 export const OrderForm = () => {
@@ -18,12 +18,12 @@ export const OrderForm = () => {
     setRiskReward,
     qty,
     setQty,
-    leverage,
-    setLeverage,
+    localLeverage,
+    setLocalLeverage,
   } = OrderState();
 
   const [accountBalance, setAccountBalance] = useState(null);
-  const { getPrimaryPair, getCounterAsset } = MarketState();
+  const { getPrimaryPair, getCounterAsset } = ApiState();
 
   useEffect(() => {
     if (stopLoss === '' && takeProfit === '') {
@@ -93,7 +93,12 @@ export const OrderForm = () => {
 
         <TextField {...inputLeft} disabled value={getPrimaryPair()} label="Symbol" />
 
-        <TextField {...inputRight} onChange={(e) => setLeverage(e.target.value)} value={leverage} label="Leverage" />
+        <TextField
+          {...inputRight}
+          onChange={(e) => setLocalLeverage(e.target.value)}
+          value={localLeverage}
+          label="Leverage"
+        />
 
         <TextField
           {...inputBase}

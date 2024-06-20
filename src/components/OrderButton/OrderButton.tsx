@@ -1,30 +1,30 @@
 import { type FC } from 'react';
 import { Button } from '@mui/material';
 import { enqueueSnackbar } from 'notistack';
-import { BrokerState, OrderState, MarketState } from '@states/index';
+import { AuthState, OrderState, ApiState, SettingsState } from '@states/index';
 
 export const OrderButton: FC = () => {
-  const { brokerInstance } = BrokerState();
-  const { stopLoss, takeProfit, price, side, qty, leverage } = OrderState();
-  const { getPrimaryPair } = MarketState();
+  const { brokerInstance } = AuthState();
+  const { stopLoss, takeProfit, price, side, qty, localLeverage } = OrderState();
+  const { apiLeverage, setApiLeverage } = ApiState();
+  const { orderTypeStoploss, orderTypeTakeProfit } = SettingsState();
+  const { getPrimaryPair } = ApiState();
 
   const handlePlaceOrder = async () => {
-    if (!side || !getPrimaryPair() || !qty || !price || !stopLoss || !takeProfit || !leverage) {
+    if (!side || !getPrimaryPair() || !qty || !price || !stopLoss || !takeProfit || !localLeverage) {
       alert('Fill all fields');
       return;
     }
 
     // Set leverage
     try {
-      const result = await brokerInstance?.fetchLeverage(getPrimaryPair());
-      const { leverage: ApiLeverage, contracts: minimumContracts } = result?.info;
-
-      if (ApiLeverage !== +leverage) {
-        await brokerInstance?.setLeverage(parseFloat(leverage), getPrimaryPair());
-        enqueueSnackbar(`New Leverage: ${leverage}`, {
+      if (apiLeverage !== +localLeverage) {
+        await brokerInstance?.setLeverage(parseFloat(localLeverage), getPrimaryPair());
+        enqueueSnackbar(`New Leverage: ${localLeverage}`, {
           variant: 'info',
           autoHideDuration: 2000,
         });
+        setApiLeverage(+localLeverage);
       }
     } catch (error) {
       console.log(error);
@@ -37,19 +37,18 @@ export const OrderButton: FC = () => {
     try {
       const placeOrder = await brokerInstance?.createOrder(
         getPrimaryPair(),
-        'limit',
+        'limit', // base order is always limit
         side,
         parseFloat(qty) / parseFloat(price),
         parseFloat(price),
         {
-          marketUnit: 'quoteCoin',
           stopLoss: {
-            type: 'limit',
+            type: orderTypeStoploss,
             price: parseFloat(stopLoss),
             triggerPrice: parseFloat(stopLoss),
           },
           takeProfit: {
-            type: 'limit',
+            type: orderTypeTakeProfit,
             price: parseFloat(takeProfit),
             triggerPrice: parseFloat(takeProfit),
           },

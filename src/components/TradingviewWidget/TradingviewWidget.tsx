@@ -5,18 +5,45 @@ import {
   type ChartingLibraryWidgetOptions as WidgetOptions,
   type IChartingLibraryWidget,
 } from 'charting_library';
-import { GlobalState, OrderState, MarketState } from '@states/index';
+import { enqueueSnackbar } from 'notistack';
+import { GlobalState, OrderState, ApiState, AuthState } from '@states/index';
 import Datafeed from './Datafeed';
 
 export const TradingviewWidget = () => {
   const chartContainerRef = useRef<HTMLDivElement>() as React.MutableRefObject<HTMLInputElement>;
   const { isLoggedIn, toggleSidebar } = GlobalState();
+  const { brokerInstance } = AuthState();
   const { setStopLoss, setTakeProfit, setPrice, setRiskReward } = OrderState();
-  const { setTradingPair, tradingPair } = MarketState();
+  const { setApiLeverage, setApiMinOrderSize, setTradingPair, tradingPair, getTradingPairFormatted } = ApiState();
+
   const [chartWidget, setChartWidget] = useState<any>(null);
   const buttonLongRef = useRef<HTMLButtonElement | null>(null);
   const buttonTradingPanelRef = useRef<HTMLButtonElement | null>(null);
   const buttonShortRef = useRef<HTMLButtonElement | null>(null);
+
+  const setMetaParams = async (name = tradingPair) => {
+    if (!brokerInstance) return;
+    setTradingPair(name);
+
+    console.log(123123, getTradingPairFormatted(), name);
+
+    // Set leverage & minimum contracts
+    try {
+      const result = await brokerInstance?.fetchLeverage(getTradingPairFormatted());
+      const { leverage: ApiLeverage, contracts: minimumContracts } = result?.info;
+
+      setApiLeverage(ApiLeverage);
+      setApiMinOrderSize(minimumContracts);
+    } catch (error) {
+      enqueueSnackbar(`${error}`, {
+        variant: 'error',
+      });
+    }
+  };
+
+  useEffect(() => {
+    setMetaParams();
+  }, [isLoggedIn]);
 
   const handleDrawingEvent = async (drawingId: string, eventName: any, chartWidget: IChartingLibraryWidget) => {
     try {
@@ -26,19 +53,12 @@ export const TradingviewWidget = () => {
       if (toolName === 'LineToolRiskRewardShort' || toolName === 'LineToolRiskRewardLong') {
         setTimeout(() => {
           const curDrawingPoints = drawing.getPoints();
-          // const props = drawing.getProperties();
 
           const priceEntry = +curDrawingPoints[0].price;
           const priceTakeProfit = parseFloat(drawing?._source?._profitPriceAxisView?._axisRendererData?.text);
           const priceStopLoss = parseFloat(drawing?._source?._stopPriceAxisView?._axisRendererData?.text);
           const computedRR = (Math.abs(priceEntry - priceTakeProfit) / Math.abs(priceEntry - priceStopLoss)).toFixed(2);
           const getAllDrawings = chartWidget.chart().getAllShapes();
-
-          // TODO: add a check if the long order is place below the current price & short order above
-          // enqueueSnackbar('helloowz!', {
-          //   variant: 'warning',
-          //   autoHideDuration: 2000,
-          // });
 
           const result = getAllDrawings
             .filter(({ name }) => name === 'long_position' || name === 'short_position')
@@ -96,7 +116,7 @@ export const TradingviewWidget = () => {
         .activeChart()
         .onSymbolChanged()
         .subscribe(null, ({ name }) => {
-          setTradingPair(name);
+          setMetaParams(name);
         });
     });
 
