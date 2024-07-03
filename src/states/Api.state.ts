@@ -15,7 +15,7 @@ interface ApiStateProps {
 
   tradingPair: string;
   primaryPair: string;
-  tradingPairFormatted: string;
+  tradingPairFormatted: () => string;
   counterAsset: string;
   setTradingPair: (tradingPair: string) => void;
 }
@@ -33,15 +33,14 @@ export const ApiState = create<ApiStateProps>((set, get) => ({
   getApiLeverageMax: () => get().apiLeverageMax,
   setApiLeverage: (apiLeverage) => set({ apiLeverage }),
 
-  tradingPair: 'BTC/USDT',
-  tradingPairFormatted: 'BTCUSDT',
+  // tradingPair: 'BTC/USDT', //cryptocompare
+  tradingPair: 'BTCUSD',
+  tradingPairFormatted: () => get().tradingPair + 'T',
   primaryPair: 'BTC',
-  counterAsset: 'USDT',
+  counterAsset: 'USDT', // NOW STATIC
   setTradingPair: (tradingPair) =>
     set({
       tradingPair,
-      tradingPairFormatted: tradingPair.replace('/', ''),
-      primaryPair: tradingPair.split('/')[0],
-      counterAsset: tradingPair.split('/')[1],
+      primaryPair: tradingPair.split('USD')[0],
     }),
 }));

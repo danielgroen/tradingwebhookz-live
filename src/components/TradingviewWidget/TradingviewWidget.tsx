@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import './TradingviewWidget.css';
 import {
   widget,
   type ChartingLibraryWidgetOptions as WidgetOptions,
@@ -7,7 +6,8 @@ import {
 } from 'charting_library';
 import { enqueueSnackbar } from 'notistack';
 import { GlobalState, OrderState, ApiState, AuthState } from '@states/index';
-import Datafeed from './Datafeed';
+// import datafeed from './cryptocompare/datafeed';
+import datafeed from './api-pyth/datafeed';
 
 export const TradingviewWidget = () => {
   const chartContainerRef = useRef<HTMLDivElement>() as React.MutableRefObject<HTMLInputElement>;
@@ -27,7 +27,7 @@ export const TradingviewWidget = () => {
 
     // Set leverage & minimum contracts
     try {
-      const result = await brokerInstance?.fetchLeverage(tradingPairFormatted);
+      const result = await brokerInstance?.fetchLeverage(tradingPairFormatted());
       const { leverage: ApiLeverage, contracts: minimumContracts } = result?.info;
 
       setApiLeverage(ApiLeverage);
@@ -85,9 +85,9 @@ export const TradingviewWidget = () => {
   useEffect(() => {
     const widgetOptions: WidgetOptions = {
       symbol: tradingPair,
-      datafeed: Datafeed,
+      datafeed,
       locale: 'en',
-      interval: 'D' as WidgetOptions['interval'],
+      interval: '1' as WidgetOptions['interval'],
       container: chartContainerRef.current,
       library_path: '/charting_library/',
       charts_storage_url: 'https://saveload.tradingview.com',
@@ -96,9 +96,7 @@ export const TradingviewWidget = () => {
       user_id: 'tradingmaestro12',
       autosize: true,
       studies_overrides: {},
-      favorites: {
-        intervals: ['5', '15', '30', '1H', '4H', '1D', '1W'],
-      },
+      favorites: { intervals: ['1', '2', '5', '15', '30', '1H', '4H', '1D', '1W'] as any },
       // debug: true,
       drawings_access: { type: 'black', tools: [{ name: 'Long Position' }, { name: 'Short Position' }] },
       enabled_features: ['chart_property_page_trading', 'show_exchange_logos', 'show_symbol_logos'],
@@ -207,5 +205,5 @@ export const TradingviewWidget = () => {
     }
   }, [chartWidget, isLoggedIn]);
 
-  return <div ref={chartContainerRef} className="TVChartContainer" />;
+  return <div ref={chartContainerRef} style={{ height: '100vh', width: '100%' }} />;
 };

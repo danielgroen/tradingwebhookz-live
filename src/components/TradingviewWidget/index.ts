@@ -1,1 +1,1 @@
-export { TradingviewWidget } from "./TradingviewWidget";
+export { TradingviewWidget } from './TradingviewWidget';

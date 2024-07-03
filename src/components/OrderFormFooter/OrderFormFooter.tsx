@@ -16,11 +16,15 @@ export const OrderFormFooter: FC<Props> = ({ accountBalance, setAccountBalance }
   const intervalTime = 3000;
 
   useEffect(() => {
+    console.log(brokerInstance, counterAsset);
+
     if (!brokerInstance || !counterAsset) return;
 
     const interval = setInterval(async () => {
       try {
         const getBalance = await brokerInstance?.fetchBalance();
+        console.log(getBalance);
+
         setAccountBalance(getBalance[counterAsset]?.free);
       } catch (error) {
         enqueueSnackbar(`${error}`, {

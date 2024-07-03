@@ -13,7 +13,7 @@ export const InfoDialog: FC<any> = ({ open, setOpen }) => {
         setOpen(false);
       }}
     >
-      <DialogTitle>Symbol info: {tradingPairFormatted}</DialogTitle>
+      <DialogTitle>Symbol info: {tradingPairFormatted()}</DialogTitle>
       <DialogContent>
         <DialogContentText>
           <br />

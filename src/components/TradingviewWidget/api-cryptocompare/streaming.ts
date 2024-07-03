@@ -1,31 +1,34 @@
-import { io } from 'socket.io-client';
-import { parseFullSymbol } from './helpers.js';
+import { parseFullSymbol, apiKey } from './helpers.js';
 
-const socket = io(`wss://streamer.cryptocompare.com/v2?api_key=${import.meta.env.VITE_CCDATA_API_KEY}`);
+// This is a simple implementation of the CryptoCompare streaming API
+// https://github.com/tradingview/charting-library-tutorial
 
-function getNextDailyBarTime(barTime) {
-  const date = new Date(barTime * 1000);
-  date.setDate(date.getDate() + 1);
-  return date.getTime() / 1000;
-}
-
+const socket = new WebSocket('wss://streamer.cryptocompare.com/v2?api_key=' + apiKey);
 const channelToSubscription = new Map();
 
-socket.on('connect', () => {
-  // console.log('[socket] Connected');
+socket.addEventListener('open', () => {
+  console.log('[socket] Connected');
 });
 
-socket.on('disconnect', (reason) => {
-  // console.log('[socket] Disconnected:', reason);
+socket.addEventListener('close', (reason) => {
+  console.log('[socket] Disconnected:', reason);
 });
 
-socket.on('error', (error) => {
-  // console.log('[socket] Error:', error);
+socket.addEventListener('error', (error) => {
+  console.log('[socket] Error:', error);
 });
 
-socket.on('m', (data) => {
-  // console.log('[socket] Message:', data);
-  const [eventTypeStr, exchange, fromSymbol, toSymbol, , , tradeTimeStr, , tradePriceStr] = data.split('~');
+socket.addEventListener('message', (event) => {
+  const data = JSON.parse(event.data);
+  console.log('[socket] Message:', data);
+  const {
+    TYPE: eventTypeStr,
+    M: exchange,
+    FSYM: fromSymbol,
+    TSYM: toSymbol,
+    TS: tradeTimeStr,
+    P: tradePriceStr,
+  } = data;
 
   if (parseInt(eventTypeStr) !== 0) {
     // Skip all non-trading events
@@ -50,7 +53,7 @@ socket.on('m', (data) => {
       low: tradePrice,
       close: tradePrice,
     };
-    // console.log('[socket] Generate new bar', bar);
+    console.log('[socket] Generate new bar', bar);
   } else {
     bar = {
       ...lastDailyBar,
@@ -58,13 +61,19 @@ socket.on('m', (data) => {
       low: Math.min(lastDailyBar.low, tradePrice),
       close: tradePrice,
     };
-    // console.log('[socket] Update the latest bar by price', tradePrice);
+    console.log('[socket] Update the latest bar by price', tradePrice);
   }
   subscriptionItem.lastDailyBar = bar;
 
   // Send data to every subscriber of that symbol
   subscriptionItem.handlers.forEach((handler) => handler.callback(bar));
 });
+
+function getNextDailyBarTime(barTime) {
+  const date = new Date(barTime * 1000);
+  date.setDate(date.getDate() + 1);
+  return date.getTime() / 1000;
+}
 
 export function subscribeOnStream(
   symbolInfo,
@@ -74,7 +83,7 @@ export function subscribeOnStream(
   onResetCacheNeededCallback,
   lastDailyBar
 ) {
-  const parsedSymbol = parseFullSymbol(`${symbolInfo.exchange}:${symbolInfo.name}`);
+  const parsedSymbol = parseFullSymbol(symbolInfo.full_name);
   const channelString = `0~${parsedSymbol.exchange}~${parsedSymbol.fromSymbol}~${parsedSymbol.toSymbol}`;
   const handler = {
     id: subscriberUID,
@@ -93,8 +102,12 @@ export function subscribeOnStream(
     handlers: [handler],
   };
   channelToSubscription.set(channelString, subscriptionItem);
-  // console.log('[subscribeBars]: Subscribe to streaming. Channel:', channelString);
-  socket.emit('SubAdd', { subs: [channelString] });
+  console.log('[subscribeBars]: Subscribe to streaming. Channel:', channelString);
+  const subRequest = {
+    action: 'SubAdd',
+    subs: [channelString],
+  };
+  socket.send(JSON.stringify(subRequest));
 }
 
 export function unsubscribeFromStream(subscriberUID) {
@@ -108,9 +121,13 @@ export function unsubscribeFromStream(subscriberUID) {
       subscriptionItem.handlers.splice(handlerIndex, 1);
 
       if (subscriptionItem.handlers.length === 0) {
-        // Unsubscribe from the channel if it is the last handler
-        // console.log('[unsubscribeBars]: Unsubscribe from streaming. Channel:', channelString);
-        socket.emit('SubRemove', { subs: [channelString] });
+        // Unsubscribe from the channel if it was the last handler
+        console.log('[unsubscribeBars]: Unsubscribe from streaming. Channel:', channelString);
+        const subRequest = {
+          action: 'SubRemove',
+          subs: [channelString],
+        };
+        socket.send(JSON.stringify(subRequest));
         channelToSubscription.delete(channelString);
         break;
       }
