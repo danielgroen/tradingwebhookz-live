@@ -37,19 +37,18 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
     let totalMarginRequirement = initialMargin + totalFees;
     const feeReserve = accountBalance * 0.01; // 1% of account balance reserved for fees
     const availableBalanceForTrading = accountBalance - feeReserve;
-    // Adjust position size if total margin requirement exceeds available balance for trading
+
     if (totalMarginRequirement > availableBalanceForTrading) {
       positionSize = ((availableBalanceForTrading - totalFees) * leverage) / entryPrice;
       orderValue = calculate(positionSize, entryPrice);
       initialMargin = orderValue / leverage;
+      totalFees = orderValue * (maker / 100);
       totalMarginRequirement = initialMargin + totalFees;
     }
 
-    // Calculate potential profit and loss
     const _potentialProfit = calculatePotentialProfit(takeProfitPrice, entryPrice, positionSize, maker);
     const _potentialLoss = calculatePotentialLoss(entryPrice, stopLossPrice, positionSize, maker);
 
-    // Set state values
     setQty(positionSize.toFixed(stepSizeToFixed(apiMinOrderSize as number)));
     setLocalLeverage(leverage.toFixed(stepSizeToFixed(apiLeverageStepSize as number)));
     setPotentialProfit(Number(_potentialProfit.toFixed(2)));
