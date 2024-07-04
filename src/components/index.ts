@@ -9,3 +9,4 @@ export { OrderButton } from './OrderButton';
 export { InfoDialog } from './InfoDialog';
 export { OrderFormCaption } from './OrderFormCaption';
 export { OrderFormFooter } from './OrderFormFooter';
+export { OrderFormActiveOrders } from './OrderFormActiveOrders';

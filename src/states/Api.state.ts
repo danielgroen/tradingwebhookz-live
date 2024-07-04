@@ -1,37 +1,47 @@
 import { create } from 'zustand';
+import { type bybit } from 'ccxt';
 
-interface ApiStateProps {
-  fees: null | number;
-  setFees: (fees: number) => void;
+export interface ApiStateProps {
+  fees: { maker: number | null; taker: number | null };
+  setFees: (fees: { maker: number | null; taker: number | null }) => void;
 
   apiMinOrderSize: null | number;
+  apiMaxOrderSize: null | number;
   setApiMinOrderSize: (apiMinOrderSize: number) => void;
+  setApiMaxOrderSize: (apiMaxOrderSize: number) => void;
 
   apiLeverage: number | null;
   apiLeverageMax: number | null;
-  getApiLeverage: () => number | null;
-  getApiLeverageMax: () => number | null;
+  apiLeverageStepSize: number | null;
   setApiLeverage: (apiLeverage: number | null) => void;
+  setApiLeverageMax: (apiLeverageMax: number | null) => void;
+  setApiLeverageStepSize: (apiLeverageStepSize: number | null) => void;
 
   tradingPair: string;
   primaryPair: string;
   tradingPairFormatted: () => string;
   counterAsset: string;
   setTradingPair: (tradingPair: string) => void;
+
+  brokerInstance: bybit | null;
+  setBrokerInstance: (brokerInstance: bybit | null) => void;
 }
 
 export const ApiState = create<ApiStateProps>((set, get) => ({
-  fees: null,
+  fees: { maker: null, taker: null },
   setFees: (fees) => set({ fees }),
 
   apiMinOrderSize: null,
+  apiMaxOrderSize: null,
   setApiMinOrderSize: (apiMinOrderSize) => set({ apiMinOrderSize }),
+  setApiMaxOrderSize: (apiMaxOrderSize) => set({ apiMaxOrderSize }),
 
   apiLeverage: null,
   apiLeverageMax: null,
-  getApiLeverage: () => get().apiLeverage,
-  getApiLeverageMax: () => get().apiLeverageMax,
+  apiLeverageStepSize: null,
   setApiLeverage: (apiLeverage) => set({ apiLeverage }),
+  setApiLeverageMax: (apiLeverageMax) => set({ apiLeverageMax }),
+  setApiLeverageStepSize: (apiLeverageStepSize) => set({ apiLeverageStepSize }),
 
   // tradingPair: 'BTC/USDT', //cryptocompare
   tradingPair: 'BTCUSD',
@@ -43,4 +53,7 @@ export const ApiState = create<ApiStateProps>((set, get) => ({
       tradingPair,
       primaryPair: tradingPair.split('USD')[0],
     }),
+
+  brokerInstance: null,
+  setBrokerInstance: (brokerInstance) => set({ brokerInstance }),
 }));

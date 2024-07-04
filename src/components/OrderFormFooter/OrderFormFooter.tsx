@@ -1,43 +1,30 @@
 import { type Dispatch, useEffect, type FC, type SetStateAction } from 'react';
-import { Typography } from '@mui/material';
-import { enqueueSnackbar } from 'notistack';
-import { AuthState, ApiState } from '@states/index';
+import { Typography, Box, type BoxProps } from '@mui/material';
+import { ApiState } from '@states/index';
+import { Bybit } from '@utils/index';
 
-interface Props {
+interface Props extends BoxProps {
   accountBalance: number | null;
   setAccountBalance: Dispatch<SetStateAction<null>>;
 }
 
-export const OrderFormFooter: FC<Props> = ({ accountBalance, setAccountBalance }) => {
-  const { counterAsset } = ApiState();
-
-  const { brokerInstance } = AuthState();
+export const OrderFormFooter: FC<Props> = ({ accountBalance, setAccountBalance, ...restBoxProps }) => {
+  const { counterAsset, brokerInstance } = ApiState();
 
   const intervalTime = 3000;
 
   useEffect(() => {
-    console.log(brokerInstance, counterAsset);
-
     if (!brokerInstance || !counterAsset) return;
 
     const interval = setInterval(async () => {
-      try {
-        const getBalance = await brokerInstance?.fetchBalance();
-        console.log(getBalance);
-
-        setAccountBalance(getBalance[counterAsset]?.free);
-      } catch (error) {
-        enqueueSnackbar(`${error}`, {
-          variant: 'error',
-        });
-      }
+      await Bybit.getBalance({ counterAsset, brokerInstance }, setAccountBalance);
     }, intervalTime);
 
     return () => clearInterval(interval);
   }, [accountBalance, counterAsset]);
 
   return (
-    <div style={{ marginBottom: 8, marginTop: 'auto' }}>
+    <Box {...restBoxProps}>
       <div>
         {accountBalance && (
           <>
@@ -46,6 +33,6 @@ export const OrderFormFooter: FC<Props> = ({ accountBalance, setAccountBalance }
         )}
       </div>
       <Typography>PNL of current trade: $ 0.00</Typography>
-    </div>
+    </Box>
   );
 };

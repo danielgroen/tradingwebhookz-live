@@ -37,8 +37,8 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
     const _potentialProfit = calculatePotentialProfit(takeProfitPrice, entryPrice, positionSize);
     const _potentialLoss = calculatePotentialLoss(entryPrice, stopLossPrice, positionSize);
 
-    setPotentialProfit(_potentialProfit.toFixed(2));
-    setPotentialLoss(_potentialLoss.toFixed(2));
+    setPotentialProfit(Number(_potentialProfit.toFixed(2)));
+    setPotentialLoss(Number(_potentialLoss.toFixed(2)));
   }, [stopLoss, takeProfit, price, risk, accountBalance]);
 
   return (

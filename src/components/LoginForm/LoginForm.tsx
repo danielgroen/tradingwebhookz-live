@@ -2,27 +2,20 @@ import { useEffect, useState } from 'react';
 import { TextField, Button, FormControlLabel, Switch, Typography, Link, Checkbox } from '@mui/material';
 import { enqueueSnackbar } from 'notistack';
 import ccxt from '@ccxt';
-import { GlobalState, AuthState } from '@states/index'; // Adjust the import based on your project structure
+import { GlobalState, AuthState, ApiState } from '@states/index'; // Adjust the import based on your project structure
 
 export const LoginForm = () => {
-  const {
-    setBrokerInstance,
-    apiKey,
-    setApiKey,
-    secret,
-    setSecret,
-    isTestnet,
-    setIsTestnet,
-    rememberMe,
-    setRememberMe,
-  } = AuthState();
-  const { setIsLoggedIn } = GlobalState();
+  const { apiKey, setApiKey, secret, setSecret, isTestnet, setIsTestnet, rememberMe, setRememberMe } = AuthState();
+  const { setIsLoggedIn, isLoggedIn } = GlobalState();
+  const { setBrokerInstance } = ApiState();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const handleLogin = async () => {
+    if (isLoggedIn) return;
+    setIsLoggingIn(true);
+
     const account = new ccxt.bybit({ apiKey, secret });
     account.setSandboxMode(isTestnet);
-    setIsLoggingIn(true);
 
     try {
       // Make a test API call to verify the credentials
@@ -34,6 +27,7 @@ export const LoginForm = () => {
       enqueueSnackbar('Login successful!', {
         variant: 'success',
         autoHideDuration: 2000,
+        preventDuplicate: true, // hotfix, fn runs double
       });
     } catch (error) {
       setIsLoggedIn(false);
@@ -46,7 +40,7 @@ export const LoginForm = () => {
 
   useEffect(() => {
     if (apiKey && secret) handleLogin();
-  }, []);
+  }, [apiKey, secret]);
 
   if (isLoggingIn) return <Typography variant="body2">Logging in...</Typography>;
 

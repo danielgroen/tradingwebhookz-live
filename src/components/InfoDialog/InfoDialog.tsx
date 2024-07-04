@@ -3,7 +3,15 @@ import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, B
 import { ApiState } from '@states/index';
 
 export const InfoDialog: FC<any> = ({ open, setOpen }) => {
-  const { getApiLeverage, getApiLeverageMax, tradingPairFormatted, apiMinOrderSize } = ApiState();
+  const {
+    apiLeverage,
+    apiLeverageMax,
+    apiMaxOrderSize,
+    apiLeverageStepSize,
+    tradingPairFormatted,
+    apiMinOrderSize,
+    fees,
+  } = ApiState();
 
   return (
     <Dialog
@@ -17,11 +25,20 @@ export const InfoDialog: FC<any> = ({ open, setOpen }) => {
       <DialogContent>
         <DialogContentText>
           <br />
-          minimal contracts: {apiMinOrderSize}
+          Minimal order size: {apiMinOrderSize}
           <br />
-          current leverage: {getApiLeverage()}
+          Maximal order size: {apiMaxOrderSize}
           <br />
-          maximal leverage: {getApiLeverageMax()}
+          leverage current: {apiLeverage}
+          <br />
+          leverage maximal: {apiLeverageMax}
+          <br />
+          leverage stepsize: {apiLeverageStepSize}
+          <br />
+          <br />
+          Maker Fees: {fees.maker}
+          <br />
+          Taker Fees: {fees.taker}
           <br />
         </DialogContentText>
       </DialogContent>

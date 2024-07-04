@@ -1,18 +1,15 @@
 [ ] make order by qty computed in zustand
-  [ ] get minimum contracts out of bybit api
+  [ ] get maximum contracts out of bybit api & show error if exceed
   [ ] if ajusting "order in usdt" field, the rest should update
   [ ] if ajusting "order in btc" field, the rest should update
 
 
-[ ] try to calculate max leverage instead of min leverage instead
-  [ ] never go beyond max leverage so user can get liquidated
-  [ ] NOTE:: add fees to leverage calculation. the higher the leverage, the higher the fees
-  [ ] Take fees in consitherations
-  [ ] make sure to never go beyond max leverage
+[ ] show liquidation line on chart
+[ ] NOTE:: add fees to leverage calculation. the higher the leverage, the higher the fees
+[ ] Take fees in consitherations
+[ ] make sure to never go beyond max leverage
 
 [ ] make "pnl of current trade" work
-
-[ ] fix live data-feed from bybit
 
 --- FUTURE
 

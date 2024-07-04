@@ -1,11 +1,13 @@
+import { fs } from 'fs';
+
 module.exports = {
   root: true,
   parserOptions: {
     project: './tsconfig.json',
+    tsconfigRootDir: fs.realpathSync(process.cwd()),
   },
   env: { browser: true, es2020: true },
   plugins: ['react', 'import', '@typescript-eslint', 'prettier'],
-
   extends: [
     'airbnb-typescript/base',
     'plugin:@typescript-eslint/recommended',

@@ -7,13 +7,13 @@ import { GoInfo } from 'react-icons/go';
 import { IoClose, IoLogOutOutline, IoChevronBack } from 'react-icons/io5';
 import { SiMicrosoftexcel } from 'react-icons/si';
 import { InfoDialog } from '@components/index';
-import { AuthState, GlobalState, SettingsState, OrderState } from '@states/index';
+import { AuthState, GlobalState, SettingsState, OrderState, ApiState } from '@states/index';
 
 export const Header = () => {
-  const { apiKey, isTestnet } = AuthState();
+  const { setBrokerInstance } = ApiState();
   const { orderbook } = SettingsState();
   const { isLoggedIn, isSettingsOpen, setIsSettingsOpen, setShowSidebar, setIsLoggedIn } = GlobalState();
-  const { setBrokerInstance, setApiKey, setSecret, clearStore } = AuthState();
+  const { clearStore, apiKey, isTestnet } = AuthState();
   const { isOrderFilled, clearOrder } = OrderState();
 
   const [openDialog, setOpenDialog] = useState(false);
@@ -23,8 +23,6 @@ export const Header = () => {
     setIsSettingsOpen(false);
     setIsLoggedIn(false);
     setBrokerInstance(null);
-    setApiKey('');
-    setSecret('');
     enqueueSnackbar('Logged out', {
       variant: 'success',
     });

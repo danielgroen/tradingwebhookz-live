@@ -1,11 +1,7 @@
-import { type bybit } from 'ccxt';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-interface AuthStateProps {
-  brokerInstance: bybit | null;
-  setBrokerInstance: (brokerInstance: bybit | null) => void;
-
+export interface AuthStateProps {
   apiKey: string;
   setApiKey: (apiKey: string) => void;
 
@@ -24,9 +20,6 @@ interface AuthStateProps {
 export const AuthState = create<AuthStateProps>()(
   persist(
     (set) => ({
-      brokerInstance: null,
-      setBrokerInstance: (brokerInstance) => set({ brokerInstance }),
-
       apiKey: '2CsRgnKhTpvOuol7EE',
       // apiKey: import.meta.env.DEV ? '2CsRgnKhTpvOuol7EE' : '',
       setApiKey: (apiKey) => set({ apiKey }),
@@ -41,7 +34,7 @@ export const AuthState = create<AuthStateProps>()(
       rememberMe: true,
       setRememberMe: (rememberMe) => set({ rememberMe }),
 
-      clearStore: () => set({ brokerInstance: null, apiKey: '', secret: '', isTestnet: false, rememberMe: false }),
+      clearStore: () => set({ apiKey: '', secret: '', isTestnet: false, rememberMe: false }),
     }),
     {
       name: 'auth-storage',
