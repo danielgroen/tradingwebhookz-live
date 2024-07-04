@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { IChartingLibraryWidget } from 'charting_library';
 import { GlobalState, OrderState, ApiState } from '@states/index';
 import { Bybit } from '@utils/index';
@@ -15,9 +15,10 @@ export const useTradingViewWidgetHooks = (chartWidget: any, setChartWidget: any,
   const onSymbolChange = async (name: string) => {
     if (!isLoggedIn) return;
 
-    apiStateProps.setTradingPair(name);
+    await apiStateProps.setTradingPair(name);
 
     await Bybit.SetStateLeverage(apiStateProps);
+    await Bybit.SetStateGeneralSymbolInfo(apiStateProps);
     await Bybit.SetStateFees(apiStateProps);
   };
 

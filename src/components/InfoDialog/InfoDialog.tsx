@@ -29,6 +29,7 @@ export const InfoDialog: FC<any> = ({ open, setOpen }) => {
           <br />
           Maximal order size: {apiMaxOrderSize}
           <br />
+          <br />
           leverage current: {apiLeverage}
           <br />
           leverage maximal: {apiLeverageMax}

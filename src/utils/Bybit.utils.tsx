@@ -8,15 +8,7 @@ export class Bybit {
    * Update the state of the app with the leverage for the current trading pair
    */
   static SetStateLeverage = async (apiState) => {
-    const {
-      setApiLeverage,
-      setApiLeverageMax,
-      setApiLeverageStepSize,
-      setApiMinOrderSize,
-      setApiMaxOrderSize,
-      tradingPairFormatted,
-      brokerInstance,
-    } = apiState;
+    const { setApiLeverage, tradingPairFormatted, brokerInstance } = apiState;
 
     try {
       const result = await brokerInstance?.fetchLeverage(tradingPairFormatted());
@@ -28,7 +20,15 @@ export class Bybit {
         variant: 'error',
       });
     }
+  };
 
+  /*
+   * @function SetStateGeneralSymbolInfo
+   * Update the state of the app with general information for the current trading pair
+   */
+  static SetStateGeneralSymbolInfo = async (apiState) => {
+    const { setApiLeverageMax, setApiLeverageStepSize, setApiMinOrderSize, setApiMaxOrderSize, tradingPairFormatted } =
+      apiState;
     try {
       const result = await fetch(
         `https://api.bybit.com/v5/market/instruments-info?category=linear&symbol=${tradingPairFormatted()}`
@@ -38,6 +38,7 @@ export class Bybit {
 
       setApiMaxOrderSize(result.lotSizeFilter.maxOrderQty);
       setApiMinOrderSize(result.lotSizeFilter.minOrderQty);
+
       setApiLeverageMax(result.leverageFilter.maxLeverage);
       setApiLeverageStepSize(result.leverageFilter.leverageStep);
     } catch (error) {
