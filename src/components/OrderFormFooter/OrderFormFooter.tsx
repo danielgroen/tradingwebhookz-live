@@ -28,7 +28,7 @@ export const OrderFormFooter: FC<Props> = ({ accountBalance, setAccountBalance, 
       <div>
         {accountBalance && (
           <>
-            Balance: {(+accountBalance)?.toFixed(2)} {counterAsset}
+            Balance: {(+accountBalance?.toFixed(2)).toLocaleString('en-US')} {counterAsset}
           </>
         )}
       </div>

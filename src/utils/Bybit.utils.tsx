@@ -83,9 +83,9 @@ export class Bybit {
       });
     } catch (error) {
       console.log(error);
-      enqueueSnackbar(`${error}`, {
-        variant: 'error',
-      });
+      // enqueueSnackbar(`${error}`, {
+      //   variant: 'error',
+      // });
     }
   };
 

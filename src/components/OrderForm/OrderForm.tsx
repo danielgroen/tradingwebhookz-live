@@ -50,7 +50,7 @@ export const OrderForm = () => {
         </Typography>
         <TextField
           {...inputBase}
-          value={(parseFloat(qty) * parseFloat(price) || 0).toFixed(2)}
+          value={(+(parseFloat(qty) * parseFloat(price)).toFixed(2) || 0).toLocaleString('en-US')}
           disabled
           onChange={(e) => setQty(e.target.value)}
           label={`Order in ${counterAsset}`}
@@ -69,9 +69,9 @@ export const OrderForm = () => {
           value={orderPercent}
           size="small"
           exclusive
-          sx={{ mb: 2, display: 'flex', height: '20px', '*': { fontSize: 10 } }}
+          sx={{ mb: 2, display: 'flex', height: '18px', '*': { fontSize: 10 } }}
         >
-          {[25, 50, 75, 100].map((percent) => (
+          {[10, 25, 50, 75, 100].map((percent) => (
             <ToggleButton disableRipple key={percent} value={percent} onClick={() => setOrderPercent(percent)}>
               {percent}%
             </ToggleButton>

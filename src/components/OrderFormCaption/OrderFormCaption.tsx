@@ -3,10 +3,10 @@ import { Typography } from '@mui/material';
 import { OrderState, SettingsState, ApiState } from '@states/index';
 import {
   calculatePositionSize,
-  calculate,
   calculateLeverage,
   calculatePotentialProfit,
   calculatePotentialLoss,
+  calculate,
   stepSizeToFixed,
 } from '@utils/index';
 
@@ -14,12 +14,10 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
   const [potentialProfit, setPotentialProfit] = useState(0);
   const [potentialLoss, setPotentialLoss] = useState(0);
 
-  const { orderTypeStoploss, orderTypeTakeProfit } = SettingsState();
+  const { risk, orderTypeStoploss, orderTypeTakeProfit } = SettingsState();
   const { stopLoss, takeProfit, price, riskReward, setQty, setLocalLeverage } = OrderState();
   const { counterAsset, apiMinOrderSize, apiMaxOrderSize, apiLeverageMax, apiLeverageStepSize, fees } = ApiState();
   const { maker, taker } = fees;
-
-  const { risk } = SettingsState();
 
   // Calculate position size, leverage, potential profit, and potential loss
   useEffect(() => {
@@ -31,17 +29,29 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
     const initialInvestment = accountBalance;
     const riskPercentage = parseFloat(risk) / 100;
 
-    const positionSize = calculatePositionSize(initialInvestment, riskPercentage, entryPrice, stopLossPrice);
+    let positionSize = calculatePositionSize(initialInvestment, riskPercentage, entryPrice, stopLossPrice, maker);
+    let orderValue = calculate(positionSize, entryPrice);
+    let leverage = calculateLeverage(orderValue, accountBalance, apiLeverageMax);
+    let initialMargin = orderValue / leverage;
+    let totalFees = orderValue * (maker / 100);
+    let totalMarginRequirement = initialMargin + totalFees;
+    const feeReserve = accountBalance * 0.01; // 1% of account balance reserved for fees
+    const availableBalanceForTrading = accountBalance - feeReserve;
+    // Adjust position size if total margin requirement exceeds available balance for trading
+    if (totalMarginRequirement > availableBalanceForTrading) {
+      positionSize = ((availableBalanceForTrading - totalFees) * leverage) / entryPrice;
+      orderValue = calculate(positionSize, entryPrice);
+      initialMargin = orderValue / leverage;
+      totalMarginRequirement = initialMargin + totalFees;
+    }
 
-    const qtyInUsdt = calculate(positionSize, entryPrice);
-    const _leverage = calculateLeverage(qtyInUsdt, accountBalance);
+    // Calculate potential profit and loss
+    const _potentialProfit = calculatePotentialProfit(takeProfitPrice, entryPrice, positionSize, maker);
+    const _potentialLoss = calculatePotentialLoss(entryPrice, stopLossPrice, positionSize, maker);
 
+    // Set state values
     setQty(positionSize.toFixed(stepSizeToFixed(apiMinOrderSize as number)));
-    setLocalLeverage(_leverage.toFixed(stepSizeToFixed(apiLeverageStepSize as number)));
-
-    const _potentialProfit = calculatePotentialProfit(takeProfitPrice, entryPrice, positionSize);
-    const _potentialLoss = calculatePotentialLoss(entryPrice, stopLossPrice, positionSize);
-
+    setLocalLeverage(leverage.toFixed(stepSizeToFixed(apiLeverageStepSize as number)));
     setPotentialProfit(Number(_potentialProfit.toFixed(2)));
     setPotentialLoss(Number(_potentialLoss.toFixed(2)));
   }, [stopLoss, takeProfit, price, risk, accountBalance]);
@@ -58,6 +68,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
             {counterAsset}
           </Typography>
         )}
+
         {riskReward && (
           <Typography variant="caption" sx={{ display: 'block' }}>
             RR:{' '}
@@ -66,6 +77,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
             </Typography>
           </Typography>
         )}
+
         {potentialProfit !== 0 && (
           <Typography variant="caption" sx={{ display: 'block' }}>
             P:{' '}
@@ -87,6 +99,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
             %
           </Typography>
         )}
+
         {potentialProfit !== 0 && (
           <Typography variant="caption" sx={{ display: 'block' }}>
             P:{' '}
