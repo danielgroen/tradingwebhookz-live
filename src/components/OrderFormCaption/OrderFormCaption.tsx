@@ -34,7 +34,9 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
     let leverage = calculateLeverage(orderValue, accountBalance, apiLeverageMax);
     let initialMargin = orderValue / leverage;
     let totalFees = orderValue * (maker / 100);
+
     let totalMarginRequirement = initialMargin + totalFees;
+    // const feeReserve = accountBalance * (0.002 * leverage); // 1% of account balance reserved for fees
     const feeReserve = accountBalance * 0.01; // 1% of account balance reserved for fees
     const availableBalanceForTrading = accountBalance - feeReserve;
 
