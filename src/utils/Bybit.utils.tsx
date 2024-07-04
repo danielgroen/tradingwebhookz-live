@@ -149,4 +149,18 @@ export class Bybit {
       });
     }
   };
+
+  static getOpenOrders = async (apiState, orderStateProps) => {
+    const { setOpenOrders } = orderStateProps;
+    const { tradingPairFormatted, brokerInstance } = apiState;
+    try {
+      const openOrders = await brokerInstance?.fetchOpenOrders(tradingPairFormatted());
+      setOpenOrders(openOrders);
+      console.log(openOrders);
+    } catch (error) {
+      enqueueSnackbar(`${error}`, {
+        variant: 'error',
+      });
+    }
+  };
 }

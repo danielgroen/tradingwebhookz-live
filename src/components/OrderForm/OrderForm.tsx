@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { TextField, Typography, Chip, Button, ToggleButtonGroup, ToggleButton } from '@mui/material';
-import { OrderButton, OrderFormCaption, OrderFormFooter, OrderFormActiveOrders } from '@components/index';
+import { OrderButton, OrderFormCaption, OrderFormFooter, OrderFormOrders } from '@components/index';
 import { SIDE } from '@constants/index';
 import { OrderState, ApiState } from '@states/index';
 import { inputLeft, inputRight, inputBase } from '@utils/index';
@@ -65,6 +65,7 @@ export const OrderForm = () => {
         />
         <ToggleButtonGroup
           fullWidth
+          disabled
           color="primary"
           value={orderPercent}
           size="small"
@@ -110,7 +111,7 @@ export const OrderForm = () => {
         />
         <OrderFormCaption accountBalance={accountBalance} />
       </div>
-      <OrderFormActiveOrders sx={{ marginTop: 'auto' }} />
+      <OrderFormOrders sx={{ marginTop: 'auto' }} />
       <OrderFormFooter sx={{ my: 2 }} accountBalance={accountBalance} setAccountBalance={setAccountBalance} />
       {accountBalance === 0 ? (
         <Button disabled variant="outlined" fullWidth>

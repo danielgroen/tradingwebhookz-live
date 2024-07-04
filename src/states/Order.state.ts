@@ -28,6 +28,9 @@ interface OrderStateProps {
 
   isOrderFilled: () => boolean;
   clearOrder: () => void;
+
+  openOrders: any[];
+  setOpenOrders: (openOrders: any[]) => void;
 }
 
 export const OrderState = create<OrderStateProps>((set, get) => ({
@@ -59,6 +62,9 @@ export const OrderState = create<OrderStateProps>((set, get) => ({
     const { qty, price, localLeverage, stopLoss, takeProfit, side } = get();
     return !!(+qty && +price && +localLeverage && +stopLoss && +takeProfit && side);
   },
+
+  openOrders: [],
+  setOpenOrders: (openOrders) => set({ openOrders }),
 
   clearOrder: () =>
     set({
