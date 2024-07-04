@@ -50,7 +50,7 @@ export const OrderForm = () => {
         </Typography>
         <TextField
           {...inputBase}
-          value={qty || 0}
+          value={(parseFloat(qty) * parseFloat(price) || 0).toFixed(2)}
           disabled
           onChange={(e) => setQty(e.target.value)}
           label={`Order in ${counterAsset}`}
@@ -58,7 +58,7 @@ export const OrderForm = () => {
         />
         <TextField
           {...inputBase}
-          value={(parseFloat(qty) / parseFloat(price) || 0).toFixed(3)}
+          value={qty || 0}
           // onChange={(e) => setTakeProfit(e.target.value)}
           label="Order by qty"
           InputProps={{ endAdornment: primaryPair }}

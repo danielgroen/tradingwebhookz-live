@@ -98,16 +98,16 @@ export class Bybit {
     const { tradingPairFormatted, brokerInstance } = apiState;
     const { orderTypeStoploss, orderTypeTakeProfit } = settingsState;
 
-    console.log(tradingPairFormatted(), parseFloat(qty) / parseFloat(price));
-
     try {
       await brokerInstance?.createOrder(
         tradingPairFormatted(),
         'limit', // base order is always limit
         side as SIDE,
-        parseFloat(qty) / parseFloat(price),
+        qty,
         parseFloat(price),
         {
+          // 0 for one-way mode, 1 buy side of hedged mode, 2 sell side of hedged mode
+          positionIdx: 0,
           stopLoss: {
             type: orderTypeStoploss,
             price: parseFloat(stopLoss),
@@ -133,6 +133,10 @@ export class Bybit {
     }
   };
 
+  /*
+   * @function getBalance
+   * Get the account balance for the current asset
+   */
   static getBalance = async (apiState, setAccountBalance) => {
     const { counterAsset, brokerInstance } = apiState;
     try {
