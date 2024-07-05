@@ -74,7 +74,7 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
             variant={isFormOpen === 1 ? 'outlined' : 'text'}
             key="Position"
           >
-            Open
+            Open orders
           </Button>
         </ButtonGroup>
 
