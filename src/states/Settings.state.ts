@@ -9,6 +9,9 @@ interface SettingsStateProps {
   autoFill: boolean;
   toggleAutoFill: () => void;
 
+  autoRemoveDrawings: boolean;
+  toggleAutoRemoveDrawings: () => void;
+
   orderbook: string;
   setOrderbook: (orderbook: string) => void;
 
@@ -28,6 +31,9 @@ export const SettingsState = create<SettingsStateProps>()(
       autoFill: true,
       toggleAutoFill: () => set({ autoFill: !get().autoFill }),
 
+      autoRemoveDrawings: true,
+      toggleAutoRemoveDrawings: () => set({ autoRemoveDrawings: !get().autoRemoveDrawings }),
+
       orderbook: '',
       setOrderbook: (orderbook) => set({ orderbook }),
 
@@ -41,6 +47,7 @@ export const SettingsState = create<SettingsStateProps>()(
       name: 'settings-storage',
       partialize: (state) => ({
         risk: state.risk,
+        autoRemoveDrawings: state.autoRemoveDrawings,
         orderbook: state.orderbook,
         orderTypeStoploss: state.orderTypeStoploss,
         orderTypeTakeProfit: state.orderTypeTakeProfit,

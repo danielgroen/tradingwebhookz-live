@@ -27,6 +27,8 @@ export const SettingsForm = () => {
     setOrderTypeTakeProfit,
     autoFill,
     toggleAutoFill,
+    autoRemoveDrawings,
+    toggleAutoRemoveDrawings,
   } = SettingsState();
 
   return (
@@ -99,7 +101,7 @@ export const SettingsForm = () => {
             id="demo-select-small"
             value={orderTypeTakeProfit}
             sx={{ textTransform: 'capitalize' }}
-            onChange={(e) => setOrderTypeTakeProfit(e.target.value)}
+            onChange={(e: any) => setOrderTypeTakeProfit(e.target.value)}
             label="Take profit order"
             color="success"
           >
@@ -117,8 +119,18 @@ export const SettingsForm = () => {
             spot
           </ToggleButton>
           <ToggleButton value="derivates">Derivates</ToggleButton>
-          <ToggleButton value="inverse">Inverse</ToggleButton>
+          <ToggleButton disabled value="inverse">
+            Inverse
+          </ToggleButton>
         </ToggleButtonGroup>
+
+        <FormControlLabel
+          // {...inputLeft}
+          sx={{ ml: 'auto', mt: 2 }}
+          control={<Switch checked={autoRemoveDrawings} onChange={toggleAutoRemoveDrawings} />}
+          label="Auto remove drawings"
+          labelPlacement="start"
+        />
       </div>
     </>
   );

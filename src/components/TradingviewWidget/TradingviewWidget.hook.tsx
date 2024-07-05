@@ -1,12 +1,13 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { IChartingLibraryWidget } from 'charting_library';
-import { GlobalState, OrderState, ApiState } from '@states/index';
+import { GlobalState, OrderState, ApiState, SettingsState } from '@states/index';
 import { Bybit } from '@utils/index';
 
 // https://docs.ccxt.com/#/exchanges/bybit?id=bybit
 export const useTradingViewWidgetHooks = (chartWidget: any, setChartWidget: any, chartContainerRef: any) => {
   const { isLoggedIn } = GlobalState();
   const { setStopLoss, setTakeProfit, setPrice, setRiskReward, side } = OrderState();
+  const { autoRemoveDrawings } = SettingsState();
   const { ...apiStateProps } = ApiState();
   /*
    * @function onSymbolChange
@@ -22,6 +23,11 @@ export const useTradingViewWidgetHooks = (chartWidget: any, setChartWidget: any,
     await Bybit.SetStateFees(apiStateProps);
   };
 
+  // nice trick to have the state in a ref. because the state is not updated in the onDraw function
+  const autoRemoveDrawingsRef = useRef(autoRemoveDrawings);
+  useEffect(() => {
+    autoRemoveDrawingsRef.current = autoRemoveDrawings;
+  }, [autoRemoveDrawings]);
   /*
    * @function onDraw
    * Called when a drawing is made on the chart
@@ -47,7 +53,7 @@ export const useTradingViewWidgetHooks = (chartWidget: any, setChartWidget: any,
 
           result.pop();
 
-          [...result].forEach((id) => chartWidget.chart().removeEntity(id));
+          if (autoRemoveDrawingsRef.current) [...result].forEach((id) => chartWidget.chart().removeEntity(id));
 
           setRiskReward(`${computedRR}`.replace('.', ':'));
           setPrice(`${priceEntry}`);

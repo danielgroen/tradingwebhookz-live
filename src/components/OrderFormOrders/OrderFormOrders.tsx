@@ -90,7 +90,7 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
             {/* filter on this symbol */}
             {!!openPositions.length ? (
               openPositions
-                .filter((order) => order.info.symbol === apiStateProps.tradingPairFormatted())
+                .filter((order) => order.info.symbol === apiStateProps.tradingPairFormatted() && !!order.side)
                 .map((order) => (
                   <Box
                     key={order.id}
@@ -115,7 +115,7 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
                           <>
                             <Typography sx={{ ml: 1, color: '#00b0ff' }}>Limit order</Typography>
                             <Typography sx={{ ml: 1, color: order.unrealizedPnl > 0 ? '#66bb6a' : '#f44336' }}>
-                              {order.unrealizedPnl.toLocaleString('en-US')}
+                              {order?.unrealizedPnl?.toLocaleString('en-US')}
                             </Typography>
                           </>
                         )}

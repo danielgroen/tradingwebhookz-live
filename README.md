@@ -34,3 +34,8 @@ export default {
 
 example implemented livefeed....
 https://github.com/yasincidem/chart
+
+<!-- usefull links -->
+- https://www.bybit.com/en/help-center/article/Liquidation-Process-Derivatives-Standard-Account
+- https://bybit-exchange.github.io/docs/api-explorer/v5/trade/open-order
+- https://docs.ccxt.com/#/exchanges/bybit?id=bybit
