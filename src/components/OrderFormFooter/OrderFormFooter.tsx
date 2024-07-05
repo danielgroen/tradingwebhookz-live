@@ -27,9 +27,9 @@ export const OrderFormFooter: FC<Props> = ({ accountBalance, setAccountBalance, 
     <Box {...restBoxProps}>
       <div>
         {accountBalance && (
-          <div className="flex justify-between">
-            <div>Balance</div>
-            <div>
+          <div className="flex justify-end text-xs gap-1">
+            <div>Account:</div>
+            <div style={{ color: '#66bb6a' }}>
               {(+accountBalance?.toFixed(2)).toLocaleString('en-US')} {counterAsset}
             </div>
           </div>

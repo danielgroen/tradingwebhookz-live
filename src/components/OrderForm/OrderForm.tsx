@@ -111,8 +111,7 @@ export const OrderForm = () => {
         <OrderFormCaption accountBalance={accountBalance} />
       </div>
 
-      <OrderFormOrders sx={{ marginTop: 'auto', paddingTop: 2 }} />
-      <OrderFormFooter sx={{ my: 2 }} accountBalance={accountBalance} setAccountBalance={setAccountBalance} />
+      <OrderFormOrders sx={{ marginTop: 'auto', py: 2 }} />
       {accountBalance === 0 ? (
         <Button disabled variant="outlined" fullWidth>
           Insufficient {counterAsset}
@@ -120,6 +119,8 @@ export const OrderForm = () => {
       ) : (
         <OrderButton />
       )}
+
+      <OrderFormFooter sx={{ mt: 1 }} accountBalance={accountBalance} setAccountBalance={setAccountBalance} />
     </>
   );
 };
