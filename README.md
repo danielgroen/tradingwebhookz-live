@@ -39,3 +39,4 @@ https://github.com/yasincidem/chart
 - https://www.bybit.com/en/help-center/article/Liquidation-Process-Derivatives-Standard-Account
 - https://bybit-exchange.github.io/docs/api-explorer/v5/trade/open-order
 - https://docs.ccxt.com/#/exchanges/bybit?id=bybit
+- https://www.tradingview.com/charting-library-docs/latest/customization/overrides/chart-overrides/#grid-lines

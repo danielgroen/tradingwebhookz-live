@@ -22,7 +22,6 @@ export const useTradingViewWidgetHooks = (chartWidget: any, setChartWidget: any,
 
   const onSymbolChange = async (name: string) => {
     if (!isLoggedInRef.current) return;
-    console.log(apiStatePropsRef.current.fees, 'apiStateProps');
 
     await apiStatePropsRef.current.setTradingPair(name);
     await Bybit.SetStateLeverage(apiStatePropsRef.current);

@@ -35,6 +35,10 @@ export const TradingviewWidget = () => {
       drawings_access: { type: 'black', tools: [{ name: 'Long Position' }, { name: 'Short Position' }] },
       enabled_features: ['chart_property_page_trading', 'show_exchange_logos', 'show_symbol_logos'],
       disabled_features: ['header_quick_search', 'header_saveload', 'popup_hints', 'header_indicators'],
+      overrides: {
+        'paneProperties.vertGridProperties.color': 'transparent',
+        'paneProperties.horzGridProperties.color': 'transparent',
+      },
       theme: 'Dark' as WidgetOptions['theme'],
     };
 
