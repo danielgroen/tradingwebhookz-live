@@ -31,6 +31,9 @@ interface OrderStateProps {
 
   openOrders: any[];
   setOpenOrders: (openOrders: any[]) => void;
+
+  openPositions: any[];
+  setOpenPositions: (openPositions: any[]) => void;
 }
 
 export const OrderState = create<OrderStateProps>((set, get) => ({
@@ -65,6 +68,9 @@ export const OrderState = create<OrderStateProps>((set, get) => ({
 
   openOrders: [],
   setOpenOrders: (openOrders) => set({ openOrders }),
+
+  openPositions: [],
+  setOpenPositions: (openPositions) => set({ openPositions }),
 
   clearOrder: () =>
     set({

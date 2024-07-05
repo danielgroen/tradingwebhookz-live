@@ -150,13 +150,54 @@ export class Bybit {
     }
   };
 
+  /*
+   * @function getOpenOrders
+   * Get the open orders for the current trading pair
+   */
   static getOpenOrders = async (apiState, orderStateProps) => {
     const { setOpenOrders } = orderStateProps;
     const { tradingPairFormatted, brokerInstance } = apiState;
     try {
       const openOrders = await brokerInstance?.fetchOpenOrders(tradingPairFormatted());
       setOpenOrders(openOrders);
+    } catch (error) {
+      enqueueSnackbar(`${error}`, {
+        variant: 'error',
+      });
+    }
+  };
+
+  /*
+   * @function cancelOrder
+   * Cancel an order for the current trading pair
+   */
+  static cancelOrder = async (apiState, order) => {
+    const { brokerInstance } = apiState;
+    try {
+      brokerInstance.cancelOrder(order.id, order.info.symbol);
+      enqueueSnackbar(`Cancelled order`, {
+        variant: 'success',
+        autoHideDuration: 2000,
+      });
+    } catch (error) {
+      enqueueSnackbar(`${error}`, {
+        variant: 'error',
+      });
+    }
+  };
+
+  /*
+   * @function getPositions
+   * Get the open positions for the current trading pair
+   */
+  static getPositions = async (apiState, orderStateProps) => {
+    const { setOpenPositions } = orderStateProps;
+    const { tradingPairFormatted, brokerInstance } = apiState;
+    try {
+      const openOrders = await brokerInstance?.fetchPositions([tradingPairFormatted()]);
       console.log(openOrders);
+
+      setOpenPositions(openOrders);
     } catch (error) {
       enqueueSnackbar(`${error}`, {
         variant: 'error',

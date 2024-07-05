@@ -17,88 +17,186 @@ interface Props extends BoxProps {}
 
 export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
   const { ...apiStateProps } = ApiState();
-  const { openOrders, ...orderStateProps } = OrderState();
+  const { openOrders, openPositions, ...orderStateProps } = OrderState();
   const [isFormOpen, setIsFormOpen] = useState(0);
+
   const [openOrderToClose, setOpenOrderToClose] = useState<any>(null);
+  const [modalActions, setModalActions] = useState<any>(null);
   const [open, setOpen] = useState(false);
 
-  const handleClickOpen = () => {
+  const handleOpenModal = (order: any, type: 'cancel' | 'close') => {
+    setModalActions({ type, order });
     setOpen(true);
   };
 
-  const handleClose = () => {
+  const handleCloseModal = () => {
     setOpen(false);
+    setModalActions(null);
   };
 
-  const fetchOpenOrders = () => {
+  const handleActionModal = () => {
+    if (!modalActions) return;
+
+    if (modalActions.type === 'cancel') {
+      Bybit.cancelOrder(apiStateProps, modalActions.order);
+    } else if (modalActions.type === 'close') {
+      // test if this also works
+      Bybit.cancelOrder(apiStateProps, modalActions.order);
+    }
+
+    handleCloseModal();
+  };
+
+  const fetchOrders = () => {
     Bybit.getOpenOrders(apiStateProps, orderStateProps);
+    Bybit.getPositions(apiStateProps, orderStateProps);
   };
 
   useEffect(() => {
-    fetchOpenOrders();
-    const interval = setInterval(fetchOpenOrders, 2000);
+    fetchOrders();
+    const interval = setInterval(fetchOrders, 3000);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <Box {...restBoxProps}>
-      <ButtonGroup variant="text" size="small">
-        <Button onClick={() => setIsFormOpen(0)} variant={isFormOpen === 0 ? 'outlined' : 'text'} key="open">
-          Active
-        </Button>
-        <Button onClick={() => setIsFormOpen(1)} variant={isFormOpen === 1 ? 'outlined' : 'text'} key="Position">
-          Open
-        </Button>
-      </ButtonGroup>
-
-      <Dialog open={open} onClose={() => {}} title="hoi">
-        <DialogTitle>Do you really want to close this order?</DialogTitle>
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button color="error" onClick={handleClose} autoFocus>
-            Close order
+    <>
+      {modalActions && (
+        <Dialog open={open} onClose={handleCloseModal}>
+          <DialogTitle>Do you really want to {modalActions.type} this order?</DialogTitle>
+          <DialogActions>
+            <Button onClick={handleCloseModal}>Cancel</Button>
+            <Button color="error" onClick={handleActionModal} autoFocus>
+              {modalActions.type} order
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
+      <Box {...restBoxProps}>
+        <ButtonGroup variant="text" size="small">
+          <Button onClick={() => setIsFormOpen(0)} variant={isFormOpen === 0 ? 'outlined' : 'text'} key="open">
+            Positions
           </Button>
-        </DialogActions>
-      </Dialog>
+          <Button onClick={() => setIsFormOpen(1)} variant={isFormOpen === 1 ? 'outlined' : 'text'} key="Position">
+            Open
+          </Button>
+        </ButtonGroup>
 
-      {/* active*/}
-      {isFormOpen === 0 && (
-        <Box className="flex flex-col bg-slate-900 w-full rounded-md min-h-48 p-4 relative">
-          {/* filter on this symbol */}
-          {!!openOrders.length ? (
-            openOrders
-              .filter((order) => order.info.symbol === apiStateProps.tradingPairFormatted())
-              .map((order) => (
-                <Box
-                  key={order.id}
-                  sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2, borderLeft: '3px solid red' }}
-                >
-                  <Box sx={{ display: 'flex', flexDirection: 'column', '*': { fontSize: 12 } }}>
-                    <Typography sx={{ ml: 1 }}>{order.info.symbol}</Typography>
-                    <Typography sx={{ ml: 1 }}>{order.amount}</Typography>
+        {/*
+         * active orders
+         *
+         */}
+        {isFormOpen === 0 && (
+          <Box className="flex items-center flex-col bg-slate-900 w-full rounded-md min-h-36 max-h-36 p-3 text-sky-900 overflow-x-auto relative">
+            {/* filter on this symbol */}
+            {!!openPositions.length ? (
+              openPositions
+                .filter((order) => order.info.symbol === apiStateProps.tradingPairFormatted())
+                .map((order) => (
+                  <Box
+                    key={order.id}
+                    sx={{
+                      display: 'flex',
+                      gap: 2,
+                      alignItems: 'center',
+                      '*': { fontSize: '11px !important' },
+                      mb: 2,
+                      width: '100%',
+                      color: 'white',
+                      borderLeft: `3px solid ${order.side === 'buy' ? '#66bb6a' : '#f44336'}`,
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                      <Typography sx={{ ml: 1 }}>{order.info.symbol}</Typography>
+                      <Typography sx={{ ml: 1 }}>{order.contracts}</Typography>
+                    </Box>
+                    <Typography sx={{ ml: 1 }} fontSize={14}>
+                      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                        {!order.triggerPrice && (
+                          <>
+                            <Typography sx={{ ml: 1, color: '#00b0ff' }}>Limit order</Typography>
+                            <Typography sx={{ ml: 1, color: order.unrealizedPnl > 0 ? '#66bb6a' : '#f44336' }}>
+                              {order.unrealizedPnl.toLocaleString('en-US')}
+                            </Typography>
+                          </>
+                        )}
+                      </Box>
+                    </Typography>
+                    <Button disabled sx={{ marginLeft: 'auto' }} onClick={() => handleOpenModal(order, 'cancel')}>
+                      Close
+                    </Button>
                   </Box>
-                  <Typography sx={{ ml: 1 }} fontSize={14}>
-                    {order.price}
-                  </Typography>
-                  <Button sx={{ marginLeft: 'auto' }} onClick={() => handleClickOpen()}>
-                    Close
-                  </Button>
-                </Box>
-              ))
-          ) : (
-            <Typography className="self-center text-sky-900" sx={{ mt: '25%' }}>
-              No active orders...
-            </Typography>
-          )}
-        </Box>
-      )}
+                ))
+            ) : (
+              <Typography className="self-center text-sky-900" sx={{ mt: '20%' }}>
+                No open orders...
+              </Typography>
+            )}
+          </Box>
+        )}
 
-      {/* Open */}
-      {isFormOpen === 1 && (
-        <Box className="flex items-center flex-col justify-center bg-slate-900 w-full rounded-md min-h-48 p-4 text-sky-900 relative">
-          Work in progress.
-        </Box>
-      )}
-    </Box>
+        {/*
+         * Open orders
+         *
+         */}
+        {isFormOpen === 1 && (
+          <Box className="flex items-center flex-col bg-slate-900 w-full rounded-md min-h-36 max-h-36 p-3 text-sky-900 overflow-x-auto relative">
+            {/* filter on this symbol */}
+            {!!openOrders.length ? (
+              openOrders
+                .filter((order) => order.info.symbol === apiStateProps.tradingPairFormatted())
+                .map((order) => (
+                  <Box
+                    key={order.id}
+                    sx={{
+                      display: 'flex',
+                      gap: 2,
+                      alignItems: 'center',
+                      '*': { fontSize: '11px !important' },
+                      mb: 2,
+                      width: '100%',
+                      color: 'white',
+                      borderLeft: `3px solid ${order.side === 'buy' ? '#66bb6a' : '#f44336'}`,
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                      <Typography sx={{ ml: 1 }}>{order.info.symbol}</Typography>
+                      <Typography sx={{ ml: 1 }}>{order.amount}</Typography>
+                    </Box>
+                    <Typography sx={{ ml: 1 }} fontSize={14}>
+                      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                        {!order.triggerPrice && (
+                          <>
+                            <Typography sx={{ ml: 1, color: '#00b0ff' }}>Limit order</Typography>
+                            <Typography sx={{ ml: 1 }}>{order.takeProfitPrice.toLocaleString('en-US')}</Typography>
+                          </>
+                        )}
+                        {order.triggerPrice && order.takeProfitPrice && (
+                          <>
+                            <Typography sx={{ ml: 1, color: '#66bb6a' }}>TP</Typography>
+                            <Typography sx={{ ml: 1 }}>{order.takeProfitPrice.toLocaleString('en-US')}</Typography>
+                          </>
+                        )}
+                        {order.triggerPrice && order.stopLossPrice && (
+                          <>
+                            <Typography sx={{ ml: 1, color: '#f44336' }}>SL</Typography>
+                            <Typography sx={{ ml: 1 }}>{order.stopLossPrice.toLocaleString('en-US')}</Typography>
+                          </>
+                        )}
+                      </Box>
+                    </Typography>
+                    <Button sx={{ marginLeft: 'auto' }} onClick={() => handleOpenModal(order, 'cancel')}>
+                      Cancel
+                    </Button>
+                  </Box>
+                ))
+            ) : (
+              <Typography className="self-center text-sky-900" sx={{ mt: '20%' }}>
+                No open orders...
+              </Typography>
+            )}
+          </Box>
+        )}
+      </Box>
+    </>
   );
 };
