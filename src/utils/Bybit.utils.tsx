@@ -195,9 +195,27 @@ export class Bybit {
     const { tradingPairFormatted, brokerInstance } = apiState;
     try {
       const openOrders = await brokerInstance?.fetchPositions([tradingPairFormatted()]);
-      console.log(openOrders);
-
       setOpenPositions(openOrders);
+    } catch (error) {
+      enqueueSnackbar(`${error}`, {
+        variant: 'error',
+      });
+    }
+  };
+
+  static closeCurrentPosition = async (apiState, order) => {
+    const { tradingPairFormatted, brokerInstance } = apiState;
+    try {
+      const openOrders = await brokerInstance?.createOrder(
+        tradingPairFormatted(),
+        'market',
+        ['long', 'buy'].includes(order.side) ? 'sell' : ('buy' as SIDE),
+        order.contracts
+      );
+      enqueueSnackbar(`Closed order`, {
+        variant: 'success',
+        autoHideDuration: 2000,
+      });
     } catch (error) {
       enqueueSnackbar(`${error}`, {
         variant: 'error',

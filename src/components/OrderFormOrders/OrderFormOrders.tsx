@@ -1,16 +1,5 @@
 import { FC, useEffect, useState } from 'react';
-import {
-  Typography,
-  ButtonGroup,
-  Button,
-  Box,
-  type BoxProps,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-} from '@mui/material';
+import { Typography, ButtonGroup, Button, Box, type BoxProps, Dialog, DialogTitle, DialogActions } from '@mui/material';
 import { Bybit } from '@utils/Bybit.utils';
 import { ApiState, OrderState } from '@src/states';
 interface Props extends BoxProps {}
@@ -20,7 +9,6 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
   const { openOrders, openPositions, ...orderStateProps } = OrderState();
   const [isFormOpen, setIsFormOpen] = useState(0);
 
-  const [openOrderToClose, setOpenOrderToClose] = useState<any>(null);
   const [modalActions, setModalActions] = useState<any>(null);
   const [open, setOpen] = useState(false);
 
@@ -40,8 +28,7 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
     if (modalActions.type === 'cancel') {
       Bybit.cancelOrder(apiStateProps, modalActions.order);
     } else if (modalActions.type === 'close') {
-      // test if this also works
-      Bybit.cancelOrder(apiStateProps, modalActions.order);
+      Bybit.closeCurrentPosition(apiStateProps, modalActions.order);
     }
 
     handleCloseModal();
@@ -88,7 +75,7 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
         {isFormOpen === 0 && (
           <Box className="flex items-center flex-col bg-slate-900 w-full rounded-md min-h-36 max-h-36 p-3 text-sky-900 overflow-x-auto relative">
             {/* filter on this symbol */}
-            {!!openPositions.length ? (
+            {!!openPositions.length &&
               openPositions
                 .filter((order) => order.info.symbol === apiStateProps.tradingPairFormatted() && !!order.side)
                 .map((order) => (
@@ -121,16 +108,11 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
                         )}
                       </Box>
                     </Typography>
-                    <Button disabled sx={{ marginLeft: 'auto' }} onClick={() => handleOpenModal(order, 'cancel')}>
+                    <Button sx={{ marginLeft: 'auto' }} onClick={() => handleOpenModal(order, 'close')}>
                       Close
                     </Button>
                   </Box>
-                ))
-            ) : (
-              <Typography className="self-center text-sky-900" sx={{ mt: '20%' }}>
-                No open orders...
-              </Typography>
-            )}
+                ))}
           </Box>
         )}
 
@@ -141,7 +123,7 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
         {isFormOpen === 1 && (
           <Box className="flex items-center flex-col bg-slate-900 w-full rounded-md min-h-36 max-h-36 p-3 text-sky-900 overflow-x-auto relative">
             {/* filter on this symbol */}
-            {!!openOrders.length ? (
+            {!!openOrders.length &&
               openOrders
                 .filter((order) => order.info.symbol === apiStateProps.tradingPairFormatted())
                 .map((order) => (
@@ -188,12 +170,7 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
                       Cancel
                     </Button>
                   </Box>
-                ))
-            ) : (
-              <Typography className="self-center text-sky-900" sx={{ mt: '20%' }}>
-                No open orders...
-              </Typography>
-            )}
+                ))}
           </Box>
         )}
       </Box>
