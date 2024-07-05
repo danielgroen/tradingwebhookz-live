@@ -14,7 +14,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
   const [potentialProfit, setPotentialProfit] = useState(0);
   const [potentialLoss, setPotentialLoss] = useState(0);
 
-  const { risk, orderTypeStoploss, orderTypeTakeProfit } = SettingsState();
+  const { risk } = SettingsState();
   const { stopLoss, takeProfit, price, riskReward, setQty, setLocalLeverage } = OrderState();
   const { counterAsset, apiMinOrderSize, apiMaxOrderSize, apiLeverageMax, apiLeverageStepSize, fees } = ApiState();
   const { maker, taker } = fees;
@@ -36,7 +36,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
     let totalFees = orderValue * (maker / 100);
 
     let totalMarginRequirement = initialMargin + totalFees;
-    // const feeReserve = accountBalance * (0.002 * leverage); // 1% of account balance reserved for fees
+    // todo: improve calculations
     const feeReserve = accountBalance * 0.01; // 1% of account balance reserved for fees
     const availableBalanceForTrading = accountBalance - feeReserve;
 

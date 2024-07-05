@@ -16,6 +16,7 @@ export const calculate = (positionSize, entryPrice) => {
 
 export const calculateLeverage = (positionValue, accountBalance, maxLeverage) => {
   let leverage = positionValue / accountBalance;
+
   if (leverage > maxLeverage) leverage = maxLeverage;
   if (leverage < 1) leverage = 1;
   return leverage;

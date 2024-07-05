@@ -9,12 +9,18 @@ export const useTradingViewWidgetHooks = (chartWidget: any, setChartWidget: any,
   const { setStopLoss, setTakeProfit, setPrice, setRiskReward, side } = OrderState();
   const { autoRemoveDrawings } = SettingsState();
   const { ...apiStateProps } = ApiState();
+
+  const isLoggedInRef = useRef(isLoggedIn);
+  useEffect(() => {
+    isLoggedInRef.current = isLoggedIn;
+  }, [isLoggedIn]);
+
   /*
    * @function onSymbolChange
    * Called when the trading pair changed AND initial load
    */
   const onSymbolChange = async (name: string) => {
-    if (!isLoggedIn) return;
+    if (!isLoggedInRef.current) return;
 
     await apiStateProps.setTradingPair(name);
 

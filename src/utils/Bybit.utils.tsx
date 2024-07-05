@@ -13,10 +13,9 @@ export class Bybit {
     try {
       const result = await brokerInstance?.fetchLeverage(tradingPairFormatted());
       const { leverage: ApiLeverage } = result?.info;
-
       setApiLeverage(ApiLeverage);
     } catch (error) {
-      enqueueSnackbar(`${error}`, {
+      enqueueSnackbar(`[FETCH LEVERAGE]: ${error}`, {
         variant: 'error',
       });
     }
@@ -42,7 +41,7 @@ export class Bybit {
       setApiLeverageMax(result.leverageFilter.maxLeverage);
       setApiLeverageStepSize(result.leverageFilter.leverageStep);
     } catch (error) {
-      enqueueSnackbar(`${error}`, {
+      enqueueSnackbar(`[SET SYMBOL INFO]: ${error}`, {
         variant: 'error',
       });
     }
@@ -53,14 +52,15 @@ export class Bybit {
    * Update the state of the app with the fees for the current trading pair
    */
   static SetStateFees = async (apiState) => {
-    const { tradingPair, brokerInstance } = apiState;
+    const { tradingPair, brokerInstance, setFees } = apiState;
 
     try {
       const result = await brokerInstance?.fetchTradingFee(tradingPair);
+      console.log('setFees:', result);
 
-      apiState.setFees({ maker: result?.info.makerFeeRate * 100, taker: result?.info.takerFeeRate * 100 });
+      setFees({ maker: result?.info.makerFeeRate * 100, taker: result?.info.takerFeeRate * 100 });
     } catch (error) {
-      enqueueSnackbar(`${error}`, {
+      enqueueSnackbar(`[SET FEES]: ${error}`, {
         variant: 'error',
       });
     }
@@ -82,7 +82,7 @@ export class Bybit {
         autoHideDuration: 2000,
       });
     } catch (error) {
-      console.log(error);
+      console.log(`[UPDATE LEVERAGE]: ${error}`);
       // enqueueSnackbar(`${error}`, {
       //   variant: 'error',
       // });
@@ -125,7 +125,7 @@ export class Bybit {
         autoHideDuration: 2000,
       });
     } catch (error) {
-      enqueueSnackbar(`${error}`, {
+      enqueueSnackbar(`[SEND ORDER]: ${error}`, {
         variant: 'error',
         autoHideDuration: 6000,
       });
@@ -144,7 +144,7 @@ export class Bybit {
 
       setAccountBalance(getBalance[counterAsset]?.free);
     } catch (error) {
-      enqueueSnackbar(`${error}`, {
+      enqueueSnackbar(`[GET BALANCE]: ${error}`, {
         variant: 'error',
       });
     }
@@ -161,7 +161,7 @@ export class Bybit {
       const openOrders = await brokerInstance?.fetchOpenOrders(tradingPairFormatted());
       setOpenOrders(openOrders);
     } catch (error) {
-      enqueueSnackbar(`${error}`, {
+      enqueueSnackbar(`[GET OPEN ORDERS]: ${error}`, {
         variant: 'error',
       });
     }
@@ -180,7 +180,7 @@ export class Bybit {
         autoHideDuration: 2000,
       });
     } catch (error) {
-      enqueueSnackbar(`${error}`, {
+      enqueueSnackbar(`[CANCEL ORDER]: ${error}`, {
         variant: 'error',
       });
     }
@@ -197,7 +197,7 @@ export class Bybit {
       const openOrders = await brokerInstance?.fetchPositions([tradingPairFormatted()]);
       setOpenPositions(openOrders);
     } catch (error) {
-      enqueueSnackbar(`${error}`, {
+      enqueueSnackbar(`[GET POSITION]: ${error}`, {
         variant: 'error',
       });
     }
@@ -217,7 +217,7 @@ export class Bybit {
         autoHideDuration: 2000,
       });
     } catch (error) {
-      enqueueSnackbar(`${error}`, {
+      enqueueSnackbar(`[CLOSE POSITION]: ${error}`, {
         variant: 'error',
       });
     }
