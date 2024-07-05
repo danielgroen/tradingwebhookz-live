@@ -3,7 +3,6 @@ import { IChartingLibraryWidget } from 'charting_library';
 import { GlobalState, OrderState, ApiState, SettingsState } from '@states/index';
 import { Bybit } from '@utils/index';
 
-// https://docs.ccxt.com/#/exchanges/bybit?id=bybit
 export const useTradingViewWidgetHooks = (chartWidget: any, setChartWidget: any, chartContainerRef: any) => {
   const { isLoggedIn } = GlobalState();
   const { setStopLoss, setTakeProfit, setPrice, setRiskReward, side } = OrderState();
@@ -11,33 +10,31 @@ export const useTradingViewWidgetHooks = (chartWidget: any, setChartWidget: any,
   const { ...apiStateProps } = ApiState();
 
   const isLoggedInRef = useRef(isLoggedIn);
+  const apiStatePropsRef = useRef(apiStateProps);
+
   useEffect(() => {
     isLoggedInRef.current = isLoggedIn;
   }, [isLoggedIn]);
 
-  /*
-   * @function onSymbolChange
-   * Called when the trading pair changed AND initial load
-   */
+  useEffect(() => {
+    apiStatePropsRef.current = apiStateProps;
+  }, [apiStateProps]);
+
   const onSymbolChange = async (name: string) => {
     if (!isLoggedInRef.current) return;
+    console.log(apiStatePropsRef.current.fees, 'apiStateProps');
 
-    await apiStateProps.setTradingPair(name);
-
-    await Bybit.SetStateLeverage(apiStateProps);
-    await Bybit.SetStateGeneralSymbolInfo(apiStateProps);
-    await Bybit.SetStateFees(apiStateProps);
+    await apiStatePropsRef.current.setTradingPair(name);
+    await Bybit.SetStateLeverage(apiStatePropsRef.current);
+    await Bybit.SetStateGeneralSymbolInfo(apiStatePropsRef.current);
+    await Bybit.SetStateFees(apiStatePropsRef.current);
   };
 
-  // nice trick to have the state in a ref. because the state is not updated in the onDraw function
   const autoRemoveDrawingsRef = useRef(autoRemoveDrawings);
   useEffect(() => {
     autoRemoveDrawingsRef.current = autoRemoveDrawings;
   }, [autoRemoveDrawings]);
-  /*
-   * @function onDraw
-   * Called when a drawing is made on the chart
-   */
+
   const onDraw = async (drawingId: string, eventName: any, chartWidget: IChartingLibraryWidget) => {
     try {
       const drawing = chartWidget.chart()?.getShapeById(drawingId);
@@ -46,7 +43,6 @@ export const useTradingViewWidgetHooks = (chartWidget: any, setChartWidget: any,
       if (toolName === 'LineToolRiskRewardShort' || toolName === 'LineToolRiskRewardLong') {
         setTimeout(() => {
           const curDrawingPoints = drawing.getPoints();
-
           const priceEntry = +curDrawingPoints[0].price;
           const priceTakeProfit = parseFloat(drawing?._source?._profitPriceAxisView?._axisRendererData?.text);
           const priceStopLoss = parseFloat(drawing?._source?._stopPriceAxisView?._axisRendererData?.text);
@@ -67,14 +63,16 @@ export const useTradingViewWidgetHooks = (chartWidget: any, setChartWidget: any,
           setStopLoss(`${priceStopLoss}`);
         }, 0);
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error('Error in onDraw:', error);
+    }
   };
 
   useEffect(() => {
     if (isLoggedIn) {
       onSymbolChange(apiStateProps.tradingPair);
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, apiStateProps.tradingPair]);
 
   useEffect(() => {
     if (side) return;

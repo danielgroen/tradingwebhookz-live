@@ -56,8 +56,6 @@ export class Bybit {
 
     try {
       const result = await brokerInstance?.fetchTradingFee(tradingPair);
-      console.log('setFees:', result);
-
       setFees({ maker: result?.info.makerFeeRate * 100, taker: result?.info.takerFeeRate * 100 });
     } catch (error) {
       enqueueSnackbar(`[SET FEES]: ${error}`, {
