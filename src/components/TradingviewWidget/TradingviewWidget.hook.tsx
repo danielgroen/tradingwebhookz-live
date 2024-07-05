@@ -75,7 +75,7 @@ export const useTradingViewWidgetHooks = (chartWidget: any, setChartWidget: any,
 
   useEffect(() => {
     if (side) return;
-    chartWidget?.chart().removeAllShapes();
+    if (autoRemoveDrawingsRef.current) chartWidget?.chart().removeAllShapes();
   }, [side]);
 
   return {
