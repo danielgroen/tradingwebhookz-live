@@ -15,7 +15,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
   const [potentialLoss, setPotentialLoss] = useState(0);
 
   const { risk } = SettingsState();
-  const { stopLoss, takeProfit, price, riskReward, setQty, setLocalLeverage } = OrderState();
+  const { stopLoss, takeProfit, price, riskReward, setQty, setLocalLeverage, orderPercent } = OrderState();
   const { counterAsset, apiMinOrderSize, apiMaxOrderSize, apiLeverageMax, apiLeverageStepSize, fees } = ApiState();
   const { maker, taker } = fees;
 
@@ -26,7 +26,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
     const entryPrice = parseFloat(price);
     const stopLossPrice = parseFloat(stopLoss);
     const takeProfitPrice = parseFloat(takeProfit);
-    const initialInvestment = accountBalance;
+    const initialInvestment = accountBalance * (orderPercent / 100);
     const riskPercentage = parseFloat(risk) / 100;
 
     let positionSize = calculatePositionSize(initialInvestment, riskPercentage, entryPrice, stopLossPrice, maker);
@@ -55,7 +55,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
     setLocalLeverage(leverage.toFixed(stepSizeToFixed(apiLeverageStepSize as number)));
     setPotentialProfit(Number(_potentialProfit.toFixed(2)));
     setPotentialLoss(Number(_potentialLoss.toFixed(2)));
-  }, [stopLoss, takeProfit, price, risk, accountBalance]);
+  }, [stopLoss, takeProfit, price, risk, accountBalance, orderPercent]);
 
   return (
     <>

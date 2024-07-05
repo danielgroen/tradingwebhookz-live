@@ -65,7 +65,6 @@ export const OrderForm = () => {
         />
         <ToggleButtonGroup
           fullWidth
-          disabled
           color="primary"
           value={orderPercent}
           size="small"
