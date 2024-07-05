@@ -27,12 +27,14 @@ export const OrderFormFooter: FC<Props> = ({ accountBalance, setAccountBalance, 
     <Box {...restBoxProps}>
       <div>
         {accountBalance && (
-          <>
-            Balance: {(+accountBalance?.toFixed(2)).toLocaleString('en-US')} {counterAsset}
-          </>
+          <div className="flex justify-between">
+            <div>Balance</div>
+            <div>
+              {(+accountBalance?.toFixed(2)).toLocaleString('en-US')} {counterAsset}
+            </div>
+          </div>
         )}
       </div>
-      <Typography>PNL of current trade: $ 0.00</Typography>
     </Box>
   );
 };

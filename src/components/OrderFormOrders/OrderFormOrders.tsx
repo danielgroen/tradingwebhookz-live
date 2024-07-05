@@ -59,11 +59,21 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
         </Dialog>
       )}
       <Box {...restBoxProps}>
-        <ButtonGroup variant="text" size="small">
-          <Button onClick={() => setIsFormOpen(0)} variant={isFormOpen === 0 ? 'outlined' : 'text'} key="open">
+        <ButtonGroup sx={{ mb: -1, ml: 0.3 }} variant="text" size="small">
+          <Button
+            sx={{ borderBottom: '0 !important' }}
+            onClick={() => setIsFormOpen(0)}
+            variant={isFormOpen === 0 ? 'outlined' : 'text'}
+            key="open"
+          >
             Positions
           </Button>
-          <Button onClick={() => setIsFormOpen(1)} variant={isFormOpen === 1 ? 'outlined' : 'text'} key="Position">
+          <Button
+            sx={{ borderBottom: '0 !important' }}
+            onClick={() => setIsFormOpen(1)}
+            variant={isFormOpen === 1 ? 'outlined' : 'text'}
+            key="Position"
+          >
             Open
           </Button>
         </ButtonGroup>

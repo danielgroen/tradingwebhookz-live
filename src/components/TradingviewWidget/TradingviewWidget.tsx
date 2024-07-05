@@ -45,6 +45,10 @@ export const TradingviewWidget = () => {
     const chartWidgetInstance = new widget(widgetOptions);
 
     chartWidgetInstance.onChartReady(() => {
+      chartWidgetInstance.applyOverrides({
+        'paneProperties.vertGridProperties.color': 'transparent',
+        'paneProperties.horzGridProperties.color': 'transparent',
+      });
       chartWidgetInstance.headerReady().then(() => {
         setChartWidget(chartWidgetInstance);
       });
