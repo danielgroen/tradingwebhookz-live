@@ -77,7 +77,9 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
             {/* filter on this symbol */}
             {!!openPositions.length &&
               openPositions
-                .filter((order) => order.info.symbol === apiStateProps.tradingPairFormatted() && !!order.side)
+                .filter(
+                  (order) => order.info.symbol === apiStateProps.tradingPairFormatted() && !!Number(order.info.size)
+                )
                 .map((order, i) => (
                   <Box
                     key={i}

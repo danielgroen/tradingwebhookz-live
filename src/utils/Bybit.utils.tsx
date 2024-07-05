@@ -204,12 +204,13 @@ export class Bybit {
   static closeCurrentPosition = async (apiState, order) => {
     const { tradingPairFormatted, brokerInstance } = apiState;
     try {
-      const openOrders = await brokerInstance?.createOrder(
+      await brokerInstance?.createOrder(
         tradingPairFormatted(),
         'market',
         ['long', 'buy'].includes(order.side) ? 'sell' : ('buy' as SIDE),
         order.contracts
       );
+
       enqueueSnackbar(`Closed order`, {
         variant: 'success',
         autoHideDuration: 2000,
