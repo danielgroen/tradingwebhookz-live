@@ -1,12 +1,10 @@
-// Calculation functions
-
 export const calculatePositionSize = (riskAmount, entryPrice, stopLossPrice, makerFee, side) => {
   const potentialLossPerUnit = Math.abs(entryPrice - stopLossPrice);
-  const grossPositionSize = riskAmount / potentialLossPerUnit;
-  const totalFees = grossPositionSize * entryPrice * (makerFee / 100);
-  const netPositionSize = (riskAmount - totalFees) / potentialLossPerUnit;
+  const totalFees = riskAmount * (makerFee / 100);
+  const adjustedRiskAmount = riskAmount - totalFees;
+  const grossPositionSize = adjustedRiskAmount / potentialLossPerUnit;
 
-  return netPositionSize;
+  return grossPositionSize;
 };
 
 export const calculatePositionValue = (positionSize, entryPrice) => {
@@ -14,7 +12,7 @@ export const calculatePositionValue = (positionSize, entryPrice) => {
 };
 
 export const calculateLeverage = (positionValue, accountBalance, maxLeverage) => {
-  let leverage = positionValue / accountBalance;
+  let leverage = positionValue / accountBalance + 1; // +1 a hack to always have enough margin, maybe we can even add 0.1 (or look at the min stepsize)
 
   if (leverage > maxLeverage) leverage = maxLeverage;
   if (leverage < 1) leverage = 1;

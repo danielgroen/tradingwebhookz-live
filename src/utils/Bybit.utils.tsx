@@ -146,6 +146,7 @@ export class Bybit {
     } catch (error) {
       enqueueSnackbar(`[GET BALANCE]: ${error}`, {
         variant: 'error',
+        autoHideDuration: 6000,
       });
     }
   };
@@ -162,6 +163,7 @@ export class Bybit {
       setOpenOrders(openOrders);
     } catch (error) {
       enqueueSnackbar(`[GET OPEN ORDERS]: ${error}`, {
+        autoHideDuration: 6000,
         variant: 'error',
       });
     }
@@ -181,6 +183,7 @@ export class Bybit {
       });
     } catch (error) {
       enqueueSnackbar(`[CANCEL ORDER]: ${error}`, {
+        autoHideDuration: 6000,
         variant: 'error',
       });
     }
@@ -198,6 +201,7 @@ export class Bybit {
       setOpenPositions(openOrders);
     } catch (error) {
       enqueueSnackbar(`[GET POSITION]: ${error}`, {
+        autoHideDuration: 6000,
         variant: 'error',
       });
     }
@@ -220,6 +224,7 @@ export class Bybit {
     } catch (error) {
       enqueueSnackbar(`[CLOSE POSITION]: ${error}`, {
         variant: 'error',
+        autoHideDuration: 6000,
       });
     }
   };
