@@ -56,8 +56,9 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
     }
 
     // Adjust position size to ensure risk is capped at the specified percentage
-    while (Math.abs(potentialLossTotal / accountBalance - riskPercentage) > tolerance) {
-      if (potentialLossTotal / accountBalance < riskPercentage) {
+    // IF THIS LOOPS CRASHES THE BROWSER, CHANGE BACK TO: TOLERANCE INSTEAD OF TOLERANCE / 2
+    while (Math.abs(potentialLossTotal / accountBalance - riskPercentage) > tolerance / 2) {
+      if (potentialLossTotal / accountBalance < riskPercentage + tolerance) {
         positionSize += Number(apiMinOrderSize); // Increase position size by apiMinOrderSize
       } else {
         positionSize -= Number(apiMinOrderSize); // Decrease position size by apiMinOrderSize
@@ -75,11 +76,6 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
     setLocalLeverage(leverage.toFixed(stepSizeToFixed(apiLeverageStepSize as number)));
     setPotentialProfit(Number(_potentialProfit.toFixed(2)));
     setPotentialLoss(Number(_potentialLoss.toFixed(2)));
-
-    console.log('positionSize (BTC): ', positionSize);
-    console.log('positionValue (USDT): ', orderValue);
-    console.log('maxLoss (USDT): ', _potentialLoss);
-    console.log('potentialProfit (USDT): ', _potentialProfit);
   }, [stopLoss, takeProfit, price, risk, accountBalance, orderPercent, side]);
 
   return (
