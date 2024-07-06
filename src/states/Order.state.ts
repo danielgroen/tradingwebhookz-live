@@ -11,6 +11,9 @@ interface OrderStateProps {
   price: string;
   setPrice: (price: string) => void;
 
+  watchOrderSubmit: boolean;
+  changeWatchOrderSubmit: () => void;
+
   localLeverage: string;
   setLocalLeverage: (localLeverage: string) => void;
 
@@ -45,6 +48,9 @@ export const OrderState = create<OrderStateProps>((set, get) => ({
 
   price: '',
   setPrice: (price) => set({ price }),
+
+  watchOrderSubmit: false,
+  changeWatchOrderSubmit: () => set({ watchOrderSubmit: !get().watchOrderSubmit }),
 
   localLeverage: '',
   setLocalLeverage: (localLeverage) => set({ localLeverage }),

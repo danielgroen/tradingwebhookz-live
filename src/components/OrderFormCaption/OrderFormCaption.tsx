@@ -15,9 +15,16 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
   const [potentialLoss, setPotentialLoss] = useState(0);
 
   const { risk } = SettingsState();
-  const { stopLoss, takeProfit, price, riskReward, setQty, setLocalLeverage, orderPercent } = OrderState();
+  const { stopLoss, takeProfit, price, riskReward, setQty, setLocalLeverage, orderPercent, watchOrderSubmit } =
+    OrderState();
   const { counterAsset, apiMinOrderSize, apiMaxOrderSize, apiLeverageMax, apiLeverageStepSize, fees } = ApiState();
   const { maker, taker } = fees;
+
+  // reset potential profit and loss when the form is submitted
+  useEffect(() => {
+    setPotentialProfit(0);
+    setPotentialLoss(0);
+  }, [watchOrderSubmit]);
 
   // Calculate position size, leverage, potential profit, and potential loss
   // this calculations are the motor of the app. here we calculate the position size based on the risk the user is willing to take
@@ -56,6 +63,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
     setLocalLeverage(leverage.toFixed(stepSizeToFixed(apiLeverageStepSize as number)));
     setPotentialProfit(Number(_potentialProfit.toFixed(2)));
     setPotentialLoss(Number(_potentialLoss.toFixed(2)));
+    console.log('changed');
   }, [stopLoss, takeProfit, price, risk, accountBalance, orderPercent]);
 
   return (

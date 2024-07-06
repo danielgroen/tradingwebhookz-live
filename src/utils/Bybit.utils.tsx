@@ -91,7 +91,7 @@ export class Bybit {
    * Send an order to the broker via the API
    */
   static SendOrder = async (orderstateProps, apiState, settingsState) => {
-    const { side, qty, price, stopLoss, takeProfit } = orderstateProps;
+    const { side, qty, price, stopLoss, takeProfit, changeWatchOrderSubmit } = orderstateProps;
     const { tradingPairFormatted, brokerInstance } = apiState;
     const { orderTypeStoploss, orderTypeTakeProfit } = settingsState;
 
@@ -117,7 +117,10 @@ export class Bybit {
           },
         }
       );
-      enqueueSnackbar(`New order placed: `, {
+
+      changeWatchOrderSubmit(false);
+
+      enqueueSnackbar(`New order placed!`, {
         variant: 'success',
         autoHideDuration: 2000,
       });
