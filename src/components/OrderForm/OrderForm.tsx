@@ -120,7 +120,7 @@ export const OrderForm = () => {
         <OrderButton />
       )}
 
-      <OrderFormFooter sx={{ mt: 1 }} accountBalance={accountBalance} setAccountBalance={setAccountBalance} />
+      <OrderFormFooter sx={{ mt: 1, mb: -1 }} accountBalance={accountBalance} setAccountBalance={setAccountBalance} />
     </>
   );
 };

@@ -20,6 +20,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
   const { maker, taker } = fees;
 
   // Calculate position size, leverage, potential profit, and potential loss
+  // this calculations are the motor of the app. here we calculate the position size based on the risk the user is willing to take
   useEffect(() => {
     if (stopLoss === '' || takeProfit === '' || price === '' || risk === '' || !accountBalance) return;
 

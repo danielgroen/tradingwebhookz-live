@@ -2,6 +2,8 @@ import { FC, useEffect, useState } from 'react';
 import { Typography, ButtonGroup, Button, Box, type BoxProps, Dialog, DialogTitle, DialogActions } from '@mui/material';
 import { Bybit } from '@utils/Bybit.utils';
 import { ApiState, OrderState } from '@src/states';
+import { enqueueSnackbar } from 'notistack';
+
 interface Props extends BoxProps {}
 
 export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
@@ -10,6 +12,7 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
   const [isFormOpen, setIsFormOpen] = useState(0);
 
   const [modalActions, setModalActions] = useState<any>(null);
+  const [initialOrderState, setInitialOrderState] = useState<any>({ openOrders: null, openPositions: null });
   const [open, setOpen] = useState(false);
 
   const handleOpenModal = (order: any, type: 'cancel' | 'close') => {
@@ -45,6 +48,40 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const filteredOpenPosition = openPositions.filter(
+      (order) => order.info.symbol === apiStateProps.tradingPairFormatted() && !!Number(order.info.size)
+    );
+
+    if (
+      initialOrderState.openPositions === filteredOpenPosition.length &&
+      initialOrderState.openOrders === openOrders.length
+    )
+      return;
+
+    if (filteredOpenPosition.length > 0) {
+      setIsFormOpen(1);
+
+      if (!!initialOrderState.openPositions) {
+        enqueueSnackbar('Your order has been filled', {
+          variant: 'info',
+          autoHideDuration: 4000,
+        });
+      }
+    } else if (filteredOpenPosition.length === 0 && openOrders.length === 0) {
+      setIsFormOpen(0);
+
+      if (!!initialOrderState.openOrders) {
+        enqueueSnackbar('Your order has been closed', {
+          variant: 'info',
+          autoHideDuration: 4000,
+        });
+      }
+    }
+
+    setInitialOrderState({ openOrders: openOrders.length, openPositions: filteredOpenPosition.length });
+  }, [openOrders, openPositions]);
+
   return (
     <>
       {modalActions && (
@@ -64,75 +101,25 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
             sx={{ borderBottom: '0 !important' }}
             onClick={() => setIsFormOpen(0)}
             variant={isFormOpen === 0 ? 'outlined' : 'text'}
-            key="open"
+            key="Position"
           >
-            Positions
+            Open orders
           </Button>
           <Button
             sx={{ borderBottom: '0 !important' }}
             onClick={() => setIsFormOpen(1)}
             variant={isFormOpen === 1 ? 'outlined' : 'text'}
-            key="Position"
+            key="open"
           >
-            Open orders
+            Positions
           </Button>
         </ButtonGroup>
-
-        {/*
-         * active orders
-         *
-         */}
-        {isFormOpen === 0 && (
-          <Box className="flex items-center flex-col bg-slate-900 w-full rounded-md min-h-36 max-h-36 p-3 text-sky-900 overflow-x-auto relative">
-            {/* filter on this symbol */}
-            {!!openPositions.length &&
-              openPositions
-                .filter(
-                  (order) => order.info.symbol === apiStateProps.tradingPairFormatted() && !!Number(order.info.size)
-                )
-                .map((order, i) => (
-                  <Box
-                    key={i}
-                    sx={{
-                      display: 'flex',
-                      gap: 2,
-                      alignItems: 'center',
-                      '*': { fontSize: '11px !important' },
-                      mb: 2,
-                      width: '100%',
-                      color: 'white',
-                      borderLeft: `3px solid ${order.side === 'buy' ? '#66bb6a' : '#f44336'}`,
-                    }}
-                  >
-                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                      <Typography sx={{ ml: 1 }}>{order.info.symbol}</Typography>
-                      <Typography sx={{ ml: 1 }}>{order.contracts}</Typography>
-                    </Box>
-                    <Typography sx={{ ml: 1 }} fontSize={14}>
-                      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                        {!order.triggerPrice && (
-                          <>
-                            <Typography sx={{ ml: 1, color: '#00b0ff' }}>Limit order</Typography>
-                            <Typography sx={{ ml: 1, color: order.unrealizedPnl > 0 ? '#66bb6a' : '#f44336' }}>
-                              {order?.unrealizedPnl?.toLocaleString('en-US')}
-                            </Typography>
-                          </>
-                        )}
-                      </Box>
-                    </Typography>
-                    <Button sx={{ marginLeft: 'auto' }} onClick={() => handleOpenModal(order, 'close')}>
-                      Close
-                    </Button>
-                  </Box>
-                ))}
-          </Box>
-        )}
 
         {/*
          * Open orders
          *
          */}
-        {isFormOpen === 1 && (
+        {isFormOpen === 0 && (
           <Box className="flex items-center flex-col bg-slate-900 w-full rounded-md min-h-36 max-h-36 p-3 text-sky-900 overflow-x-auto relative">
             {/* filter on this symbol */}
             {!!openOrders.length &&
@@ -180,6 +167,58 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
                     </Typography>
                     <Button sx={{ marginLeft: 'auto' }} onClick={() => handleOpenModal(order, 'cancel')}>
                       Cancel
+                    </Button>
+                  </Box>
+                ))}
+          </Box>
+        )}
+
+        {/*
+         * active orders
+         *
+         */}
+        {isFormOpen === 1 && (
+          <Box className="flex items-center flex-col bg-slate-900 w-full rounded-md min-h-36 max-h-36 p-3 text-sky-900 overflow-x-auto relative">
+            {/* filter on this symbol */}
+            {!!openPositions.length &&
+              openPositions
+                .filter(
+                  (order) => order.info.symbol === apiStateProps.tradingPairFormatted() && !!Number(order.info.size)
+                )
+                .map((order, i) => (
+                  <Box
+                    key={i}
+                    sx={{
+                      display: 'flex',
+                      gap: 2,
+                      alignItems: 'center',
+                      '*': { fontSize: '11px !important' },
+                      mb: 2,
+                      width: '100%',
+                      color: 'white',
+                      borderLeft: `3px solid ${order.side === 'buy' ? '#66bb6a' : '#f44336'}`,
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                      <Typography sx={{ ml: 1 }}>{order.info.symbol}</Typography>
+                      <Typography sx={{ ml: 1 }}>{order.contracts}</Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', minWidth: '60px' }}>
+                      {!order.triggerPrice && (
+                        <>
+                          <Typography sx={{ color: '#00b0ff' }}>Limit order</Typography>
+                          <Typography sx={{}}>{Number(order?.info?.avgPrice)?.toLocaleString('en-US') ?? 0}</Typography>
+                        </>
+                      )}
+                    </Box>
+                    <Typography sx={{ color: order.unrealizedPnl > 0 ? '#66bb6a' : '#f44336' }}>
+                      {order?.unrealizedPnl?.toLocaleString('en-US') ?? 0}
+                    </Typography>
+                    <Button
+                      sx={{ marginLeft: 'auto', minWidth: '0 !important' }}
+                      onClick={() => handleOpenModal(order, 'close')}
+                    >
+                      Close
                     </Button>
                   </Box>
                 ))}

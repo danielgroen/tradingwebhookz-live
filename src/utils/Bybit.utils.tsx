@@ -70,7 +70,6 @@ export class Bybit {
    */
   static UpdateApiLeverage = async (newLeverage, apiState) => {
     const { tradingPairFormatted, brokerInstance } = apiState;
-    console.log(tradingPairFormatted, tradingPairFormatted());
 
     try {
       await brokerInstance?.setLeverage(newLeverage, tradingPairFormatted());
