@@ -54,7 +54,7 @@ export const Header = () => {
         <IoClose style={{ cursor: 'pointer', marginLeft: 12 }} size={24} onClick={() => setShowSidebar(false)} />
       </div>
       {isLoggedIn && (
-        <div className="flex items-center justify-end mb-[-26px] gap-3">
+        <div className="flex items-center justify-end mb-[-26px] gap-3 z-10">
           {isSettingsOpen ? (
             <IoLogOutOutline
               style={{
@@ -87,11 +87,11 @@ export const Header = () => {
               />
               {orderbook && (
                 <SiMicrosoftexcel
+                  style={{ cursor: 'pointer' }}
+                  size={24}
                   onClick={() => {
                     window.open(`https://${orderbook}`, '_blank');
                   }}
-                  style={{ cursor: 'pointer' }}
-                  size={24}
                 />
               )}
             </>

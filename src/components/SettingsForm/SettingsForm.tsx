@@ -51,9 +51,9 @@ export const SettingsForm = () => {
 
         <FormControlLabel
           // {...inputLeft}
-          sx={{ ml: 5 }}
+          sx={{ ml: 0 }}
           control={<Switch checked={autoFill} onChange={toggleAutoFill} />}
-          label="Autofill"
+          label="Form autofill"
           labelPlacement="start"
         />
 
@@ -129,7 +129,7 @@ export const SettingsForm = () => {
           sx={{ ml: 'auto', mt: 2 }}
           control={<Switch checked={autoRemoveDrawings} onChange={toggleAutoRemoveDrawings} />}
           label="Auto remove drawings"
-          labelPlacement="start"
+          // labelPlacement="start"
         />
       </div>
     </>
