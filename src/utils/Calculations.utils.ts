@@ -1,9 +1,8 @@
-export const calculatePositionSize = (initialInvestment, risk, entryPrice, stopLossPrice, makerFee) => {
-  const riskAmount = initialInvestment * risk;
+// Calculation functions
+
+export const calculatePositionSize = (riskAmount, entryPrice, stopLossPrice, makerFee, side) => {
   const potentialLossPerUnit = Math.abs(entryPrice - stopLossPrice);
   const grossPositionSize = riskAmount / potentialLossPerUnit;
-
-  // Adjust position size to include maker fees
   const totalFees = grossPositionSize * entryPrice * (makerFee / 100);
   const netPositionSize = (riskAmount - totalFees) / potentialLossPerUnit;
 
@@ -22,14 +21,16 @@ export const calculateLeverage = (positionValue, accountBalance, maxLeverage) =>
   return leverage;
 };
 
-export const calculatePotentialProfit = (takeProfitPrice, entryPrice, positionSize, makerFee) => {
-  const grossProfit = (takeProfitPrice - entryPrice) * positionSize;
+export const calculatePotentialProfit = (takeProfitPrice, entryPrice, positionSize, makerFee, side) => {
+  const grossProfit =
+    side === 'buy' ? (takeProfitPrice - entryPrice) * positionSize : (entryPrice - takeProfitPrice) * positionSize;
   const totalFees = positionSize * takeProfitPrice * (makerFee / 100);
   return grossProfit - totalFees;
 };
 
-export const calculatePotentialLoss = (entryPrice, stopLossPrice, positionSize, makerFee) => {
-  const grossLoss = (entryPrice - stopLossPrice) * positionSize;
+export const calculatePotentialLoss = (entryPrice, stopLossPrice, positionSize, makerFee, side) => {
+  const grossLoss =
+    side === 'buy' ? (entryPrice - stopLossPrice) * positionSize : (stopLossPrice - entryPrice) * positionSize;
   const totalFees = positionSize * stopLossPrice * (makerFee / 100);
   return grossLoss + totalFees;
 };

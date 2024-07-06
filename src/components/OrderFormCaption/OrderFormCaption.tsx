@@ -15,36 +15,31 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
   const [potentialLoss, setPotentialLoss] = useState(0);
 
   const { risk } = SettingsState();
-  const { stopLoss, takeProfit, price, riskReward, setQty, setLocalLeverage, orderPercent, watchOrderSubmit } =
+  const { stopLoss, takeProfit, price, riskReward, setQty, setLocalLeverage, orderPercent, watchOrderSubmit, side } =
     OrderState();
   const { counterAsset, apiMinOrderSize, apiMaxOrderSize, apiLeverageMax, apiLeverageStepSize, fees } = ApiState();
   const { maker, taker } = fees;
 
-  // reset potential profit and loss when the form is submitted
   useEffect(() => {
     setPotentialProfit(0);
     setPotentialLoss(0);
   }, [watchOrderSubmit]);
 
-  // Calculate position size, leverage, potential profit, and potential loss
-  // this calculations are the motor of the app. here we calculate the position size based on the risk the user is willing to take
   useEffect(() => {
-    if (stopLoss === '' || takeProfit === '' || price === '' || risk === '' || !accountBalance) return;
+    if (!stopLoss || !takeProfit || !price || !risk || !accountBalance) return;
 
     const entryPrice = parseFloat(price);
     const stopLossPrice = parseFloat(stopLoss);
     const takeProfitPrice = parseFloat(takeProfit);
-    const initialInvestment = accountBalance * (orderPercent / 100);
     const riskPercentage = parseFloat(risk) / 100;
+    const riskAmount = accountBalance * riskPercentage;
 
-    let positionSize = calculatePositionSize(initialInvestment, riskPercentage, entryPrice, stopLossPrice, maker);
+    let positionSize = calculatePositionSize(riskAmount, entryPrice, stopLossPrice, maker, side);
     let orderValue = calculatePositionValue(positionSize, entryPrice);
     let leverage = calculateLeverage(orderValue, accountBalance, apiLeverageMax);
     let initialMargin = orderValue / leverage;
     let totalFees = orderValue * (maker / 100);
-
     let totalMarginRequirement = initialMargin + totalFees;
-    // todo: improve calculations
     const feeReserve = accountBalance * 0.01; // 1% of account balance reserved for fees
     const availableBalanceForTrading = accountBalance - feeReserve;
 
@@ -56,15 +51,14 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
       totalMarginRequirement = initialMargin + totalFees;
     }
 
-    const _potentialProfit = calculatePotentialProfit(takeProfitPrice, entryPrice, positionSize, maker);
-    const _potentialLoss = calculatePotentialLoss(entryPrice, stopLossPrice, positionSize, maker);
+    const _potentialProfit = calculatePotentialProfit(takeProfitPrice, entryPrice, positionSize, maker, side);
+    const _potentialLoss = calculatePotentialLoss(entryPrice, stopLossPrice, positionSize, maker, side);
 
     setQty(positionSize.toFixed(stepSizeToFixed(apiMinOrderSize as number)));
     setLocalLeverage(leverage.toFixed(stepSizeToFixed(apiLeverageStepSize as number)));
     setPotentialProfit(Number(_potentialProfit.toFixed(2)));
     setPotentialLoss(Number(_potentialLoss.toFixed(2)));
-    console.log('changed');
-  }, [stopLoss, takeProfit, price, risk, accountBalance, orderPercent]);
+  }, [stopLoss, takeProfit, price, risk, accountBalance, orderPercent, side]);
 
   return (
     <>
