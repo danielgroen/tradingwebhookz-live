@@ -6,7 +6,7 @@ import {
   calculateLeverage,
   calculatePotentialProfit,
   calculatePotentialLoss,
-  calculate,
+  calculatePositionValue,
   stepSizeToFixed,
 } from '@utils/index';
 
@@ -30,7 +30,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
     const riskPercentage = parseFloat(risk) / 100;
 
     let positionSize = calculatePositionSize(initialInvestment, riskPercentage, entryPrice, stopLossPrice, maker);
-    let orderValue = calculate(positionSize, entryPrice);
+    let orderValue = calculatePositionValue(positionSize, entryPrice);
     let leverage = calculateLeverage(orderValue, accountBalance, apiLeverageMax);
     let initialMargin = orderValue / leverage;
     let totalFees = orderValue * (maker / 100);
@@ -42,7 +42,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
 
     if (totalMarginRequirement > availableBalanceForTrading) {
       positionSize = ((availableBalanceForTrading - totalFees) * leverage) / entryPrice;
-      orderValue = calculate(positionSize, entryPrice);
+      orderValue = calculatePositionValue(positionSize, entryPrice);
       initialMargin = orderValue / leverage;
       totalFees = orderValue * (maker / 100);
       totalMarginRequirement = initialMargin + totalFees;

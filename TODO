@@ -1,6 +1,12 @@
 [ ] fix calculation error: exceeded balance (not with * 0.01)
+    - this article might help: https://www.bybit.com/en/help-center/article/Liquidation-Process-Derivatives-Standard-Account
 [ ] take some trades to see if the 1% really works (testing if it works)
 
+[ ] send alerts when order has filled or has taken place
+[ ] automatically switch from open orders to positions when a event took place (open order has triggered)
+
+[ ] clear out calculations when taken a trade
+[ ] also show price on "current position"
 
 [ ] show liquidation line on chart
 

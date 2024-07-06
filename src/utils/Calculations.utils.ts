@@ -10,7 +10,7 @@ export const calculatePositionSize = (initialInvestment, risk, entryPrice, stopL
   return netPositionSize;
 };
 
-export const calculate = (positionSize, entryPrice) => {
+export const calculatePositionValue = (positionSize, entryPrice) => {
   return positionSize * entryPrice;
 };
 
