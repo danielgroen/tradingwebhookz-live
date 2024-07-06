@@ -58,7 +58,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
     // Adjust position size to ensure risk is capped at the specified percentage
     // IF THIS LOOPS CRASHES THE BROWSER, CHANGE BACK TO: TOLERANCE INSTEAD OF TOLERANCE / 2
     while (Math.abs(potentialLossTotal / accountBalance - riskPercentage) > tolerance / 2) {
-      if (potentialLossTotal / accountBalance < riskPercentage + tolerance) {
+      if (potentialLossTotal / accountBalance < riskPercentage) {
         positionSize += Number(apiMinOrderSize); // Increase position size by apiMinOrderSize
       } else {
         positionSize -= Number(apiMinOrderSize); // Decrease position size by apiMinOrderSize
