@@ -33,7 +33,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
     const takeProfitPrice = parseFloat(takeProfit);
     const riskPercentage = parseFloat(risk) / 100;
     const riskAmount = accountBalance * riskPercentage;
-    const tolerance = apiMinOrderSize as number; // Tolerance to adjust position size to match risk percentage
+    const minOrderSize = parseFloat(apiMinOrderSize); // Minimum order size for position adjustments
 
     // Initial position size calculation
     let positionSize = calculatePositionSize(riskAmount, entryPrice, stopLossPrice, maker, side);
@@ -56,24 +56,26 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
     }
 
     // Adjust position size to ensure risk is capped at the specified percentage
-    // IF THIS LOOPS CRASHES THE BROWSER, CHANGE BACK TO: TOLERANCE INSTEAD OF TOLERANCE / 2
-    while (Math.abs(potentialLossTotal / accountBalance - riskPercentage) > tolerance / 2) {
-      if (potentialLossTotal / accountBalance < riskPercentage) {
-        positionSize += Number(apiMinOrderSize); // Increase position size by apiMinOrderSize
+    while (Math.abs(potentialLossTotal / accountBalance - riskPercentage) > 0.0001) {
+      if (potentialLossTotal / accountBalance < riskPercentage - 0.0001) {
+        positionSize += minOrderSize / 10; // Increase position size by a smaller fraction of minOrderSize
+      } else if (potentialLossTotal / accountBalance > riskPercentage + 0.0001) {
+        positionSize -= minOrderSize / 10; // Decrease position size by a smaller fraction of minOrderSize
       } else {
-        positionSize -= Number(apiMinOrderSize); // Decrease position size by apiMinOrderSize
+        break;
       }
 
       orderValue = calculatePositionValue(positionSize, entryPrice);
-      potentialLossTotal = potentialLossPerUnit * positionSize + positionSize * stopLossPrice * (maker / 100);
+      totalFees = orderValue * (maker / 100);
+      potentialLossTotal = potentialLossPerUnit * positionSize + totalFees;
       leverage = calculateLeverage(orderValue, accountBalance, apiLeverageMax);
     }
 
     const _potentialProfit = calculatePotentialProfit(takeProfitPrice, entryPrice, positionSize, maker, side);
     const _potentialLoss = calculatePotentialLoss(entryPrice, stopLossPrice, positionSize, maker, side);
 
-    setQty(positionSize.toFixed(stepSizeToFixed(apiMinOrderSize as number)));
-    setLocalLeverage(leverage.toFixed(stepSizeToFixed(apiLeverageStepSize as number)));
+    setQty(positionSize.toFixed(stepSizeToFixed(minOrderSize)));
+    setLocalLeverage(leverage.toFixed(stepSizeToFixed(apiLeverageStepSize)));
     setPotentialProfit(Number(_potentialProfit.toFixed(2)));
     setPotentialLoss(Number(_potentialLoss.toFixed(2)));
   }, [stopLoss, takeProfit, price, risk, accountBalance, orderPercent, side]);

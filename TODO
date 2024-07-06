@@ -1,6 +1,36 @@
-[ ] fix calculation error: exceeded balance (not with * 0.01)
-    - this article might help: https://www.bybit.com/en/help-center/article/Liquidation-Process-Derivatives-Standard-Account
 [ ] take some trades to see if the 1% really works (testing if it works)
+  - i had a TP trade (screenshot) $1000 acc (it was a limit order i saw)
+    - the app said: Profit: 8.96 USDT (+0.896%)
+    - bybit new balance = 1007.19 USDT (+0.719%)
+  
+  reproduce:
+  balance: 1000
+  lev: 4.72
+  entry: 56861.68
+  stopLoss: 56713.31
+  takeProfit: 57010.05
+
+    APP SHOWS: 
+      - Profit: 8.96 USDT
+
+    MUST BE:
+      - Profit: 7.19 USDT
+
+    real entry: 56839.70
+    real profit: 57012.80
+
+
+maybe ask chatgpt
+can be, spread? or slippage?
+ask chatgpt what it could be, maybe we need add calculatePotentialProfit makerfees *2? im not sure
+
+
+
+
+
+
+
+
 
 [ ] show order line on chart
 [ ] show TP line on chart
