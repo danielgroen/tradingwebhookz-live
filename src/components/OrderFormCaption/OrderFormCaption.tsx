@@ -18,7 +18,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
   const { stopLoss, takeProfit, price, riskReward, setQty, setLocalLeverage, orderPercent, watchOrderSubmit, side } =
     OrderState();
   const { counterAsset, apiMinOrderSize, apiMaxOrderSize, apiLeverageMax, apiLeverageStepSize, fees } = ApiState();
-  const { maker, taker } = fees;
+  const { maker, taker } = fees as { maker: number; taker: number };
 
   useEffect(() => {
     setPotentialProfit(0);
