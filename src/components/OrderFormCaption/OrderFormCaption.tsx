@@ -74,11 +74,6 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
     setLocalLeverage(leverage.toFixed(stepSizeToFixed(apiLeverageStepSize as number)));
     setPotentialProfit(Number(_potentialProfit.toFixed(2)));
     setPotentialLoss(Number(_potentialLoss.toFixed(2)));
-
-    console.log('positionSize (BTC): ', positionSize);
-    console.log('positionValue (USDT): ', orderValue);
-    console.log('maxLoss (USDT): ', _potentialLoss);
-    console.log('potentialProfit (USDT): ', _potentialProfit);
   }, [stopLoss, takeProfit, price, risk, accountBalance, orderPercent, side]);
 
   return (
