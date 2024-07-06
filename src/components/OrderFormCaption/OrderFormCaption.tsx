@@ -33,19 +33,15 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
     const takeProfitPrice = parseFloat(takeProfit);
     const riskPercentage = parseFloat(risk) / 100;
     const riskAmount = accountBalance * riskPercentage;
+    const tolerance = apiMinOrderSize as number; // Tolerance to adjust position size to match risk percentage
 
+    // Initial position size calculation
     let positionSize = calculatePositionSize(riskAmount, entryPrice, stopLossPrice, maker, side);
     let orderValue = calculatePositionValue(positionSize, entryPrice);
     let leverage = calculateLeverage(orderValue, accountBalance, apiLeverageMax);
     let initialMargin = orderValue / leverage;
     let totalFees = orderValue * (maker / 100);
     let totalMarginRequirement = initialMargin + totalFees;
-
-    orderValue = calculatePositionValue(positionSize, entryPrice);
-    leverage = calculateLeverage(orderValue, accountBalance, apiLeverageMax);
-    initialMargin = orderValue / leverage;
-    totalFees = orderValue * (maker / 100);
-    totalMarginRequirement = initialMargin + totalFees;
 
     let potentialLossPerUnit = Math.abs(entryPrice - stopLossPrice);
     let potentialLossTotal = potentialLossPerUnit * positionSize + totalFees;
@@ -60,8 +56,13 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
     }
 
     // Adjust position size to ensure risk is capped at the specified percentage
-    while (potentialLossTotal > riskAmount) {
-      positionSize -= Number(apiMinOrderSize); // Decrease position size by apiMinOrderSize
+    while (Math.abs(potentialLossTotal / accountBalance - riskPercentage) > tolerance) {
+      if (potentialLossTotal / accountBalance < riskPercentage) {
+        positionSize += Number(apiMinOrderSize); // Increase position size by apiMinOrderSize
+      } else {
+        positionSize -= Number(apiMinOrderSize); // Decrease position size by apiMinOrderSize
+      }
+
       orderValue = calculatePositionValue(positionSize, entryPrice);
       potentialLossTotal = potentialLossPerUnit * positionSize + positionSize * stopLossPrice * (maker / 100);
       leverage = calculateLeverage(orderValue, accountBalance, apiLeverageMax);
@@ -74,6 +75,11 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
     setLocalLeverage(leverage.toFixed(stepSizeToFixed(apiLeverageStepSize as number)));
     setPotentialProfit(Number(_potentialProfit.toFixed(2)));
     setPotentialLoss(Number(_potentialLoss.toFixed(2)));
+
+    console.log('positionSize (BTC): ', positionSize);
+    console.log('positionValue (USDT): ', orderValue);
+    console.log('maxLoss (USDT): ', _potentialLoss);
+    console.log('potentialProfit (USDT): ', _potentialProfit);
   }, [stopLoss, takeProfit, price, risk, accountBalance, orderPercent, side]);
 
   return (
