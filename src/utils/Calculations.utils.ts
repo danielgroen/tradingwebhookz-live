@@ -20,15 +20,17 @@ export const calculateLeverage = (positionValue, accountBalance, maxLeverage) =>
 };
 
 export const calculatePotentialProfit = (takeProfitPrice, entryPrice, positionSize, fees, side) => {
-  const grossProfit =
-    side === 'buy' ? (takeProfitPrice - entryPrice) * positionSize : (entryPrice - takeProfitPrice) * positionSize;
+  const grossProfit = ['long', 'buy'].includes(side)
+    ? (takeProfitPrice - entryPrice) * positionSize
+    : (entryPrice - takeProfitPrice) * positionSize;
   const totalFees = positionSize * takeProfitPrice * fees;
   return grossProfit - totalFees;
 };
 
 export const calculatePotentialLoss = (entryPrice, stopLossPrice, positionSize, fees, side) => {
-  const grossLoss =
-    side === 'buy' ? (entryPrice - stopLossPrice) * positionSize : (stopLossPrice - entryPrice) * positionSize;
+  const grossLoss = ['long', 'buy'].includes(side)
+    ? (entryPrice - stopLossPrice) * positionSize
+    : (stopLossPrice - entryPrice) * positionSize;
   const totalFees = positionSize * stopLossPrice * fees;
   return grossLoss + totalFees;
 };

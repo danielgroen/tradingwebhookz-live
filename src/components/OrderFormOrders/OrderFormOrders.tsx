@@ -136,7 +136,7 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
                       mb: 2,
                       width: '100%',
                       color: 'white',
-                      borderLeft: `3px solid ${order.side === 'buy' ? '#66bb6a' : '#f44336'}`,
+                      borderLeft: `3px solid ${['long', 'buy'].includes(order.side) ? '#66bb6a' : '#f44336'}`,
                     }}
                   >
                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -196,7 +196,7 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
                       mb: 2,
                       width: '100%',
                       color: 'white',
-                      borderLeft: `3px solid ${order.side === 'buy' ? '#66bb6a' : '#f44336'}`,
+                      borderLeft: `3px solid ${['long', 'buy'].includes(order.side) ? '#66bb6a' : '#f44336'}`,
                     }}
                   >
                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -211,8 +211,8 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
                         </>
                       )}
                     </Box>
-                    <Typography sx={{ color: order.unrealizedPnl > 0 ? '#66bb6a' : '#f44336' }}>
-                      {order?.unrealizedPnl?.toLocaleString('en-US') ?? 0}
+                    <Typography sx={{ color: order?.unrealizedPnl > 0 ? '#66bb6a' : '#f44336' }}>
+                      {order?.unrealizedPnl?.toFixed(2)?.toLocaleString('en-US') ?? 0}
                     </Typography>
                     <Button
                       sx={{ marginLeft: 'auto', minWidth: '0 !important' }}

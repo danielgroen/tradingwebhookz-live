@@ -6,6 +6,7 @@ export class Bybit {
   /*
    * @function SetStateLeverage
    * Update the state of the app with the leverage for the current trading pair
+   * https://docs.ccxt.com/#/exchanges/bybit?id=fetchleverage
    */
   static SetStateLeverage = async (apiState) => {
     const { setApiLeverage, tradingPairFormatted, brokerInstance } = apiState;
@@ -50,6 +51,7 @@ export class Bybit {
   /*
    * @function SetStateFees
    * Update the state of the app with the fees for the current trading pair
+   * https://docs.ccxt.com/#/exchanges/bybit?id=fetchtradingfee
    */
   static SetStateFees = async (apiState) => {
     const { tradingPair, brokerInstance, setFees } = apiState;
@@ -67,6 +69,7 @@ export class Bybit {
   /*
    * @function UpdateApiLeverage
    * Update the API leverage for the current trading pair
+   * https://docs.ccxt.com/#/exchanges/bybit?id=setleverage
    */
   static UpdateApiLeverage = async (newLeverage, apiState) => {
     const { tradingPairFormatted, brokerInstance } = apiState;
@@ -89,6 +92,7 @@ export class Bybit {
   /*
    * @function SendOrder
    * Send an order to the broker via the API
+   * https://docs.ccxt.com/#/exchanges/bybit?id=createorder
    */
   static SendOrder = async (orderstateProps, apiState, settingsState) => {
     const { side, qty, price, stopLoss, takeProfit, changeWatchOrderSubmit } = orderstateProps;
@@ -96,13 +100,14 @@ export class Bybit {
     const { orderTypeStoploss, orderTypeTakeProfit } = settingsState;
 
     try {
-      await brokerInstance?.createOrder(
+      const order = await brokerInstance?.createOrder(
         tradingPairFormatted(),
         'limit', // base order is always limit
         side as SIDE,
         qty,
         parseFloat(price),
         {
+          postOnly: true,
           // 0 for one-way mode, 1 buy side of hedged mode, 2 sell side of hedged mode
           positionIdx: 0,
           stopLoss: {
@@ -117,10 +122,13 @@ export class Bybit {
           },
         }
       );
-
       changeWatchOrderSubmit(false);
 
-      enqueueSnackbar(`New order placed!`, {
+      // move this notification to the order watcher to be sure that it went trough
+      // what about: setWatchOrderSubmit(order.id)
+      // then we can compare in the other component if id is the same. if yes we know it went trough
+      // only then we send the notification from below
+      enqueueSnackbar(`Order sent!`, {
         variant: 'success',
         autoHideDuration: 2000,
       });
@@ -136,6 +144,7 @@ export class Bybit {
   /*
    * @function getBalance
    * Get the account balance for the current asset
+   * https://docs.ccxt.com/#/exchanges/bybit?id=fetchbalance
    */
   static getBalance = async (apiState, setAccountBalance) => {
     const { counterAsset, brokerInstance } = apiState;
@@ -154,6 +163,7 @@ export class Bybit {
   /*
    * @function getOpenOrders
    * Get the open orders for the current trading pair
+   * https://docs.ccxt.com/#/exchanges/bybit?id=fetchopenorders
    */
   static getOpenOrders = async (apiState, orderStateProps) => {
     const { setOpenOrders } = orderStateProps;
@@ -172,6 +182,7 @@ export class Bybit {
   /*
    * @function cancelOrder
    * Cancel an order for the current trading pair
+   * https://docs.ccxt.com/#/exchanges/bybit?id=cancelorder
    */
   static cancelOrder = async (apiState, order) => {
     const { brokerInstance } = apiState;
@@ -192,6 +203,7 @@ export class Bybit {
   /*
    * @function getPositions
    * Get the open positions for the current trading pair
+   * https://docs.ccxt.com/#/exchanges/bybit?id=fetchpositions
    */
   static getPositions = async (apiState, orderStateProps) => {
     const { setOpenPositions } = orderStateProps;
@@ -206,7 +218,11 @@ export class Bybit {
       });
     }
   };
-
+  /*
+   * @function closeCurrentPosition
+   * Close the current position for the current trading pair
+   * https://docs.ccxt.com/#/exchanges/bybit?id=createorder
+   */
   static closeCurrentPosition = async (apiState, order) => {
     const { tradingPairFormatted, brokerInstance } = apiState;
     try {
