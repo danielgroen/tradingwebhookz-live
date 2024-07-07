@@ -2,23 +2,11 @@
   - i had a TP trade (screenshot) $1000 acc (it was a limit order i saw)
     - the app said: Profit: 8.96 USDT (+0.896%)
     - bybit new balance = 1007.19 USDT (+0.719%)
-  
-  reproduce:
-  balance: 1000
-  lev: 4.72
-  entry: 56861.68
-  stopLoss: 56713.31
-  takeProfit: 57010.05
+    - 
+WHAT I CAN DO: just check real entry point in bybit and put that calculations in my tool and see
 
-    APP SHOWS: 
-      - Profit: 8.96 USDT
-
-    MUST BE:
-      - Profit: 7.19 USDT
-
-    real entry: 56839.70
-    real profit: 57012.80
-
+[ ] - retry to place order everytime the (new way) order id in the watchOrderSubmit is not in the array: openOrders
+[ ] - move the alert out of bybit api create order because with postonly it sometimes doesnt come trough
 
 maybe ask chatgpt
 can be, spread? or slippage?

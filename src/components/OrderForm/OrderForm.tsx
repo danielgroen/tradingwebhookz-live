@@ -87,7 +87,7 @@ export const OrderForm = () => {
         <TextField
           {...inputBase}
           value={(+parseFloat(price).toFixed(2) || 0).toLocaleString('en-US')}
-          onChange={(e) => setPrice(e.target.value)}
+          onChange={(e) => setPrice(e.target.value?.replace(/,/g, ''))}
           sx={{ mb: 2 }}
           label="Order Price"
           InputProps={{ endAdornment: `${counterAsset}` }}
@@ -97,13 +97,13 @@ export const OrderForm = () => {
           color="error"
           value={(+parseFloat(stopLoss).toFixed(2) || 0).toLocaleString('en-US')}
           label="Stop Loss"
-          onChange={(e) => setStopLoss(e.target.value)}
+          onChange={(e) => setStopLoss(e.target.value?.replace(/,/g, ''))}
           focused
         />
         <TextField
           {...inputRight}
           value={(+parseFloat(takeProfit).toFixed(2) || 0).toLocaleString('en-US')}
-          onChange={(e) => setTakeProfit(e.target.value)}
+          onChange={(e) => setTakeProfit(e.target.value?.replace(/,/g, ''))}
           label="Take Profit"
           color="success"
           focused
