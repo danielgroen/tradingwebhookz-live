@@ -30,9 +30,9 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
   useEffect(() => {
     if (!stopLoss || !takeProfit || !price || !risk || !accountBalance) return;
 
-    const orderFees = maker;
-    const feesProfit = orderTypeTakeProfit === ORDER_TYPE.MARKET ? taker : maker;
-    const feesLoss = orderTypeStoploss === ORDER_TYPE.MARKET ? taker : maker;
+    const feesProfit = orderTypeTakeProfit === ORDER_TYPE.MARKET ? taker / 100 : maker / 100;
+    const feesLoss = orderTypeStoploss === ORDER_TYPE.MARKET ? taker / 100 : maker / 100;
+    const orderFees = maker / 100;
 
     const entryPrice = parseFloat(price);
     const stopLossPrice = parseFloat(stopLoss);
@@ -46,7 +46,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
     let orderValue = calculatePositionValue(positionSize, entryPrice);
     let leverage = calculateLeverage(orderValue, accountBalance, apiLeverageMax);
     let initialMargin = orderValue / leverage;
-    let totalFees = orderValue * (orderFees / 100);
+    let totalFees = orderValue * orderFees;
     let totalMarginRequirement = initialMargin + totalFees;
 
     let potentialLossPerUnit = Math.abs(entryPrice - stopLossPrice);
@@ -57,7 +57,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
       positionSize = ((accountBalance - totalFees) * leverage) / entryPrice;
       orderValue = calculatePositionValue(positionSize, entryPrice);
       initialMargin = orderValue / leverage;
-      totalFees = orderValue * (orderFees / 100);
+      totalFees = orderValue * orderFees;
       totalMarginRequirement = initialMargin + totalFees;
     }
 
@@ -72,7 +72,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
       }
 
       orderValue = calculatePositionValue(positionSize, entryPrice);
-      totalFees = orderValue * (orderFees / 100);
+      totalFees = orderValue * orderFees;
       potentialLossTotal = potentialLossPerUnit * positionSize + totalFees;
       leverage = calculateLeverage(orderValue, accountBalance, apiLeverageMax);
     }

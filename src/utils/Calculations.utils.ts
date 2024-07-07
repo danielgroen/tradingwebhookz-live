@@ -1,6 +1,6 @@
 export const calculatePositionSize = (riskAmount, entryPrice, stopLossPrice, fees, side) => {
   const potentialLossPerUnit = Math.abs(entryPrice - stopLossPrice);
-  const totalFees = riskAmount * (fees / 100);
+  const totalFees = riskAmount * fees;
   const adjustedRiskAmount = riskAmount - totalFees;
   const grossPositionSize = adjustedRiskAmount / potentialLossPerUnit;
 
@@ -22,13 +22,13 @@ export const calculateLeverage = (positionValue, accountBalance, maxLeverage) =>
 export const calculatePotentialProfit = (takeProfitPrice, entryPrice, positionSize, fees, side) => {
   const grossProfit =
     side === 'buy' ? (takeProfitPrice - entryPrice) * positionSize : (entryPrice - takeProfitPrice) * positionSize;
-  const totalFees = positionSize * takeProfitPrice * (fees / 100);
+  const totalFees = positionSize * takeProfitPrice * fees;
   return grossProfit - totalFees;
 };
 
 export const calculatePotentialLoss = (entryPrice, stopLossPrice, positionSize, fees, side) => {
   const grossLoss =
     side === 'buy' ? (entryPrice - stopLossPrice) * positionSize : (stopLossPrice - entryPrice) * positionSize;
-  const totalFees = positionSize * stopLossPrice * (fees / 100);
+  const totalFees = positionSize * stopLossPrice * fees;
   return grossLoss + totalFees;
 };
