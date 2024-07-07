@@ -1,6 +1,8 @@
 import { useEffect, useState, type FC } from 'react';
 import { Typography } from '@mui/material';
 import { OrderState, SettingsState, ApiState } from '@states/index';
+import { ORDER_TYPE } from '@constants/index';
+
 import {
   calculatePositionSize,
   calculateLeverage,
@@ -14,7 +16,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
   const [potentialProfit, setPotentialProfit] = useState(0);
   const [potentialLoss, setPotentialLoss] = useState(0);
 
-  const { risk } = SettingsState();
+  const { risk, orderTypeStoploss, orderTypeTakeProfit } = SettingsState();
   const { stopLoss, takeProfit, price, riskReward, setQty, setLocalLeverage, orderPercent, watchOrderSubmit, side } =
     OrderState();
   const { counterAsset, apiMinOrderSize, apiMaxOrderSize, apiLeverageMax, apiLeverageStepSize, fees } = ApiState();
@@ -28,6 +30,10 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
   useEffect(() => {
     if (!stopLoss || !takeProfit || !price || !risk || !accountBalance) return;
 
+    const orderFees = maker;
+    const feesProfit = orderTypeTakeProfit === ORDER_TYPE.MARKET ? taker : maker;
+    const feesLoss = orderTypeStoploss === ORDER_TYPE.MARKET ? taker : maker;
+
     const entryPrice = parseFloat(price);
     const stopLossPrice = parseFloat(stopLoss);
     const takeProfitPrice = parseFloat(takeProfit);
@@ -36,11 +42,11 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
     const minOrderSize = parseFloat(apiMinOrderSize); // Minimum order size for position adjustments
 
     // Initial position size calculation
-    let positionSize = calculatePositionSize(riskAmount, entryPrice, stopLossPrice, maker, side);
+    let positionSize = calculatePositionSize(riskAmount, entryPrice, stopLossPrice, orderFees, side);
     let orderValue = calculatePositionValue(positionSize, entryPrice);
     let leverage = calculateLeverage(orderValue, accountBalance, apiLeverageMax);
     let initialMargin = orderValue / leverage;
-    let totalFees = orderValue * (maker / 100);
+    let totalFees = orderValue * (orderFees / 100);
     let totalMarginRequirement = initialMargin + totalFees;
 
     let potentialLossPerUnit = Math.abs(entryPrice - stopLossPrice);
@@ -51,7 +57,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
       positionSize = ((accountBalance - totalFees) * leverage) / entryPrice;
       orderValue = calculatePositionValue(positionSize, entryPrice);
       initialMargin = orderValue / leverage;
-      totalFees = orderValue * (maker / 100);
+      totalFees = orderValue * (orderFees / 100);
       totalMarginRequirement = initialMargin + totalFees;
     }
 
@@ -66,19 +72,19 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
       }
 
       orderValue = calculatePositionValue(positionSize, entryPrice);
-      totalFees = orderValue * (maker / 100);
+      totalFees = orderValue * (orderFees / 100);
       potentialLossTotal = potentialLossPerUnit * positionSize + totalFees;
       leverage = calculateLeverage(orderValue, accountBalance, apiLeverageMax);
     }
 
-    const _potentialProfit = calculatePotentialProfit(takeProfitPrice, entryPrice, positionSize, maker, side);
-    const _potentialLoss = calculatePotentialLoss(entryPrice, stopLossPrice, positionSize, maker, side);
+    const _potentialProfit = calculatePotentialProfit(takeProfitPrice, entryPrice, positionSize, feesProfit, side);
+    const _potentialLoss = calculatePotentialLoss(entryPrice, stopLossPrice, positionSize, feesLoss, side);
 
     setQty(positionSize.toFixed(stepSizeToFixed(minOrderSize)));
     setLocalLeverage(leverage.toFixed(stepSizeToFixed(apiLeverageStepSize)));
     setPotentialProfit(Number(_potentialProfit.toFixed(2)));
     setPotentialLoss(Number(_potentialLoss.toFixed(2)));
-  }, [stopLoss, takeProfit, price, risk, accountBalance, orderPercent, side]);
+  }, [stopLoss, takeProfit, price, risk, accountBalance, orderPercent, side, orderTypeStoploss, orderTypeTakeProfit]);
 
   return (
     <>
