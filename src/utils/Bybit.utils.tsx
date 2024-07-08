@@ -95,7 +95,7 @@ export class Bybit {
    * https://docs.ccxt.com/#/exchanges/bybit?id=createorder
    */
   static SendOrder = async (orderstateProps, apiState, settingsState) => {
-    const { side, qty, price, stopLoss, takeProfit, changeWatchOrderSubmit } = orderstateProps;
+    const { side, qty, price, stopLoss, takeProfit, setSubmittedOrderId } = orderstateProps;
     const { tradingPairFormatted, brokerInstance } = apiState;
     const { orderTypeStoploss, orderTypeTakeProfit } = settingsState;
 
@@ -122,16 +122,7 @@ export class Bybit {
           },
         }
       );
-      changeWatchOrderSubmit(false);
-
-      // move this notification to the order watcher to be sure that it went trough
-      // what about: setWatchOrderSubmit(order.id)
-      // then we can compare in the other component if id is the same. if yes we know it went trough
-      // only then we send the notification from below
-      enqueueSnackbar(`Order sent!`, {
-        variant: 'success',
-        autoHideDuration: 2000,
-      });
+      setSubmittedOrderId(order.id);
     } catch (error) {
       enqueueSnackbar(`[SEND ORDER]: ${error}`, {
         variant: 'error',
@@ -188,7 +179,7 @@ export class Bybit {
     const { brokerInstance } = apiState;
     try {
       brokerInstance.cancelOrder(order.id, order.info.symbol);
-      enqueueSnackbar(`Cancelled order`, {
+      enqueueSnackbar('Cancelled order', {
         variant: 'success',
         autoHideDuration: 2000,
       });

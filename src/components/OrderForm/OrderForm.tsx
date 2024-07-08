@@ -59,7 +59,7 @@ export const OrderForm = () => {
         <TextField
           {...inputBase}
           value={(+parseFloat(qty) || 0).toLocaleString('en-US')}
-          // onChange={(e) => setTakeProfit(e.target.value)}
+          onChange={(e) => setTakeProfit(e.target.value?.replace(/,/g, ''))}
           label="Order by qty"
           InputProps={{ endAdornment: primaryPair }}
         />

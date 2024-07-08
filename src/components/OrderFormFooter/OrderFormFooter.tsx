@@ -11,7 +11,14 @@ interface Props extends BoxProps {
 export const OrderFormFooter: FC<Props> = ({ accountBalance, setAccountBalance, ...restBoxProps }) => {
   const { counterAsset, brokerInstance } = ApiState();
 
-  const intervalTime = 3000;
+  const intervalTime = 10 * 1000;
+
+  useEffect(() => {
+    if (!brokerInstance || !counterAsset) return;
+    (async () => {
+      await Bybit.getBalance({ counterAsset, brokerInstance }, setAccountBalance);
+    })();
+  }, []);
 
   useEffect(() => {
     if (!brokerInstance || !counterAsset) return;
