@@ -42,6 +42,8 @@ export const useTradingViewWidgetHooks = (chartWidget: any, setChartWidget: any,
       if (toolName === 'LineToolRiskRewardShort' || toolName === 'LineToolRiskRewardLong') {
         setTimeout(() => {
           const curDrawingPoints = drawing.getPoints();
+          if (!curDrawingPoints.length) return;
+
           const priceEntry = +curDrawingPoints[0].price;
           const priceTakeProfit = parseFloat(drawing?._source?._profitPriceAxisView?._axisRendererData?.text);
           const priceStopLoss = parseFloat(drawing?._source?._stopPriceAxisView?._axisRendererData?.text);
