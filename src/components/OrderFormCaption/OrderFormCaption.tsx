@@ -30,6 +30,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
   useEffect(() => {
     if (!stopLoss || !takeProfit || !price || !risk || !accountBalance) return;
 
+    const orderSize = accountBalance * (orderPercent / 100);
     //
     const feesOpenPosition = maker / 100;
 
@@ -43,13 +44,13 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
     const stopLossPrice = parseFloat(stopLoss);
     const takeProfitPrice = parseFloat(takeProfit);
     const riskPercentage = parseFloat(risk) / 100;
-    const riskAmount = accountBalance * riskPercentage;
+    const riskAmount = orderSize * riskPercentage;
     const minOrderSize = parseFloat(apiMinOrderSize); // Minimum order size for position adjustments
 
     // Initial position size calculation
     let positionSize = calculatePositionSize(riskAmount, entryPrice, stopLossPrice, feesLoss, side);
     let orderValue = calculatePositionValue(positionSize, entryPrice);
-    let leverage = calculateLeverage(orderValue, accountBalance, apiLeverageMax);
+    let leverage = calculateLeverage(orderValue, orderSize, apiLeverageMax);
     let initialMargin = orderValue / leverage;
     let totalFees = orderValue * feesLoss;
     let totalMarginRequirement = initialMargin + totalFees;
@@ -58,8 +59,8 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
     let potentialLossTotal = potentialLossPerUnit * positionSize + totalFees;
 
     // Ensure total margin requirement does not exceed available balance
-    if (totalMarginRequirement > accountBalance) {
-      positionSize = ((accountBalance - totalFees) * leverage) / entryPrice;
+    if (totalMarginRequirement > orderSize) {
+      positionSize = ((orderSize - totalFees) * leverage) / entryPrice;
       orderValue = calculatePositionValue(positionSize, entryPrice);
       initialMargin = orderValue / leverage;
       totalFees = orderValue * feesLoss;
@@ -67,10 +68,10 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
     }
 
     // Adjust position size to ensure risk is capped at the specified percentage
-    while (Math.abs(potentialLossTotal / accountBalance - riskPercentage) > 0.0001) {
-      if (potentialLossTotal / accountBalance < riskPercentage - 0.0001) {
+    while (Math.abs(potentialLossTotal / orderSize - riskPercentage) > 0.0001) {
+      if (potentialLossTotal / orderSize < riskPercentage - 0.0001) {
         positionSize += minOrderSize / 10; // Increase position size by a smaller fraction of minOrderSize
-      } else if (potentialLossTotal / accountBalance > riskPercentage + 0.0001) {
+      } else if (potentialLossTotal / orderSize > riskPercentage + 0.0001) {
         positionSize -= minOrderSize / 10; // Decrease position size by a smaller fraction of minOrderSize
       } else {
         break;
@@ -79,7 +80,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
       orderValue = calculatePositionValue(positionSize, entryPrice);
       totalFees = orderValue * feesLoss;
       potentialLossTotal = potentialLossPerUnit * positionSize + totalFees;
-      leverage = calculateLeverage(orderValue, accountBalance, apiLeverageMax);
+      leverage = calculateLeverage(orderValue, orderSize, apiLeverageMax);
     }
 
     const _potentialProfit = calculatePotentialProfit(takeProfitPrice, entryPrice, positionSize, feesProfit, side);
@@ -89,7 +90,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
     setLocalLeverage(leverage.toFixed(stepSizeToFixed(apiLeverageStepSize)));
     setPotentialProfit(Number(_potentialProfit.toFixed(2)));
     setPotentialLoss(Number(_potentialLoss.toFixed(2)));
-  }, [stopLoss, takeProfit, price, risk, accountBalance, orderPercent, side, orderTypeStoploss, orderTypeTakeProfit]);
+  }, [stopLoss, takeProfit, price, risk, orderPercent, side, orderTypeStoploss, orderTypeTakeProfit]);
 
   return (
     <>

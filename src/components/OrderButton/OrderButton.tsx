@@ -17,8 +17,8 @@ export const OrderButton: FC = () => {
     openOrdersRef.current = openOrders;
   }, [openOrders]);
 
-  const isLoading = () => {
-    return !isOrderFilled() || isSendingOrder;
+  const canSubmit = () => {
+    return isOrderFilled() && !isSendingOrder;
   };
 
   const handlePlaceOrder = async () => {
@@ -39,7 +39,10 @@ export const OrderButton: FC = () => {
     Bybit.SendOrder(
       orderstateProps,
       { tradingPairFormatted, brokerInstance },
-      { orderTypeStoploss, orderTypeTakeProfit }
+      { orderTypeStoploss, orderTypeTakeProfit },
+      () => {
+        setIsSendingOrder(false);
+      }
     );
   };
 
@@ -91,7 +94,7 @@ export const OrderButton: FC = () => {
   }, [submittedOrderId, openOrders]);
 
   return (
-    <Button onClick={handlePlaceOrder} disabled={isLoading()} variant="outlined" fullWidth>
+    <Button onClick={handlePlaceOrder} disabled={!canSubmit()} variant="outlined" fullWidth>
       Place order
     </Button>
   );
