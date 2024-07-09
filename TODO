@@ -5,9 +5,6 @@
     - 
 WHAT I CAN DO: just check real entry point in bybit and put that calculations in my tool and see
 
-[ ] - retry to place order everytime the (new way) order id in the orderSubmit is not in the array: openOrders
-[ ] - move the alert out of bybit api create order because with postonly it sometimes doesnt come trough
-
 maybe ask chatgpt
 can be, spread? or slippage?
 ask chatgpt what it could be, maybe we need add calculatePotentialProfit makerfees *2? im not sure

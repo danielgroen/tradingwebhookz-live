@@ -92,7 +92,7 @@ export const OrderButton: FC = () => {
 
   return (
     <Button onClick={handlePlaceOrder} disabled={isLoading()} variant="outlined" fullWidth>
-      Place order {isSendingOrder.toString()} {isOrderFilled().toString()}
+      Place order
     </Button>
   );
 };
