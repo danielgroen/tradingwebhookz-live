@@ -73,8 +73,8 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
 
       if (!!initialOrderState.openPositions) {
         enqueueSnackbar('Your order has been filled', {
-          variant: 'info',
-          autoHideDuration: 4000,
+          variant: 'success',
+          autoHideDuration: 2000,
         });
       }
     } else if (filteredOpenPosition.length === 0 && openOrders.length === 0) {
@@ -82,8 +82,8 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
 
       if (!!initialOrderState.openOrders) {
         enqueueSnackbar('Your order has been closed', {
-          variant: 'info',
-          autoHideDuration: 4000,
+          variant: 'success',
+          autoHideDuration: 2000,
         });
       }
     }

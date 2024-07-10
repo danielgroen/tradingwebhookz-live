@@ -78,7 +78,7 @@ export class Bybit {
       await brokerInstance?.setLeverage(newLeverage, tradingPairFormatted());
 
       enqueueSnackbar(`New Leverage set for this pair: ${newLeverage}`, {
-        variant: 'info',
+        variant: 'success',
         autoHideDuration: 2000,
       });
     } catch ({ message }: { message: any }) {

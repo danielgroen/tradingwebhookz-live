@@ -51,22 +51,40 @@ export const useTradingViewWidgetHooks = (chartWidget: any, setChartWidget: any,
 
   // override the price of the drawing
   useEffect(() => {
+    // override the stop loss and take profit of the drawing
     try {
       if (!chartWidget || !currentDrawingId) return;
-
       const drawing = chartWidget?.chart()?.getShapeById(currentDrawingId);
       if (!drawing) return;
-      const drawingPrice = drawing?.getPoints()[0].price;
 
-      if (drawingPrice === Number(price)) return;
-      const drawingPoints = drawing.getPoints();
+      const tickSize = 0.00000001; // TODO:: FIXME
+      const tickerSizeStep = stepSizeToFixed(tickSize);
+      const drawProps = drawing.getProperties();
 
-      drawing.setPoints([
-        { ...drawingPoints[0], price: Number(price) },
-        { ...drawingPoints[1], price: Number(price) },
-      ]);
+      if (!drawProps.profitLevel || !drawProps.stopLevel) return;
+      const { profitLevel, stopLevel } = drawProps;
+      let stopLossPrice;
+      let takeProfitPrice;
+      if (side === SIDE.BUY) {
+        stopLossPrice = Number(price) - stopLevel * tickSize;
+        takeProfitPrice = Number(price) + profitLevel * tickSize;
+      } else if (side === SIDE.SELL) {
+        stopLossPrice = Number(price) + stopLevel * tickSize;
+        takeProfitPrice = Number(price) - profitLevel * tickSize;
+      }
+      stopLossPrice = parseFloat(stopLossPrice?.toFixed(tickerSizeStep));
+      takeProfitPrice = parseFloat(takeProfitPrice?.toFixed(tickerSizeStep));
+      if (!stopLossPrice || !takeProfitPrice) return;
+
+      if (stopLossPrice !== parseFloat(Number(stopLoss).toFixed(tickerSizeStep))) {
+        const stopLossToTicks = Math.abs(Number(price) - Number(stopLoss)) / tickSize;
+        drawing.setProperties({ stopLevel: stopLossToTicks });
+      } else if (takeProfitPrice !== parseFloat(Number(takeProfit).toFixed(tickerSizeStep))) {
+        const takeProfitToTicks = Math.abs(Number(price) - Number(takeProfit)) / tickSize;
+        drawing.setProperties({ profitLevel: takeProfitToTicks });
+      }
     } catch {}
-  }, [price]);
+  }, [takeProfit, stopLoss, side, price]);
 
   // Draw order lines
   useEffect(() => {
