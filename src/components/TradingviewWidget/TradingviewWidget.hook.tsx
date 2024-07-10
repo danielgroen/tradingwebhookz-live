@@ -23,6 +23,7 @@ export const useTradingViewWidgetHooks = (chartWidget: any, setChartWidget: any,
   const [currentDrawingId, setCurrentDrawingId] = useState<string | null>(null);
   const [openOrderLines, setOpenOrderLines] = useState([]);
   const orderLinesRef = useRef({});
+  const positionLinesRef = useRef({});
 
   const isLoggedInRef = useRef(isLoggedIn);
   const apiStatePropsRef = useRef(apiStateProps);
@@ -175,14 +176,65 @@ export const useTradingViewWidgetHooks = (chartWidget: any, setChartWidget: any,
     })();
   }, [openOrders, chartWidget]);
 
-  // TODO:: CUrrent position
-  // useEffect(() => {
-  //   if (!chartWidget) return;
-  //   const getOpenPositions = openPositions.filter(
-  //     (order) => order.info.symbol === apiStateProps.tradingPairFormatted() && !!Number(order.info.size)
-  //   );
-  //   if (getOpenPositions.length === 0) return;
-  // }, [openPositions]);
+  // Draw position lines
+  useEffect(() => {
+    (async () => {
+      try {
+        if (!chartWidget) return;
+
+        // Remove position lines that are no longer open
+        const positionIdsToRemove = Object.keys(positionLinesRef.current).filter(
+          (id) => !openPositions.some((position) => position.id === id)
+        );
+
+        positionIdsToRemove.forEach((id) => {
+          const lineToRemove = positionLinesRef.current[id];
+          if (lineToRemove && lineToRemove.line && lineToRemove.line._line && lineToRemove.line._line._id) {
+            chartWidget.chart().removeEntity(lineToRemove.line._line._id);
+            delete positionLinesRef.current[id];
+          }
+        });
+
+        if (!openPositions.length) return;
+
+        // Draw new position lines
+        for (let i = 0; i < openPositions.length; i++) {
+          const position = openPositions[i];
+          const isAlreadyDrawn = positionLinesRef.current[position.id];
+
+          if (isAlreadyDrawn) {
+            continue;
+          }
+
+          let color = '#ffab00';
+
+          const positionLine = chartWidget
+            .activeChart()
+            .createOrderLine()
+            .setBodyTextColor(color)
+            .setBodyBorderColor(color)
+            .setCancelButtonBorderColor(color)
+            .setCancelButtonIconColor(color)
+            .setQuantityBackgroundColor(color)
+            .setQuantityBorderColor(color)
+            .setQuantityTextColor('#000')
+            .setCancelButtonBackgroundColor('#000')
+            .setBodyBackgroundColor('#000')
+            .setLineColor(color)
+            .setPrice(position.entryPrice)
+            .setQuantity(position?.info?.unrealisedPnl)
+            .setText(`PNL`);
+
+          if (positionLine && positionLine._line && positionLine._line._id) {
+            const positionLineId = positionLine._line._id;
+            positionLinesRef.current[positionLineId] = { ...position, line: positionLine };
+          }
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    })();
+  }, [openPositions, chartWidget]);
 
   // TODO:: draw history arrows: bought, sold etc
   // chartWidget
