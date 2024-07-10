@@ -34,7 +34,6 @@ export const OrderForm = () => {
   const { primaryPair, counterAsset } = ApiState();
 
   useEffect(() => {
-    console.log('Updating local state from Zustand state');
     setLocalStopLoss(stopLoss);
     setLocalTakeProfit(takeProfit);
     setLocalPrice(price);
@@ -119,9 +118,7 @@ export const OrderForm = () => {
           label="Stop Loss"
           onChange={(e) => setLocalStopLoss(e.target.value?.replace(/,/g, ''))}
           onBlur={(e) => {
-            const updatedStopLoss = e.target.value?.replace(/,/g, '');
-            console.log('Updating Zustand stopLoss with:', updatedStopLoss);
-            setStopLoss(updatedStopLoss);
+            setStopLoss(e.target.value?.replace(/,/g, ''));
           }}
           focused
         />
@@ -130,9 +127,7 @@ export const OrderForm = () => {
           value={(+parseFloat(localTakeProfit).toFixed(2) || 0).toLocaleString('en-US')}
           onChange={(e) => setLocalTakeProfit(e.target.value?.replace(/,/g, ''))}
           onBlur={(e) => {
-            const updatedTakeProfit = e.target.value?.replace(/,/g, '');
-            console.log('Updating Zustand takeProfit with:', updatedTakeProfit);
-            setTakeProfit(updatedTakeProfit);
+            setTakeProfit(e.target.value?.replace(/,/g, ''));
           }}
           label="Take Profit"
           color="success"

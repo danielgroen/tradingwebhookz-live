@@ -57,6 +57,18 @@ export const useTradingViewWidgetHooks = (chartWidget: any, setChartWidget: any,
       const drawing = chartWidget?.chart()?.getShapeById(currentDrawingId);
       if (!drawing) return;
 
+      const drawingPrice = drawing?.getPoints()[0].price;
+
+      if (drawingPrice !== Number(price)) {
+        const drawingPoints = drawing.getPoints();
+
+        drawing.setPoints([
+          { ...drawingPoints[0], price: Number(price) },
+          { ...drawingPoints[1], price: Number(price) },
+        ]);
+        return;
+      }
+
       const tickSize = 0.00000001; // TODO:: FIXME
       const tickerSizeStep = stepSizeToFixed(tickSize);
       const drawProps = drawing.getProperties();
