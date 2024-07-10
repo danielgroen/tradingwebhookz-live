@@ -157,11 +157,11 @@ export class Bybit {
    * https://docs.ccxt.com/#/exchanges/bybit?id=fetchopenorders
    */
   static getOpenOrders = async (apiState, orderStateProps) => {
-    const { setOpenOrders } = orderStateProps;
+    const { setOpenOrders, openOrders: oldOpenOrders } = orderStateProps;
     const { tradingPairFormatted, brokerInstance } = apiState;
     try {
       const openOrders = await brokerInstance?.fetchOpenOrders(tradingPairFormatted());
-      setOpenOrders(openOrders);
+      if (oldOpenOrders.length !== openOrders.length) setOpenOrders(openOrders);
     } catch ({ message }: { message: any }) {
       enqueueSnackbar(`[GET OPEN ORDERS]: ${message}`, {
         autoHideDuration: 6000,

@@ -19,8 +19,9 @@ maybe: we should do the fees *2 everywhere, for opening and closing
 
 
 [ ] show order line on chart
-[ ] show TP line on chart
-[ ] show SL line on chart
+  [ ] show TP line on chart
+  [ ] show SL line on chart
+[ ] get the ticksize from symbol info
 [ ] show liquidation line on chart
 
 --- FUTURE

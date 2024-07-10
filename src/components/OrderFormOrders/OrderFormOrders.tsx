@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState, useRef } from 'react';
 import { Typography, ButtonGroup, Button, Box, type BoxProps, Dialog, DialogTitle, DialogActions } from '@mui/material';
 import { Bybit } from '@utils/Bybit.utils';
 import { ApiState, OrderState } from '@src/states';
@@ -8,12 +8,21 @@ interface Props extends BoxProps {}
 
 export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
   const { ...apiStateProps } = ApiState();
-  const { openOrders, openPositions, ...orderStateProps } = OrderState();
+  const { ...orderStateProps } = OrderState();
+  const { openOrders, openPositions } = orderStateProps;
   const [isFormOpen, setIsFormOpen] = useState(0);
 
   const [modalActions, setModalActions] = useState<any>(null);
   const [initialOrderState, setInitialOrderState] = useState<any>({ openOrders: null, openPositions: null });
   const [open, setOpen] = useState(false);
+
+  const openOrdersRef = useRef(openOrders);
+  const openPositionsRef = useRef(openPositions);
+
+  useEffect(() => {
+    openOrdersRef.current = openOrders;
+    openPositionsRef.current = openPositions;
+  }, [openOrders, openPositions]);
 
   const handleOpenModal = (order: any, type: 'cancel' | 'close') => {
     setModalActions({ type, order });
@@ -38,8 +47,8 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
   };
 
   const fetchOrders = () => {
-    Bybit.getOpenOrders(apiStateProps, orderStateProps);
-    Bybit.getPositions(apiStateProps, orderStateProps);
+    Bybit.getOpenOrders(apiStateProps, { ...orderStateProps, openOrders: openOrdersRef.current });
+    Bybit.getPositions(apiStateProps, { ...orderStateProps, openPositions: openPositionsRef.current });
   };
 
   useEffect(() => {
