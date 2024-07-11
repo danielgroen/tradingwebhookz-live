@@ -213,6 +213,7 @@ export const useTradingViewWidgetHooks = (chartWidget: any) => {
           }
 
           let color = '#ffab00';
+          const unRealPnL = Number(Number(position?.info?.unrealisedPnl).toFixed(2));
 
           const positionLine = chartWidget.current
             .activeChart()
@@ -228,7 +229,7 @@ export const useTradingViewWidgetHooks = (chartWidget: any) => {
             .setBodyBackgroundColor('#000')
             .setLineColor(color)
             .setPrice(position.entryPrice)
-            .setQuantity(position?.info?.unrealisedPnl)
+            .setQuantity(`${unRealPnL > 0 ? '+' : '-'}${unRealPnL}`)
             .setText(`PNL`);
 
           if (positionLine && positionLine._line && positionLine._line._id) {
