@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { widget, type ChartingLibraryWidgetOptions as WidgetOptions } from 'charting_library';
 import datafeed from './api-pyth/datafeed';
 import { ApiState, GlobalState } from '@states/index';
-
 import { useTradingViewWidgetHooks } from './TradingviewWidget.hook';
 
 export const TradingviewWidget = () => {
@@ -12,10 +11,16 @@ export const TradingviewWidget = () => {
   const buttonShortRef = useRef<HTMLButtonElement | null>(null);
 
   const [chartWidget, setChartWidget] = useState<any>(null);
+  const chartWidgetRef = useRef<any>(null);
+
   const { tradingPair } = ApiState();
   const { isLoggedIn, toggleSidebar } = GlobalState();
 
-  const { onSymbolChange, onDraw } = useTradingViewWidgetHooks(chartWidget, setChartWidget, chartContainerRef);
+  const { onSymbolChange, onDraw } = useTradingViewWidgetHooks(chartWidgetRef);
+
+  useEffect(() => {
+    chartWidgetRef.current = chartWidget;
+  }, [chartWidget]);
 
   useEffect(() => {
     const widgetOptions: WidgetOptions = {
@@ -54,7 +59,7 @@ export const TradingviewWidget = () => {
       });
 
       chartWidgetInstance.subscribe('drawing_event', (drawingId, eventName) => {
-        onDraw(drawingId, eventName, chartWidgetInstance);
+        onDraw(drawingId, eventName);
       });
 
       chartWidgetInstance.subscribe('drawing', (drawingId) => {

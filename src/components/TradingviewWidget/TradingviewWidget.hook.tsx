@@ -4,7 +4,7 @@ import { GlobalState, OrderState, ApiState, SettingsState } from '@states/index'
 import { SIDE } from '@constants/index';
 import { Bybit, stepSizeToFixed } from '@utils/index';
 
-export const useTradingViewWidgetHooks = (chartWidget: any, setChartWidget: any, chartContainerRef: any) => {
+export const useTradingViewWidgetHooks = (chartWidget: any) => {
   const { isLoggedIn } = GlobalState();
   const {
     setStopLoss,
@@ -27,6 +27,12 @@ export const useTradingViewWidgetHooks = (chartWidget: any, setChartWidget: any,
 
   const isLoggedInRef = useRef(isLoggedIn);
   const apiStatePropsRef = useRef(apiStateProps);
+
+  const canFindShape = (id: string) => {
+    if (!chartWidget.current) return;
+    const getAllDrawings = chartWidget.current?.chart().getAllShapes();
+    return getAllDrawings.some((drawing) => drawing.id === id);
+  };
 
   useEffect(() => {
     isLoggedInRef.current = isLoggedIn;
@@ -54,9 +60,9 @@ export const useTradingViewWidgetHooks = (chartWidget: any, setChartWidget: any,
   useEffect(() => {
     // override the stop loss and take profit of the drawing
     try {
-      if (!chartWidget || !currentDrawingId) return;
-      const drawing = chartWidget?.chart()?.getShapeById(currentDrawingId);
-      if (!drawing) return;
+      if (!chartWidget.current || !currentDrawingId) return;
+      if (!canFindShape(currentDrawingId)) return;
+      const drawing = chartWidget.current?.chart()?.getShapeById(currentDrawingId);
 
       const drawingPrice = drawing?.getPoints()[0].price;
 
@@ -103,7 +109,7 @@ export const useTradingViewWidgetHooks = (chartWidget: any, setChartWidget: any,
   useEffect(() => {
     (async () => {
       try {
-        if (!chartWidget) return;
+        if (!chartWidget.current) return;
 
         const orderIdsToRemove = openOrderLines.filter(
           (openOrder) => !openOrders.some((order) => order.id === openOrder.id)
@@ -112,7 +118,7 @@ export const useTradingViewWidgetHooks = (chartWidget: any, setChartWidget: any,
         orderIdsToRemove.forEach(({ id }) => {
           const lineToRemove = Object.values(orderLinesRef.current).find((openOrder) => openOrder.id === id);
           if (lineToRemove && lineToRemove.line && lineToRemove.line._line && lineToRemove.line._line._id) {
-            chartWidget.chart().removeEntity(lineToRemove.line._line._id);
+            chartWidget.current.chart().removeEntity(lineToRemove.line._line._id);
             delete orderLinesRef.current[lineToRemove.line._line._id];
           }
         });
@@ -143,7 +149,7 @@ export const useTradingViewWidgetHooks = (chartWidget: any, setChartWidget: any,
               }
             }
 
-            const orderLine = chartWidget
+            const orderLine = chartWidget.current
               .activeChart()
               .createOrderLine()
               .setBodyTextColor(color)
@@ -174,13 +180,13 @@ export const useTradingViewWidgetHooks = (chartWidget: any, setChartWidget: any,
         console.error('Error:', error);
       }
     })();
-  }, [openOrders, chartWidget]);
+  }, [openOrders, chartWidget.current]);
 
   // Draw position lines
   useEffect(() => {
     (async () => {
       try {
-        if (!chartWidget) return;
+        if (!chartWidget.current) return;
 
         // Remove position lines that are no longer open
         const positionIdsToRemove = Object.keys(positionLinesRef.current).filter(
@@ -190,7 +196,7 @@ export const useTradingViewWidgetHooks = (chartWidget: any, setChartWidget: any,
         positionIdsToRemove.forEach((id) => {
           const lineToRemove = positionLinesRef.current[id];
           if (lineToRemove && lineToRemove.line && lineToRemove.line._line && lineToRemove.line._line._id) {
-            chartWidget.chart().removeEntity(lineToRemove.line._line._id);
+            chartWidget.current.chart().removeEntity(lineToRemove.line._line._id);
             delete positionLinesRef.current[id];
           }
         });
@@ -208,7 +214,7 @@ export const useTradingViewWidgetHooks = (chartWidget: any, setChartWidget: any,
 
           let color = '#ffab00';
 
-          const positionLine = chartWidget
+          const positionLine = chartWidget.current
             .activeChart()
             .createOrderLine()
             .setBodyTextColor(color)
@@ -234,10 +240,10 @@ export const useTradingViewWidgetHooks = (chartWidget: any, setChartWidget: any,
         console.error('Error:', error);
       }
     })();
-  }, [openPositions, chartWidget]);
+  }, [openPositions, chartWidget.current]);
 
   // TODO:: draw history arrows: bought, sold etc
-  // chartWidget
+  // chartWidget.current
   //   .activeChart()
   //   .createExecutionShape()
   //   .setText('@1,320.75 Limit Buy 1')
@@ -245,13 +251,14 @@ export const useTradingViewWidgetHooks = (chartWidget: any, setChartWidget: any,
   //   .setTextColor('rgba(0,255,0,0.5)')
   //   .setArrowColor('#0F0')
   //   .setDirection('buy')
-  //   .setTime(chartWidget.activeChart().getVisibleRange().from)
+  //   .setTime(chartWidget.current.activeChart().getVisibleRange().from)
   //   .setPrice(160);
 
-  const onDraw = async (drawingId: string, eventName: any, chartWidget: IChartingLibraryWidget) => {
+  const onDraw = async (drawingId: string, eventName: any) => {
     try {
       setCurrentDrawingId(drawingId);
-      const drawing = chartWidget.chart()?.getShapeById(drawingId);
+      if (!canFindShape(drawingId)) return;
+      const drawing = chartWidget.current.chart()?.getShapeById(drawingId);
 
       const toolName = drawing?._source?.toolname;
 
@@ -264,7 +271,7 @@ export const useTradingViewWidgetHooks = (chartWidget: any, setChartWidget: any,
           const priceTakeProfit = parseFloat(drawing?._source?._profitPriceAxisView?._axisRendererData?.text);
           const priceStopLoss = parseFloat(drawing?._source?._stopPriceAxisView?._axisRendererData?.text);
           const computedRR = (Math.abs(priceEntry - priceTakeProfit) / Math.abs(priceEntry - priceStopLoss)).toFixed(2);
-          const getAllDrawings = chartWidget.chart().getAllShapes();
+          const getAllDrawings = chartWidget.current.chart().getAllShapes();
 
           const result = getAllDrawings
             .filter(({ name }) => name === 'long_position' || name === 'short_position')
@@ -273,7 +280,7 @@ export const useTradingViewWidgetHooks = (chartWidget: any, setChartWidget: any,
           result.pop();
 
           if (autoRemoveDrawingsRef.current) {
-            [...result].forEach((id) => chartWidget?.chart()?.removeEntity(id));
+            [...result].forEach((id) => chartWidget.current?.chart()?.removeEntity(id));
           }
 
           setRiskReward(`${computedRR}`.replace('.', ':'));
@@ -295,7 +302,7 @@ export const useTradingViewWidgetHooks = (chartWidget: any, setChartWidget: any,
 
   useEffect(() => {
     if (side) return;
-    if (autoRemoveDrawingsRef.current) chartWidget?.chart()?.removeAllShapes();
+    if (autoRemoveDrawingsRef.current) chartWidget.current?.chart()?.removeAllShapes();
   }, [side]);
 
   return {
