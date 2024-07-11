@@ -4,7 +4,7 @@ import { GlobalState, OrderState, ApiState, SettingsState } from '@states/index'
 import { SIDE } from '@constants/index';
 import { Bybit, stepSizeToFixed } from '@utils/index';
 
-export const useTradingViewWidgetHooks = (chartWidget: any) => {
+export const useTradingViewWidgetHooks = (chartWidget: any, currentDrawingId: any) => {
   const { isLoggedIn } = GlobalState();
   const {
     setStopLoss,
@@ -20,7 +20,6 @@ export const useTradingViewWidgetHooks = (chartWidget: any) => {
   } = OrderState();
   const { autoRemoveDrawings } = SettingsState();
   const { ...apiStateProps } = ApiState();
-  const [currentDrawingId, setCurrentDrawingId] = useState<string | null>(null);
   const [openOrderLines, setOpenOrderLines] = useState([]);
   const orderLinesRef = useRef({});
   const positionLinesRef = useRef({});
@@ -28,10 +27,10 @@ export const useTradingViewWidgetHooks = (chartWidget: any) => {
   const isLoggedInRef = useRef(isLoggedIn);
   const apiStatePropsRef = useRef(apiStateProps);
 
-  const canFindShape = (id: string) => {
+  const canFindShape = () => {
     if (!chartWidget.current) return;
     const getAllDrawings = chartWidget.current?.chart().getAllShapes();
-    return getAllDrawings.some((drawing) => drawing.id === id);
+    return getAllDrawings.some((drawing) => drawing.id === currentDrawingId.current);
   };
 
   useEffect(() => {
@@ -60,9 +59,12 @@ export const useTradingViewWidgetHooks = (chartWidget: any) => {
   useEffect(() => {
     // override the stop loss and take profit of the drawing
     try {
-      if (!chartWidget.current || !currentDrawingId) return;
-      if (!canFindShape(currentDrawingId)) return;
-      const drawing = chartWidget.current?.chart()?.getShapeById(currentDrawingId);
+      if (!chartWidget.current || !currentDrawingId.current) return;
+
+      console.log(currentDrawingId.current);
+
+      if (!canFindShape()) return;
+      const drawing = chartWidget.current?.chart()?.getShapeById(currentDrawingId.current);
 
       const drawingPrice = drawing?.getPoints()[0].price;
 
@@ -93,6 +95,8 @@ export const useTradingViewWidgetHooks = (chartWidget: any) => {
       }
       stopLossPrice = parseFloat(stopLossPrice?.toFixed(tickerSizeStep));
       takeProfitPrice = parseFloat(takeProfitPrice?.toFixed(tickerSizeStep));
+      console.log(parseFloat(stopLossPrice?.toFixed(tickerSizeStep)));
+
       if (!stopLossPrice || !takeProfitPrice) return;
 
       if (stopLossPrice !== parseFloat(Number(stopLoss).toFixed(tickerSizeStep))) {
@@ -149,6 +153,8 @@ export const useTradingViewWidgetHooks = (chartWidget: any) => {
               }
             }
 
+            // TODO:: THIS draws every 2 seconds. this is not nessecery..
+            // it messed with the "setDrawingId" function since this was always the last "ID"
             const orderLine = chartWidget.current
               .activeChart()
               .createOrderLine()
@@ -180,7 +186,7 @@ export const useTradingViewWidgetHooks = (chartWidget: any) => {
         console.error('Error:', error);
       }
     })();
-  }, [openOrders, chartWidget.current]);
+  }, [openOrders]);
 
   // Draw position lines
   useEffect(() => {
@@ -254,11 +260,10 @@ export const useTradingViewWidgetHooks = (chartWidget: any) => {
   //   .setTime(chartWidget.current.activeChart().getVisibleRange().from)
   //   .setPrice(160);
 
-  const onDraw = async (drawingId: string, eventName: any) => {
+  const onDraw = async (eventName: any) => {
     try {
-      setCurrentDrawingId(drawingId);
-      if (!canFindShape(drawingId)) return;
-      const drawing = chartWidget.current.chart()?.getShapeById(drawingId);
+      if (!canFindShape()) return;
+      const drawing = chartWidget.current.chart()?.getShapeById(currentDrawingId.current);
 
       const toolName = drawing?._source?.toolname;
 

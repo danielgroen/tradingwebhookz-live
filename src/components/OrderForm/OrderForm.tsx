@@ -4,6 +4,7 @@ import { OrderButton, OrderFormCaption, OrderFormFooter, OrderFormOrders } from 
 import { SIDE } from '@constants/index';
 import { OrderState, ApiState } from '@states/index';
 import { inputLeft, inputRight, inputBase } from '@utils/index';
+
 export const OrderForm = () => {
   const {
     stopLoss,
@@ -17,14 +18,28 @@ export const OrderForm = () => {
     setRiskReward,
     qty,
     setQty,
-    localLeverage,
+    localLeverage: appLeverage,
     setLocalLeverage,
     orderPercent,
     setOrderPercent,
   } = OrderState();
 
+  const [localStopLoss, setLocalStopLoss] = useState(stopLoss);
+  const [localTakeProfit, setLocalTakeProfit] = useState(takeProfit);
+  const [localPrice, setLocalPrice] = useState(price);
+  const [localQty, setLocalQty] = useState(qty);
+  const [localLeverage, setLocalLeverageState] = useState(appLeverage);
+
   const [accountBalance, setAccountBalance] = useState(null);
   const { primaryPair, counterAsset } = ApiState();
+
+  useEffect(() => {
+    setLocalStopLoss(stopLoss);
+    setLocalTakeProfit(takeProfit);
+    setLocalPrice(price);
+    setLocalQty(qty);
+    setLocalLeverageState(appLeverage);
+  }, [stopLoss, takeProfit, price, qty, appLeverage]);
 
   useEffect(() => {
     if (stopLoss === '' && takeProfit === '') {
@@ -50,16 +65,18 @@ export const OrderForm = () => {
         </Typography>
         <TextField
           {...inputBase}
-          value={(+(parseFloat(qty) * parseFloat(price)).toFixed(2) || 0).toLocaleString('en-US')}
+          value={(+(parseFloat(localQty) * parseFloat(localPrice)).toFixed(2) || 0).toLocaleString('en-US')}
           disabled
-          onChange={(e) => setQty(e.target.value)}
+          onChange={(e) => setLocalQty(e.target.value)}
+          onBlur={() => setQty(localQty)}
           label={`Order in ${counterAsset}`}
           InputProps={{ endAdornment: counterAsset }}
         />
         <TextField
           {...inputBase}
-          value={(+parseFloat(qty) || 0).toLocaleString('en-US')}
-          onChange={(e) => setTakeProfit(e.target.value?.replace(/,/g, ''))}
+          value={(+parseFloat(localQty) || 0).toLocaleString('en-US')}
+          onChange={(e) => setLocalQty(e.target.value?.replace(/,/g, ''))}
+          onBlur={() => setQty(localQty)}
           label="Order by qty"
           InputProps={{ endAdornment: primaryPair }}
         />
@@ -79,15 +96,17 @@ export const OrderForm = () => {
         </ToggleButtonGroup>
         <TextField
           {...inputLeft}
-          onChange={(e) => setLocalLeverage(e.target.value)}
+          onChange={(e) => setLocalLeverageState(e.target.value)}
+          onBlur={() => setLocalLeverage(localLeverage)}
           value={localLeverage}
           label="Leverage"
           InputProps={{ endAdornment: '𝘹' }}
         />
         <TextField
           {...inputBase}
-          value={(+parseFloat(price).toFixed(2) || 0).toLocaleString('en-US')}
-          onChange={(e) => setPrice(e.target.value?.replace(/,/g, ''))}
+          value={(+parseFloat(localPrice).toFixed(2) || 0).toLocaleString('en-US')}
+          onChange={(e) => setLocalPrice(e.target.value?.replace(/,/g, ''))}
+          onBlur={() => setPrice(localPrice)}
           sx={{ mb: 2 }}
           label="Order Price"
           InputProps={{ endAdornment: `${counterAsset}` }}
@@ -95,15 +114,21 @@ export const OrderForm = () => {
         <TextField
           {...inputLeft}
           color="error"
-          value={(+parseFloat(stopLoss).toFixed(2) || 0).toLocaleString('en-US')}
+          value={(+parseFloat(localStopLoss).toFixed(2) || 0).toLocaleString('en-US')}
           label="Stop Loss"
-          onChange={(e) => setStopLoss(e.target.value?.replace(/,/g, ''))}
+          onChange={(e) => setLocalStopLoss(e.target.value?.replace(/,/g, ''))}
+          onBlur={(e) => {
+            setStopLoss(e.target.value?.replace(/,/g, ''));
+          }}
           focused
         />
         <TextField
           {...inputRight}
-          value={(+parseFloat(takeProfit).toFixed(2) || 0).toLocaleString('en-US')}
-          onChange={(e) => setTakeProfit(e.target.value?.replace(/,/g, ''))}
+          value={(+parseFloat(localTakeProfit).toFixed(2) || 0).toLocaleString('en-US')}
+          onChange={(e) => setLocalTakeProfit(e.target.value?.replace(/,/g, ''))}
+          onBlur={(e) => {
+            setTakeProfit(e.target.value?.replace(/,/g, ''));
+          }}
           label="Take Profit"
           color="success"
           focused

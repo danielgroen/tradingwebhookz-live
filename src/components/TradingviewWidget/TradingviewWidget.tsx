@@ -13,10 +13,17 @@ export const TradingviewWidget = () => {
   const [chartWidget, setChartWidget] = useState<any>(null);
   const chartWidgetRef = useRef<any>(null);
 
+  const [drawingId, setDrawingId] = useState<string | null>(null);
+  const drawingIdRef = useRef<string | null>(null);
+
   const { tradingPair } = ApiState();
   const { isLoggedIn, toggleSidebar } = GlobalState();
 
-  const { onSymbolChange, onDraw } = useTradingViewWidgetHooks(chartWidgetRef);
+  const { onSymbolChange, onDraw } = useTradingViewWidgetHooks(chartWidgetRef, drawingIdRef);
+
+  useEffect(() => {
+    drawingIdRef.current = drawingId;
+  }, [drawingId]);
 
   useEffect(() => {
     chartWidgetRef.current = chartWidget;
@@ -59,10 +66,16 @@ export const TradingviewWidget = () => {
       });
 
       chartWidgetInstance.subscribe('drawing_event', (drawingId, eventName) => {
-        onDraw(drawingId, eventName);
+        if (eventName === 'create') {
+          setDrawingId(drawingId);
+        } else if (eventName === 'remove') {
+          // console.log('remove');
+          // setDrawingId(null);
+        }
+        onDraw(eventName);
       });
 
-      chartWidgetInstance.subscribe('drawing', (drawingId) => {
+      chartWidgetInstance.subscribe('drawing', (event) => {
         if (buttonLongRef.current) buttonLongRef.current.style.color = 'inherit';
         if (buttonShortRef.current) buttonShortRef.current.style.color = 'inherit';
       });
