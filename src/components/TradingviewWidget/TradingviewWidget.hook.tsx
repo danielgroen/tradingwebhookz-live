@@ -231,8 +231,6 @@ export const useTradingViewWidgetHooks = (chartWidget: any) => {
             .setQuantity(Number(position?.info?.unrealisedPnl).toFixed(2))
             .setText(`PNL`);
 
-          console.log(position?.info?.unrealisedPnl);
-
           if (positionLine && positionLine._line && positionLine._line._id) {
             const positionLineId = positionLine._line._id;
             positionLinesRef.current[positionLineId] = { ...position, line: positionLine };
