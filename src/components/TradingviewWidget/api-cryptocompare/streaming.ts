@@ -92,7 +92,7 @@ export function subscribeOnStream(
     callback: onRealtimeCallback,
   };
   let subscriptionItem = channelToSubscription.get(channelString);
-  if (subscriptionItem && subscriptionItem.resolution === resolution) {
+  if (subscriptionItem) {
     // Already subscribed to the channel, use the existing subscription
     subscriptionItem.handlers.push(handler);
     return;
@@ -104,7 +104,6 @@ export function subscribeOnStream(
     handlers: [handler],
   };
   channelToSubscription.set(channelString, subscriptionItem);
-  console.log('[subscribeBars]: Subscribe to streaming. Channel:', channelString);
   const subRequest = {
     action: 'SubAdd',
     subs: [channelString],
