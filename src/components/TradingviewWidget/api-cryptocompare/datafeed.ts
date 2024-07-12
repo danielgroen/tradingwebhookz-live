@@ -39,6 +39,7 @@ async function getAllSymbols() {
 
   for (const exchange of configurationData.exchanges) {
     const pairs = data.Data[exchange.value].pairs;
+    console.log('exchange', pairs);
 
     for (const leftPairPart of Object.keys(pairs)) {
       const symbols = pairs[leftPairPart].map((rightPairPart) => {
@@ -48,7 +49,14 @@ async function getAllSymbols() {
           full_name: symbol.full,
           description: symbol.short,
           exchange: exchange.value,
+          exchange_logo: 'https://s3-symbol-logo.tradingview.com/provider/bybit.svg',
           type: 'crypto',
+          ...(import.meta.env.PROD && {
+            logo_urls: [
+              `https://s3-symbol-logo.tradingview.com/crypto/XTVC${leftPairPart}.svg`,
+              `https://s3-symbol-logo.tradingview.com/crypto/XTVC${rightPairPart}.svg`,
+            ],
+          }),
         };
       });
       allSymbols = [...allSymbols, ...symbols];
@@ -64,6 +72,7 @@ export default {
 
   searchSymbols: async (userInput, exchange, symbolType, onResultReadyCallback) => {
     const symbols = await getAllSymbols();
+
     const newSymbols = symbols.filter((symbol) => {
       const isExchangeValid = exchange === '' || symbol.exchange === exchange;
       const isFullSymbolContainsInput = symbol.full_name.toLowerCase().indexOf(userInput.toLowerCase()) !== -1;
@@ -92,7 +101,7 @@ export default {
       minmov: 1,
       pricescale: 100,
       has_intraday: true,
-      // intraday_multipliers: ['1', '60'],
+      intraday_multipliers: ['1', '60'],
       has_no_volume: true,
       has_weekly_and_monthly: false,
       supported_resolutions: configurationData.supported_resolutions,
@@ -145,7 +154,6 @@ export default {
         close: bar.close,
         volume: bar.volumefrom,
       }));
-      // .filter((bar) => bar.time >= from && bar.time < to);
 
       if (firstDataRequest) {
         lastBarsCache.set(symbolInfo.full_name, { ...bars[bars.length - 1] });
@@ -156,6 +164,17 @@ export default {
       console.error('Error fetching or processing data:', error);
       onErrorCallback(error);
     }
+  },
+
+  calculateHistoryDepth: (resolution, resolutionBack, intervalBack) => {
+    //optional
+    console.log('=====calculateHistoryDepth running');
+    // while optional, this makes sure we request 24 hours of minute data at a time
+    // CryptoCompare's minute data endpoint will throw an error if we request data beyond 7 days in the past, and return no data
+    return resolution < 60 ? { resolutionBack: 'D', intervalBack: '1' } : undefined;
+  },
+  getServerTime: (cb) => {
+    console.log('=====getServerTime running');
   },
 
   subscribeBars: (symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback) => {
