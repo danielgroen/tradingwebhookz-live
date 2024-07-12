@@ -20,7 +20,6 @@ socket.addEventListener('error', (error) => {
 
 socket.addEventListener('message', (event) => {
   const data = JSON.parse(event.data);
-  console.log('[socket] Message:', data);
   const {
     TYPE: eventTypeStr,
     M: exchange,
@@ -53,7 +52,6 @@ socket.addEventListener('message', (event) => {
       low: tradePrice,
       close: tradePrice,
     };
-    console.log('[socket] Generate new bar', bar);
   } else {
     bar = {
       ...lastDailyBar,
@@ -61,7 +59,6 @@ socket.addEventListener('message', (event) => {
       low: Math.min(lastDailyBar.low, tradePrice),
       close: tradePrice,
     };
-    console.log('[socket] Update the latest bar by price', tradePrice);
   }
   subscriptionItem.lastDailyBar = bar;
 
@@ -72,7 +69,6 @@ socket.addEventListener('message', (event) => {
 function getNextDailyBarTime(barTime) {
   const date = new Date(barTime * 1000);
   date.setDate(date.getDate() + 1);
-  console.log(date);
 
   return date.getTime() / 1000;
 }
@@ -92,7 +88,7 @@ export function subscribeOnStream(
     callback: onRealtimeCallback,
   };
   let subscriptionItem = channelToSubscription.get(channelString);
-  if (subscriptionItem) {
+  if (subscriptionItem && subscriptionItem.resolution === resolution) {
     // Already subscribed to the channel, use the existing subscription
     subscriptionItem.handlers.push(handler);
     return;

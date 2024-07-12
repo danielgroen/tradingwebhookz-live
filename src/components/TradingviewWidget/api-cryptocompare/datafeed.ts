@@ -118,11 +118,11 @@ export default {
     let endpoint;
 
     if (['1', '2', '5', '15', '30'].includes(resolution)) {
-      endpoint = 'data/histominute';
+      endpoint = 'data/v2/histominute';
     } else if (['60', '120', '240', '360', '720'].includes(resolution)) {
-      endpoint = 'data/histohour';
+      endpoint = 'data/v2/histohour';
     } else {
-      endpoint = 'data/histoday';
+      endpoint = 'data/v2/histoday'; // Updated to v2 endpoint
     }
 
     const query = Object.keys(urlParameters)
@@ -131,24 +131,21 @@ export default {
 
     try {
       const data = await makeApiRequest(`${endpoint}?${query}`);
-      if ((data.Response && data.Response === 'Error') || data.Data.length === 0) {
+
+      if (!data || data.Response !== 'Success' || !data.Data || data.Data.length === 0) {
         onHistoryCallback([], { noData: true });
         return;
       }
 
-      let bars = [];
-      data.Data.forEach((bar) => {
-        if (bar.time >= from && bar.time < to) {
-          bars.push({
-            time: bar.time * 1000,
-            low: bar.low,
-            high: bar.high,
-            open: bar.open,
-            close: bar.close,
-            volume: bar.volumefrom,
-          });
-        }
-      });
+      let bars = data?.Data?.Data.map((bar) => ({
+        time: bar.time * 1000,
+        low: bar.low,
+        high: bar.high,
+        open: bar.open,
+        close: bar.close,
+        volume: bar.volumefrom,
+      }));
+      // .filter((bar) => bar.time >= from && bar.time < to);
 
       if (firstDataRequest) {
         lastBarsCache.set(symbolInfo.full_name, { ...bars[bars.length - 1] });
@@ -156,6 +153,7 @@ export default {
 
       onHistoryCallback(bars, { noData: false });
     } catch (error) {
+      console.error('Error fetching or processing data:', error);
       onErrorCallback(error);
     }
   },
