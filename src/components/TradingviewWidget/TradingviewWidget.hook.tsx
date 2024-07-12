@@ -78,7 +78,7 @@ export const useTradingViewWidgetHooks = (chartWidget: any, currentDrawingId: an
         return;
       }
 
-      const tickSize = 0.00000001; // TODO:: FIXME
+      const tickSize = 0.01; // TODO:: FIXME
       const tickerSizeStep = stepSizeToFixed(tickSize);
       const drawProps = drawing.getProperties();
 

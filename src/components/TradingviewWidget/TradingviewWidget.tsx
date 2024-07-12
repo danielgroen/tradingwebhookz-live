@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { widget, type ChartingLibraryWidgetOptions as WidgetOptions } from 'charting_library';
-import datafeed from './api-pyth/datafeed';
+// import datafeed from './api-bybit/datafeed';
+import datafeed from './api-cryptocompare/datafeed';
 import { ApiState, GlobalState } from '@states/index';
 import { useTradingViewWidgetHooks } from './TradingviewWidget.hook';
 
@@ -31,7 +32,8 @@ export const TradingviewWidget = () => {
 
   useEffect(() => {
     const widgetOptions: WidgetOptions = {
-      symbol: tradingPair,
+      symbol: `bybit:${tradingPair}`,
+      // symbol: 'bybit:BTC/USDT',
       datafeed,
       locale: 'en',
       interval: '1' as WidgetOptions['interval'],

@@ -72,6 +72,8 @@ socket.addEventListener('message', (event) => {
 function getNextDailyBarTime(barTime) {
   const date = new Date(barTime * 1000);
   date.setDate(date.getDate() + 1);
+  console.log(date);
+
   return date.getTime() / 1000;
 }
 
@@ -90,7 +92,7 @@ export function subscribeOnStream(
     callback: onRealtimeCallback,
   };
   let subscriptionItem = channelToSubscription.get(channelString);
-  if (subscriptionItem) {
+  if (subscriptionItem && subscriptionItem.resolution === resolution) {
     // Already subscribed to the channel, use the existing subscription
     subscriptionItem.handlers.push(handler);
     return;

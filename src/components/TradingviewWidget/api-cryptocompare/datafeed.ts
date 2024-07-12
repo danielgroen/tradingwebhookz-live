@@ -9,7 +9,11 @@ const lastBarsCache = new Map();
 // DatafeedConfiguration implementation
 const configurationData = {
   // Represents the resolutions for bars supported by your datafeed
-  supported_resolutions: ['1', '3', '5', '1h', '1D', '1W', '1M'],
+  supported_resolutions: ['1', '2', '5', '15', '30', '60', '120', '240', '360', '720', 'D', '1D', 'W', '1W'],
+  supports_group_request: false,
+  supports_marks: false,
+  supports_search: true,
+  supports_timescale_marks: false,
 
   // The `exchanges` arguments are used for the `searchSymbols` method if a user selects the exchange
   exchanges: [
@@ -55,12 +59,10 @@ async function getAllSymbols() {
 
 export default {
   onReady: (callback) => {
-    console.log('[onReady]: Method call');
     setTimeout(() => callback(configurationData));
   },
 
   searchSymbols: async (userInput, exchange, symbolType, onResultReadyCallback) => {
-    console.log('[searchSymbols]: Method call');
     const symbols = await getAllSymbols();
     const newSymbols = symbols.filter((symbol) => {
       const isExchangeValid = exchange === '' || symbol.exchange === exchange;
@@ -71,11 +73,10 @@ export default {
   },
 
   resolveSymbol: async (symbolName, onSymbolResolvedCallback, onResolveErrorCallback, extension) => {
-    console.log('[resolveSymbol]: Method call', symbolName);
     const symbols = await getAllSymbols();
     const symbolItem = symbols.find(({ full_name }) => full_name === symbolName);
+
     if (!symbolItem) {
-      console.log('[resolveSymbol]: Cannot resolve symbol', symbolName);
       onResolveErrorCallback('cannot resolve symbol');
       return;
     }
@@ -90,7 +91,7 @@ export default {
       exchange: symbolItem.exchange,
       minmov: 1,
       pricescale: 100,
-      has_intraday: false,
+      has_intraday: true,
       has_no_volume: true,
       has_weekly_and_monthly: false,
       supported_resolutions: configurationData.supported_resolutions,
@@ -98,65 +99,67 @@ export default {
       data_status: 'streaming',
     };
 
-    console.log('[resolveSymbol]: Symbol resolved', symbolName);
     onSymbolResolvedCallback(symbolInfo);
   },
 
   getBars: async (symbolInfo, resolution, periodParams, onHistoryCallback, onErrorCallback) => {
     const { from, to, firstDataRequest } = periodParams;
-    console.log('[getBars]: Method call', symbolInfo, resolution, from, to);
     const parsedSymbol = parseFullSymbol(symbolInfo.full_name);
-    const urlParameters = {
+
+    let urlParameters = {
       e: parsedSymbol.exchange,
       fsym: parsedSymbol.fromSymbol,
       tsym: parsedSymbol.toSymbol,
       toTs: to,
       limit: 2000,
     };
+
+    let endpoint;
+
+    if (['1', '2', '5', '15', '30'].includes(resolution)) {
+      endpoint = 'data/histominute';
+    } else if (['60', '120', '240', '360', '720'].includes(resolution)) {
+      endpoint = 'data/histohour';
+    } else {
+      endpoint = 'data/histoday';
+    }
+
     const query = Object.keys(urlParameters)
       .map((name) => `${name}=${encodeURIComponent(urlParameters[name])}`)
       .join('&');
+
     try {
-      const data = await makeApiRequest(`data/histoday?${query}`);
+      const data = await makeApiRequest(`${endpoint}?${query}`);
       if ((data.Response && data.Response === 'Error') || data.Data.length === 0) {
-        // "noData" should be set if there is no data in the requested period
-        onHistoryCallback([], {
-          noData: true,
-        });
+        onHistoryCallback([], { noData: true });
         return;
       }
+
       let bars = [];
       data.Data.forEach((bar) => {
         if (bar.time >= from && bar.time < to) {
-          bars = [
-            ...bars,
-            {
-              time: bar.time * 1000,
-              low: bar.low,
-              high: bar.high,
-              open: bar.open,
-              close: bar.close,
-            },
-          ];
+          bars.push({
+            time: bar.time * 1000,
+            low: bar.low,
+            high: bar.high,
+            open: bar.open,
+            close: bar.close,
+            volume: bar.volumefrom,
+          });
         }
       });
+
       if (firstDataRequest) {
-        lastBarsCache.set(symbolInfo.full_name, {
-          ...bars[bars.length - 1],
-        });
+        lastBarsCache.set(symbolInfo.full_name, { ...bars[bars.length - 1] });
       }
-      console.log(`[getBars]: returned ${bars.length} bar(s)`);
-      onHistoryCallback(bars, {
-        noData: false,
-      });
+
+      onHistoryCallback(bars, { noData: false });
     } catch (error) {
-      console.log('[getBars]: Get error', error);
       onErrorCallback(error);
     }
   },
 
   subscribeBars: (symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback) => {
-    console.log('[subscribeBars]: Method call with subscriberUID:', subscriberUID);
     subscribeOnStream(
       symbolInfo,
       resolution,
@@ -168,7 +171,6 @@ export default {
   },
 
   unsubscribeBars: (subscriberUID) => {
-    console.log('[unsubscribeBars]: Method call with subscriberUID:', subscriberUID);
     unsubscribeFromStream(subscriberUID);
   },
 };
