@@ -92,6 +92,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
     setPotentialLoss(Number(_potentialLoss.toFixed(2)));
 
     console.table({
+      accountBalance,
       potentialLoss: _potentialLoss,
       potentialProfit: _potentialProfit,
       positionSize,

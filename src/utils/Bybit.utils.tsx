@@ -54,10 +54,10 @@ export class Bybit {
    * https://docs.ccxt.com/#/exchanges/bybit?id=fetchtradingfee
    */
   static SetStateFees = async (apiState) => {
-    const { tradingPair, brokerInstance, setFees } = apiState;
+    const { tradingPairFormatted, brokerInstance, setFees } = apiState;
 
     try {
-      const result = await brokerInstance?.fetchTradingFee(tradingPair);
+      const result = await brokerInstance?.fetchTradingFee(tradingPairFormatted());
       setFees({ maker: result?.info.makerFeeRate * 100, taker: result?.info.takerFeeRate * 100 });
     } catch ({ message }: { message: any }) {
       enqueueSnackbar(`[SET FEES]: ${message}`, {
