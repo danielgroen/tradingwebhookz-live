@@ -88,6 +88,7 @@ export default {
       onResolveErrorCallback('cannot resolve symbol');
       return;
     }
+
     // Symbol information object
     const symbolInfo = {
       ticker: symbolItem.full_name,
@@ -98,6 +99,10 @@ export default {
       timezone: 'Etc/UTC',
       exchange: symbolItem.exchange,
       minmov: 1,
+      logo_urls: [
+        `https://s3-symbol-logo.tradingview.com/crypto/XTVC${symbolItem.symbol.split('/')[1]}.svg`,
+        `https://s3-symbol-logo.tradingview.com/crypto/XTVC${symbolItem.symbol.split('/')[0]}.svg`,
+      ],
       pricescale: 100,
       has_intraday: true,
       intraday_multipliers: ['1', '60'],

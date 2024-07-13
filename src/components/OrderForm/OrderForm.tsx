@@ -65,7 +65,7 @@ export const OrderForm = () => {
         </Typography>
         <TextField
           {...inputBase}
-          value={(+(parseFloat(localQty) * parseFloat(localPrice)).toFixed(2) || 0).toLocaleString('en-US')}
+          value={(+(parseFloat(localQty) * parseFloat(localPrice)).toFixed(2) || ' ').toLocaleString('en-US')}
           disabled
           onChange={(e) => setLocalQty(e.target.value)}
           onBlur={() => setQty(localQty)}
@@ -74,7 +74,7 @@ export const OrderForm = () => {
         />
         <TextField
           {...inputBase}
-          value={(+parseFloat(localQty) || 0).toLocaleString('en-US')}
+          value={(+parseFloat(localQty) || ' ').toLocaleString('en-US')}
           onChange={(e) => setLocalQty(e.target.value?.replace(/,/g, ''))}
           onBlur={() => setQty(localQty)}
           label="Order by qty"
@@ -98,13 +98,13 @@ export const OrderForm = () => {
           {...inputLeft}
           onChange={(e) => setLocalLeverageState(e.target.value)}
           onBlur={() => setLocalLeverage(localLeverage)}
-          value={localLeverage}
+          value={localLeverage || ' '}
           label="Leverage"
           InputProps={{ endAdornment: '𝘹' }}
         />
         <TextField
           {...inputBase}
-          value={(+parseFloat(localPrice).toFixed(2) || 0).toLocaleString('en-US')}
+          value={(+parseFloat(localPrice).toFixed(2) || ' ').toLocaleString('en-US')}
           onChange={(e) => setLocalPrice(e.target.value?.replace(/,/g, ''))}
           onBlur={() => setPrice(localPrice)}
           sx={{ mb: 2 }}
@@ -114,7 +114,7 @@ export const OrderForm = () => {
         <TextField
           {...inputLeft}
           color="error"
-          value={(+parseFloat(localStopLoss).toFixed(2) || 0).toLocaleString('en-US')}
+          value={(+parseFloat(localStopLoss).toFixed(2) || ' ').toLocaleString('en-US')}
           label="Stop Loss"
           onChange={(e) => setLocalStopLoss(e.target.value?.replace(/,/g, ''))}
           onBlur={(e) => {
@@ -124,7 +124,7 @@ export const OrderForm = () => {
         />
         <TextField
           {...inputRight}
-          value={(+parseFloat(localTakeProfit).toFixed(2) || 0).toLocaleString('en-US')}
+          value={(+parseFloat(localTakeProfit).toFixed(2) || ' ').toLocaleString('en-US')}
           onChange={(e) => setLocalTakeProfit(e.target.value?.replace(/,/g, ''))}
           onBlur={(e) => {
             setTakeProfit(e.target.value?.replace(/,/g, ''));
