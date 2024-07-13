@@ -14,12 +14,8 @@ maybe: we should do the fees *2 everywhere, for opening and closing
 
 ----
 [ ] on minute chart, the stream wont go to the next bar, so if time goes from 9:15 to 9:16 i expect a new bar but its not doing that
-[ ] use cryptocompare /v2/ endpoint
-[ ] fix tickersize dynamic
-
-
-
-
+[ ] do a alert() when the websocket gets a 529. (maximum websockets connection of 1 exceeded)
+[ ] fix inverse
 [ ] get the ticksize from symbol info
 [ ] show liquidation line on chart
 

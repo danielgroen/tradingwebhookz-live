@@ -39,7 +39,6 @@ async function getAllSymbols() {
 
   for (const exchange of configurationData.exchanges) {
     const pairs = data.Data[exchange.value].pairs;
-    console.log('exchange', pairs);
 
     for (const leftPairPart of Object.keys(pairs)) {
       const symbols = pairs[leftPairPart].map((rightPairPart) => {

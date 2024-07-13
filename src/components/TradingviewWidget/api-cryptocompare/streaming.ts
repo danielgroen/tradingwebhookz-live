@@ -40,13 +40,17 @@ socket.addEventListener('message', (event) => {
   if (subscriptionItem === undefined) {
     return;
   }
-  const lastDailyBar = subscriptionItem.lastDailyBar;
-  const nextDailyBarTime = getNextDailyBarTime(lastDailyBar.time);
+  const lastBar = subscriptionItem.lastBar;
+  var coeff = subscriptionItem.resolution * 60;
+
+  var rounded = Math.floor(data.TS / coeff) * coeff;
+  var lastBarSec = lastBar.time / 1000;
 
   let bar;
-  if (tradeTime >= nextDailyBarTime) {
+  if (rounded > lastBarSec) {
+    // create a new candle
     bar = {
-      time: nextDailyBarTime,
+      time: rounded * 1000,
       open: tradePrice,
       high: tradePrice,
       low: tradePrice,
@@ -54,24 +58,17 @@ socket.addEventListener('message', (event) => {
     };
   } else {
     bar = {
-      ...lastDailyBar,
-      high: Math.max(lastDailyBar.high, tradePrice),
-      low: Math.min(lastDailyBar.low, tradePrice),
+      ...lastBar,
+      high: Math.max(lastBar.high, tradePrice),
+      low: Math.min(lastBar.low, tradePrice),
       close: tradePrice,
     };
   }
-  subscriptionItem.lastDailyBar = bar;
+  subscriptionItem.lastBar = bar;
 
   // Send data to every subscriber of that symbol
   subscriptionItem.handlers.forEach((handler) => handler.callback(bar));
 });
-
-function getNextDailyBarTime(barTime) {
-  const date = new Date(barTime * 1000);
-  date.setDate(date.getDate() + 1);
-
-  return date.getTime() / 1000;
-}
 
 export function subscribeOnStream(
   symbolInfo,
@@ -79,7 +76,7 @@ export function subscribeOnStream(
   onRealtimeCallback,
   subscriberUID,
   onResetCacheNeededCallback,
-  lastDailyBar
+  lastBar
 ) {
   const parsedSymbol = parseFullSymbol(symbolInfo.full_name);
   const channelString = `0~${parsedSymbol.exchange}~${parsedSymbol.fromSymbol}~${parsedSymbol.toSymbol}`;
@@ -96,7 +93,7 @@ export function subscribeOnStream(
   subscriptionItem = {
     subscriberUID,
     resolution,
-    lastDailyBar,
+    lastBar,
     handlers: [handler],
   };
   channelToSubscription.set(channelString, subscriptionItem);
