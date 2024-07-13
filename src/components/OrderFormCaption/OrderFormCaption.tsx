@@ -90,6 +90,25 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
     setLocalLeverage(leverage.toFixed(stepSizeToFixed(apiLeverageStepSize)));
     setPotentialProfit(Number(_potentialProfit.toFixed(2)));
     setPotentialLoss(Number(_potentialLoss.toFixed(2)));
+
+    console.table({
+      potentialLoss: _potentialLoss,
+      potentialProfit: _potentialProfit,
+      positionSize,
+      orderValue,
+      leverage,
+      totalFees,
+      feesLoss,
+      feesProfit,
+      feesOpenPosition,
+      totalMarginRequirement,
+      initialMargin,
+      potentialLossPerUnit,
+      potentialLossTotal,
+      riskPercentage,
+      orderSize,
+      minOrderSize,
+    });
   }, [stopLoss, takeProfit, price, risk, orderPercent, side, orderTypeStoploss, orderTypeTakeProfit]);
 
   return (
@@ -117,8 +136,8 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
         {potentialProfit !== 0 && (
           <Typography variant="caption" sx={{ display: 'block' }}>
             P:{' '}
-            <Typography variant="caption" color="success.light">
-              {Math.abs(potentialProfit).toFixed(2)}
+            <Typography variant="caption" color={potentialProfit > 0 ? 'success.light' : 'error'}>
+              {potentialProfit.toFixed(2)}
             </Typography>{' '}
             {counterAsset}
           </Typography>
@@ -139,8 +158,8 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
         {potentialProfit !== 0 && (
           <Typography variant="caption" sx={{ display: 'block' }}>
             P:{' '}
-            <Typography variant="caption" color="success.light">
-              {((Math.abs(potentialProfit).toFixed(2) / accountBalance) * 100).toFixed(2)}
+            <Typography variant="caption" color={potentialProfit > 0 ? 'success.light' : 'error'}>
+              {((potentialProfit.toFixed(2) / accountBalance) * 100).toFixed(2)}
             </Typography>{' '}
             %
             <Typography variant="caption" sx={{ opacity: 0, marginLeft: -1.5 }}>
