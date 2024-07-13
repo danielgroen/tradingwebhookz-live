@@ -82,12 +82,18 @@ export default {
 
   resolveSymbol: async (symbolName, onSymbolResolvedCallback, onResolveErrorCallback, extension) => {
     const symbols = await getAllSymbols();
-    const symbolItem = symbols.find(({ full_name }) => full_name === symbolName);
+    const symbolItem = symbols.find(({ full_name }) => full_name === symbolName) as any;
 
     if (!symbolItem) {
       onResolveErrorCallback('cannot resolve symbol');
       return;
     }
+
+    // override current url with parameters of new symbol
+    let currentUrl = window.location.href;
+    let url = new URL(currentUrl);
+    url.searchParams.set('symbol', symbolItem.symbol);
+    window.history.pushState({}, '', url);
 
     // Symbol information object
     const symbolInfo = {

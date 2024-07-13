@@ -31,9 +31,12 @@ export const TradingviewWidget = () => {
   }, [chartWidget]);
 
   useEffect(() => {
+    let currentUrl = window.location.href;
+    let url = new URL(currentUrl);
+    const symbol = url.searchParams.get('symbol');
+
     const widgetOptions: WidgetOptions = {
-      symbol: `bybit:${tradingPair}`,
-      // symbol: 'bybit:BTC/USDT',
+      symbol: `bybit:${symbol ? symbol : tradingPair}`,
       datafeed,
       locale: 'en',
       interval: '1' as WidgetOptions['interval'],
