@@ -92,23 +92,24 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
     setPotentialLoss(Number(_potentialLoss.toFixed(2)));
 
     console.table({
+      stopLoss,
+      takeProfit,
+      price,
       accountBalance,
-      potentialLoss: _potentialLoss,
-      potentialProfit: _potentialProfit,
+      qty: positionSize.toFixed(stepSizeToFixed(minOrderSize)),
       positionSize,
-      orderValue,
       leverage,
-      totalFees,
+      riskPercentage,
+      '---fees---': '---',
       feesLoss,
       feesProfit,
       feesOpenPosition,
-      totalMarginRequirement,
-      initialMargin,
-      potentialLossPerUnit,
-      potentialLossTotal,
-      riskPercentage,
-      orderSize,
-      minOrderSize,
+      totalFees,
+      '---': '---',
+      potentialLoss: _potentialLoss,
+      'new balance if loss': (accountBalance - potentialLossTotal).toFixed(2),
+      potentialProfit: _potentialProfit,
+      'new balance if profit': (accountBalance + _potentialProfit).toFixed(2),
     });
   }, [stopLoss, takeProfit, price, risk, orderPercent, side, orderTypeStoploss, orderTypeTakeProfit]);
 

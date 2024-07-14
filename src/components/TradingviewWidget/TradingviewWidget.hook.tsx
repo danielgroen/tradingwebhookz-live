@@ -61,8 +61,6 @@ export const useTradingViewWidgetHooks = (chartWidget: any, currentDrawingId: an
     try {
       if (!chartWidget.current || !currentDrawingId.current) return;
 
-      console.log(currentDrawingId.current);
-
       if (!canFindShape()) return;
       const drawing = chartWidget.current?.chart()?.getShapeById(currentDrawingId.current);
 
@@ -95,7 +93,6 @@ export const useTradingViewWidgetHooks = (chartWidget: any, currentDrawingId: an
       }
       stopLossPrice = parseFloat(stopLossPrice?.toFixed(tickerSizeStep));
       takeProfitPrice = parseFloat(takeProfitPrice?.toFixed(tickerSizeStep));
-      console.log(parseFloat(stopLossPrice?.toFixed(tickerSizeStep)));
 
       if (!stopLossPrice || !takeProfitPrice) return;
 
