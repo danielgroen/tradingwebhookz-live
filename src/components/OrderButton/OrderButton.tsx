@@ -76,7 +76,6 @@ export const OrderButton: FC = () => {
             autoHideDuration: 2000,
           });
           setIsSendingOrder(false);
-          clearOrder();
           setRetryCount(0);
         }
       } else if (!submittedOrderId || !openOrdersContainsSubmittedOrder) return;
@@ -87,7 +86,6 @@ export const OrderButton: FC = () => {
           autoHideDuration: 2000,
         });
         setIsSendingOrder(false);
-        clearOrder();
         setRetryCount(0);
       }
     })();

@@ -149,27 +149,27 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
                     }}
                   >
                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                      <Typography sx={{ ml: 1 }}>{order.info.symbol}</Typography>
-                      <Typography sx={{ ml: 1 }}>{order.amount}</Typography>
+                      <Typography sx={{ ml: 1 }}>{order?.info.symbol}</Typography>
+                      <Typography sx={{ ml: 1 }}>{order?.amount}</Typography>
                     </Box>
                     <Typography sx={{ ml: 1 }} fontSize={14}>
                       <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                        {!order.triggerPrice && (
+                        {!order?.triggerPrice && (
                           <>
                             <Typography sx={{ ml: 1, color: '#00b0ff' }}>Limit order</Typography>
-                            <Typography sx={{ ml: 1 }}>{order.takeProfitPrice.toLocaleString('en-US')}</Typography>
+                            <Typography sx={{ ml: 1 }}>{order?.takeProfitPrice?.toLocaleString('en-US')}</Typography>
                           </>
                         )}
-                        {order.triggerPrice && order.takeProfitPrice && (
+                        {order?.triggerPrice && order?.takeProfitPrice && (
                           <>
                             <Typography sx={{ ml: 1, color: '#66bb6a' }}>TP</Typography>
-                            <Typography sx={{ ml: 1 }}>{order.takeProfitPrice.toLocaleString('en-US')}</Typography>
+                            <Typography sx={{ ml: 1 }}>{order?.takeProfitPrice?.toLocaleString('en-US')}</Typography>
                           </>
                         )}
-                        {order.triggerPrice && order.stopLossPrice && (
+                        {order?.triggerPrice && order?.stopLossPrice && (
                           <>
                             <Typography sx={{ ml: 1, color: '#f44336' }}>SL</Typography>
-                            <Typography sx={{ ml: 1 }}>{order.stopLossPrice.toLocaleString('en-US')}</Typography>
+                            <Typography sx={{ ml: 1 }}>{order?.stopLossPrice?.toLocaleString('en-US')}</Typography>
                           </>
                         )}
                       </Box>

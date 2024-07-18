@@ -5,10 +5,10 @@ export interface ApiStateProps {
   fees: { maker: number | null; taker: number | null };
   setFees: (fees: { maker: number | null; taker: number | null }) => void;
 
-  apiMinOrderSize: null | number;
-  apiMaxOrderSize: null | number;
-  setApiMinOrderSize: (apiMinOrderSize: number) => void;
-  setApiMaxOrderSize: (apiMaxOrderSize: number) => void;
+  apiMinOrderSize: null | string;
+  apiMaxOrderSize: null | string;
+  setApiMinOrderSize: (apiMinOrderSize: string) => void;
+  setApiMaxOrderSize: (apiMaxOrderSize: string) => void;
 
   apiLeverage: number | null;
   apiLeverageMax: number | null;

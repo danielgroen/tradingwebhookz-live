@@ -4,6 +4,7 @@ import { OrderButton, OrderFormCaption, OrderFormFooter, OrderFormOrders } from 
 import { SIDE } from '@constants/index';
 import { OrderState, ApiState } from '@states/index';
 import { inputLeft, inputRight, inputBase } from '@utils/index';
+import Test from './Test';
 
 export const OrderForm = () => {
   const {
@@ -133,6 +134,7 @@ export const OrderForm = () => {
           color="success"
           focused
         />
+        {/* <Test /> */}
         <OrderFormCaption accountBalance={accountBalance} />
       </div>
 
