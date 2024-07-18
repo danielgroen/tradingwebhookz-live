@@ -86,7 +86,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
           <Typography variant="caption" sx={{ display: 'block' }}>
             RR:{' '}
             <Typography variant="caption" color="primary.main">
-              {riskReward}
+              1:{parseFloat(riskReward).toFixed(1).replace('.0', '')}
             </Typography>
           </Typography>
         )}

@@ -285,7 +285,7 @@ export const useTradingViewWidgetHooks = (chartWidget: any, currentDrawingId: an
             [...result].forEach((id) => chartWidget.current?.chart()?.removeEntity(id));
           }
 
-          setRiskReward(`${computedRR}`.replace('.', ':'));
+          setRiskReward(computedRR);
           setPrice(`${priceEntry}`);
           setTakeProfit(`${priceTakeProfit}`);
           setStopLoss(`${priceStopLoss}`);
