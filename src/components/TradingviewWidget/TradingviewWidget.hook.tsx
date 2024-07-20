@@ -227,6 +227,7 @@ export const useTradingViewWidgetHooks = (chartWidget: any, currentDrawingId: an
             .setQuantityBackgroundColor(color)
             .setQuantityBorderColor(color)
             .setQuantityTextColor('#000')
+            .setLineLength(40)
             .setCancelButtonBackgroundColor('#000')
             .setBodyBackgroundColor('#000')
             .setLineColor(color)
