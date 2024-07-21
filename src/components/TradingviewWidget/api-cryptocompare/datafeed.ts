@@ -192,13 +192,16 @@ export default {
   },
 
   subscribeBars: (symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback) => {
+    const category = symbolInfo.ticker.includes('INVERSE') ? 'inverse' : 'linear';
+
     subscribeOnStream(
       symbolInfo,
       resolution,
       onRealtimeCallback,
       subscriberUID,
       onResetCacheNeededCallback,
-      lastBarsCache.get(symbolInfo.full_name)
+      lastBarsCache.get(symbolInfo.full_name),
+      category
     );
   },
 

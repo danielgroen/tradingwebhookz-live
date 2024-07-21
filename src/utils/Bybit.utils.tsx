@@ -29,6 +29,8 @@ export class Bybit {
   static SetStateGeneralSymbolInfo = async (apiState) => {
     const { setApiLeverageMax, setApiLeverageStepSize, setApiMinOrderSize, setApiMaxOrderSize, tradingPairFormatted } =
       apiState;
+
+    // TODO:: FIX HARDCODED CATEGORY
     try {
       const result = await fetch(
         `https://api.bybit.com/v5/market/instruments-info?category=linear&symbol=${tradingPairFormatted()}`

@@ -1,64 +1,135 @@
-// Use Bybit's WebSocket API for live data
-const socket = new WebSocket('wss://stream.bybit.com/v5/public/linear');
-// const socket = new WebSocket('wss://stream.bybit.com/v5/public/inverse');
 const channelToSubscription = new Map();
 
-socket.addEventListener('open', () => {
-  console.log('[socket] Connected');
-});
+class WebSocketManager {
+  private socket: WebSocket | null = null;
+  private url: string;
+  private category: string;
+  private connectionAttempts: number = 0;
+  private maxAttempts: number = 5; // Maximum reconnection attempts
+  private messageQueue: any[] = []; // Queue for messages to be sent
 
-socket.addEventListener('close', (reason) => {
-  console.log('[socket] Disconnected:', reason);
-});
-
-socket.addEventListener('error', (error) => {
-  console.log('[socket] Error:', error);
-});
-
-socket.addEventListener('message', (event) => {
-  const data = JSON.parse(event.data);
-  const { topic, data: klineData } = data;
-
-  if (!topic || !klineData || !Array.isArray(klineData) || klineData.length === 0) {
-    return;
+  constructor(url: string, category: string) {
+    this.url = url;
+    this.category = category;
+    this.connect();
   }
 
-  const subscriptionItem = channelToSubscription.get(topic);
-  if (!subscriptionItem) {
-    return;
+  private connect() {
+    this.socket = new WebSocket(this.url);
+
+    this.socket.addEventListener('open', () => {
+      this.connectionAttempts = 0; // Reset attempts on successful connection
+      this.flushMessageQueue(); // Send any queued messages
+    });
+
+    this.socket.addEventListener('close', (reason) => {
+      this.handleReconnection();
+    });
+
+    this.socket.addEventListener('error', (error) => {
+      console.log(`[socket - ${this.category}] Error:`, error);
+      this.handleReconnection();
+    });
+
+    this.socket.addEventListener('message', (event) => {
+      this.handleMessage(event.data);
+    });
   }
 
-  const lastBar = subscriptionItem.lastBar;
-  const tradeTime = klineData[0].timestamp;
-  const tradePrice = parseFloat(klineData[0].close);
-
-  const coeff = subscriptionItem.resolution * 60 * 1000; // Resolution in milliseconds
-  const rounded = Math.floor(tradeTime / coeff) * coeff;
-  const lastBarSec = lastBar.time;
-
-  let bar;
-  if (rounded > lastBarSec) {
-    bar = {
-      time: rounded,
-      open: tradePrice,
-      high: tradePrice,
-      low: tradePrice,
-      close: tradePrice,
-    };
-  } else {
-    bar = {
-      ...lastBar,
-      high: Math.max(lastBar.high, tradePrice),
-      low: Math.min(lastBar.low, tradePrice),
-      close: tradePrice,
-    };
+  private handleReconnection() {
+    if (this.connectionAttempts < this.maxAttempts) {
+      setTimeout(
+        () => {
+          console.log(`[socket - ${this.category}] Attempting to reconnect...`);
+          this.connectionAttempts += 1;
+          this.connect();
+        },
+        1000 * Math.pow(2, this.connectionAttempts)
+      ); // Exponential backoff
+    } else {
+      console.error(`[socket - ${this.category}] Maximum reconnection attempts reached.`);
+    }
   }
 
-  subscriptionItem.lastBar = bar;
+  private flushMessageQueue() {
+    while (this.messageQueue.length > 0) {
+      const message = this.messageQueue.shift();
+      if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+        console.log(`[socket - ${this.category}] Sending queued message:`, message);
+        this.socket.send(JSON.stringify(message));
+      } else {
+        console.warn(`[socket - ${this.category}] Cannot send queued message, socket not open.`);
+        this.messageQueue.unshift(message); // Requeue the message if the socket is not open
+        break; // Stop sending messages until the socket is open again
+      }
+    }
+  }
 
-  // Send data to every subscriber of that symbol
-  subscriptionItem.handlers.forEach((handler) => handler.callback(bar));
-});
+  public send(data: any) {
+    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+      console.log(`[socket - ${this.category}] Sending message:`, data);
+      this.socket.send(JSON.stringify(data));
+    } else {
+      console.error(`[socket - ${this.category}] Attempted to send message on a non-open socket.`);
+      this.messageQueue.push(data); // Queue the message if the socket is not open
+      this.handleReconnection(); // Optionally handle reconnection logic here
+    }
+  }
+
+  private handleMessage(data: any) {
+    try {
+      const parsedData = JSON.parse(data);
+      const { topic, data: klineData } = parsedData;
+
+      if (!topic || !klineData || !Array.isArray(klineData) || klineData.length === 0) {
+        console.warn(`[socket - ${this.category}] Invalid message data`, parsedData);
+        return;
+      }
+
+      const subscriptionItem = channelToSubscription.get(topic);
+      if (!subscriptionItem) {
+        console.warn(`[socket - ${this.category}] No subscription found for topic`, topic);
+        return;
+      }
+
+      const lastBar = subscriptionItem.lastBar;
+      const tradeTime = klineData[0].timestamp;
+      const tradePrice = parseFloat(klineData[0].close);
+
+      const coeff = subscriptionItem.resolution * 60 * 1000; // Resolution in milliseconds
+      const rounded = Math.floor(tradeTime / coeff) * coeff;
+      const lastBarSec = lastBar.time;
+
+      let bar;
+      if (rounded > lastBarSec) {
+        bar = {
+          time: rounded,
+          open: tradePrice,
+          high: tradePrice,
+          low: tradePrice,
+          close: tradePrice,
+        };
+      } else {
+        bar = {
+          ...lastBar,
+          high: Math.max(lastBar.high, tradePrice),
+          low: Math.min(lastBar.low, tradePrice),
+          close: tradePrice,
+        };
+      }
+
+      subscriptionItem.lastBar = bar;
+
+      // Send data to every subscriber of that symbol
+      subscriptionItem.handlers.forEach((handler) => handler.callback(bar));
+    } catch (error) {
+      console.error(`[socket - ${this.category}] Error processing message:`, error);
+    }
+  }
+}
+
+const linearSocketManager = new WebSocketManager('wss://stream.bybit.com/v5/public/linear', 'linear');
+const inverseSocketManager = new WebSocketManager('wss://stream.bybit.com/v5/public/inverse', 'inverse');
 
 export function subscribeOnStream(
   symbolInfo,
@@ -66,7 +137,8 @@ export function subscribeOnStream(
   onRealtimeCallback,
   subscriberUID,
   onResetCacheNeededCallback,
-  lastBar
+  lastBar,
+  category
 ) {
   const interval = resolution.toString(); // Ensure interval is a string
   const topic = `kline.${interval}.${symbolInfo.name.replace('-', '')}`; // Remove dashes for Bybit format
@@ -97,7 +169,12 @@ export function subscribeOnStream(
     args: [topic],
   };
 
-  socket.send(JSON.stringify(subRequest));
+  // Choose the correct socket manager based on the category
+  let socketManager;
+
+  if (category === 'inverse') socketManager = inverseSocketManager;
+  else if (category === 'linear') socketManager = linearSocketManager;
+  socketManager.send(subRequest);
 }
 
 export function unsubscribeFromStream(subscriberUID) {
@@ -117,7 +194,8 @@ export function unsubscribeFromStream(subscriberUID) {
           op: 'unsubscribe',
           args: [topic],
         };
-        socket.send(JSON.stringify(subRequest));
+        const socketManager = topic.includes('linear') ? linearSocketManager : inverseSocketManager;
+        socketManager.send(subRequest);
         channelToSubscription.delete(topic);
         break;
       }

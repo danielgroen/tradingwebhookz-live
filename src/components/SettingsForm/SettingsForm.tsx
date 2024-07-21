@@ -118,7 +118,9 @@ export const SettingsForm = () => {
           <ToggleButton disabled value="spot">
             spot
           </ToggleButton>
-          <ToggleButton value="derivates">Derivates</ToggleButton>
+          <ToggleButton disabled value="linear">
+            Derivates
+          </ToggleButton>
           <ToggleButton disabled value="inverse">
             Inverse
           </ToggleButton>
