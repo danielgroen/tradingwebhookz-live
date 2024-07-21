@@ -134,7 +134,7 @@ export default {
       timezone: 'Etc/UTC',
       exchange: symbolItem.exchange,
       minmov: 1,
-      logoUrls: symbolItem.logoUrls,
+      logo_urls: symbolItem.logo_urls.reverse(),
       pricescale: 100,
       has_intraday: true,
       // intraday_multipliers: ['1', '60'],
@@ -152,7 +152,6 @@ export default {
     const { from, to, firstDataRequest } = periodParams;
 
     const interval = resolution.replace(/\d+(?=[A-Za-z])/g, '');
-    console.log(interval, resolution);
 
     let urlParameters = {
       category: symbolInfo.type,

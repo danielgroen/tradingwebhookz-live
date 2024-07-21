@@ -51,7 +51,6 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
 
     const entryFeesInUSDT = positionSizeWithFees * feesOpen * entryPrice;
     // console.log(`Entry Fees in USDT: ${entryFeesInUSDT.toFixed(4)}`);
-    console.log(positionSizeWithFees);
 
     setQty(`${!!positionSizeWithFees ? positionSizeWithFees : minimalOrderSize}`);
 

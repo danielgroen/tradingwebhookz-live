@@ -41,10 +41,14 @@ export const useTradingViewWidgetHooks = (chartWidget: any, currentDrawingId: an
     apiStatePropsRef.current = apiStateProps;
   }, [apiStateProps]);
 
-  const onSymbolChange = async (name: string) => {
+  const onSymbolChange = async () => {
     if (!isLoggedInRef.current) return;
 
-    await apiStatePropsRef.current.setTradingPair(name);
+    let currentUrl = window.location.href;
+    let url = new URL(currentUrl);
+    const symbolQuery = url.searchParams.get('symbol');
+
+    await apiStatePropsRef.current.setTradingPair(`${symbolQuery}`);
     await Bybit.SetStateLeverage(apiStatePropsRef.current);
     await Bybit.SetStateGeneralSymbolInfo(apiStatePropsRef.current);
     await Bybit.SetStateFees(apiStatePropsRef.current);
@@ -130,8 +134,6 @@ export const useTradingViewWidgetHooks = (chartWidget: any, currentDrawingId: an
 
         if (!openOrders.length) return;
 
-        console.log(openOrders);
-
         // Draw new order lines
         for (let i = 0; i < openOrders.length; i++) {
           const order = openOrders[i];
@@ -151,7 +153,6 @@ export const useTradingViewWidgetHooks = (chartWidget: any, currentDrawingId: an
                 textPrefix = order.price ? 'Stop Loss' : 'Stop Market';
               }
             }
-            console.log(order);
 
             // TODO:: THIS draws every 2 seconds. this is not nessecery..
             // it messed with the "setDrawingId" function since this was always the last "ID"
@@ -302,9 +303,9 @@ export const useTradingViewWidgetHooks = (chartWidget: any, currentDrawingId: an
 
   useEffect(() => {
     if (isLoggedIn) {
-      onSymbolChange(apiStateProps.tradingPair);
+      onSymbolChange();
     }
-  }, [isLoggedIn, apiStateProps.tradingPair]);
+  }, [isLoggedIn]);
 
   useEffect(() => {
     if (side) return;

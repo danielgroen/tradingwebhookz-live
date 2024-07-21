@@ -46,6 +46,7 @@ export const ApiState = create<ApiStateProps>((set, get) => ({
   tradingPair: 'BTC-USDT-VANILLA-PERPETUAL',
   tradingPairFormatted: () => {
     const { tradingPair } = get();
+
     const tradingPairArr = tradingPair.split('-');
     return `${tradingPairArr[0]}${tradingPairArr[1]}`;
   },
