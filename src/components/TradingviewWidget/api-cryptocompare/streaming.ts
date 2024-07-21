@@ -212,7 +212,7 @@ export function unsubscribeFromStream(subscriberUID: string) {
         // Wait for unsubscription to be acknowledged before deleting the subscription
         socketManager.socket?.addEventListener('message', function handleUnsubscribeAck(event) {
           const data = JSON.parse(event.data);
-          if (data.op === 'unsubscribe' && data.args[0] === topic && data.success) {
+          if (data.op === 'unsubscribe' && data.args?.length && data.args[0] === topic && data.success) {
             channelToSubscription.delete(topic);
             console.log(`[unsubscribeBars]: Successfully unsubscribed from topic: ${topic}`);
             socketManager.socket?.removeEventListener('message', handleUnsubscribeAck);

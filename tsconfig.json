@@ -19,6 +19,7 @@
     "noFallthroughCasesInSwitch": true,
     "paths": {
       "@src/*": ["./*"],
+      "@assets/*": ["assets/*"],
       "@ccxt": ["_npm/ccxt"],
       "@states/*": ["states/*"],
       "@hooks/*": ["hooks/*"],

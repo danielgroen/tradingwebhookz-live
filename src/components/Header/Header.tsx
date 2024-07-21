@@ -39,11 +39,12 @@ export const Header = () => {
             <Chip
               sx={{
                 mr: 'auto',
+                boxShadow: isDemoTrade ? '0px 2px 0 #7b411f' : '0px 2px 0 #19552e',
                 background: isDemoTrade
-                  ? 'linear-gradient(90deg, rgba(255,153,0,1) 0%, rgba(255,107,87,1) 100%)'
-                  : '#66bb6a',
+                  ? 'linear-gradient(105deg, rgba(255,153,0,1) 0%, rgba(255,107,87,1) 100%)'
+                  : 'linear-gradient(105deg, rgb(102, 187, 106) 0%, rgb(2, 111, 60) 100%)',
               }}
-              label={`${isDemoTrade ? '⚠️' : '🟢'} ${apiKey.substring(0, 4)}*******${apiKey.substring(11)}`}
+              label={`${isDemoTrade ? '⚠️' : '🔴'} ${apiKey.substring(0, 4)}*******${apiKey.substring(11)}`}
             />
             {!isSettingsOpen ? (
               <FaGear style={{ cursor: 'pointer' }} size={18} onClick={() => setIsSettingsOpen(true)} />

@@ -3,6 +3,7 @@ import { TextField, Button, FormControlLabel, Switch, Typography, Link, Checkbox
 import { enqueueSnackbar } from 'notistack';
 import ccxt from '@ccxt';
 import { GlobalState, AuthState, ApiState } from '@states/index'; // Adjust the import based on your project structure
+import { default as Logo } from '@assets/logo.svg';
 
 export const LoginForm = () => {
   const { apiKey, setApiKey, secret, setSecret, isDemoTrade, setIsDemoTrade, rememberMe, setRememberMe } = AuthState();
@@ -48,6 +49,8 @@ export const LoginForm = () => {
 
   return (
     <>
+      <img alt="Logo" decoding="async" data-nimg="1" className="h-20 block px-12 w-auto mt-5" src={Logo}></img>
+      <h6 className="pb-10 text-center">Tradingwebhookz</h6>
       <TextField
         value={apiKey}
         onChange={(e) => {
@@ -74,7 +77,7 @@ export const LoginForm = () => {
       <FormControlLabel
         sx={{ mb: 4, mr: 0 }}
         control={<Switch checked={isDemoTrade} color="warning" onChange={() => setIsDemoTrade(!isDemoTrade)} />}
-        label="Demo trade"
+        label="Demo account"
         labelPlacement="start"
       />
 
@@ -86,7 +89,7 @@ export const LoginForm = () => {
         <Typography variant="caption" sx={{ ml: 1 }}>
           or{' '}
           <Link href="https://www.bybit.com/invite?ref=GDRBYQD" target="_blank">
-            Register
+            Register at Bybit
           </Link>
         </Typography>
         <FormControlLabel
