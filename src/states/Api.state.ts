@@ -43,15 +43,19 @@ export const ApiState = create<ApiStateProps>((set, get) => ({
   setApiLeverageMax: (apiLeverageMax) => set({ apiLeverageMax }),
   setApiLeverageStepSize: (apiLeverageStepSize) => set({ apiLeverageStepSize }),
 
-  tradingPair: 'BTC/USDT',
-  tradingPairFormatted: () => get().tradingPair.replace('/', ''),
+  tradingPair: 'BTC-USDT-VANILLA-PERPETUAL',
+  tradingPairFormatted: () => {
+    const { tradingPair } = get();
+    const tradingPairArr = tradingPair.split('-');
+    return `${tradingPairArr[0]}${tradingPairArr[1]}`;
+  },
   primaryPair: 'BTC',
   counterAsset: 'USDT',
   setTradingPair: (tradingPair) =>
     set({
       tradingPair,
-      primaryPair: tradingPair.split('/')[0],
-      counterAsset: tradingPair.split('/')[1],
+      primaryPair: tradingPair.split('-')[0],
+      counterAsset: tradingPair.split('-')[1],
     }),
 
   brokerInstance: null,

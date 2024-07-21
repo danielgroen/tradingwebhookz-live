@@ -130,6 +130,8 @@ export const useTradingViewWidgetHooks = (chartWidget: any, currentDrawingId: an
 
         if (!openOrders.length) return;
 
+        console.log(openOrders);
+
         // Draw new order lines
         for (let i = 0; i < openOrders.length; i++) {
           const order = openOrders[i];
@@ -146,9 +148,10 @@ export const useTradingViewWidgetHooks = (chartWidget: any, currentDrawingId: an
                 textPrefix = 'Take Profit';
               } else if (order?.stopPrice || order?.stopPrice) {
                 color = '#f44336';
-                textPrefix = 'Stop Loss';
+                textPrefix = order.price ? 'Stop Loss' : 'Stop Market';
               }
             }
+            console.log(order);
 
             // TODO:: THIS draws every 2 seconds. this is not nessecery..
             // it messed with the "setDrawingId" function since this was always the last "ID"
@@ -164,7 +167,7 @@ export const useTradingViewWidgetHooks = (chartWidget: any, currentDrawingId: an
               .setCancelButtonBackgroundColor('#000')
               .setBodyBackgroundColor('#000')
               .setLineColor(color)
-              .setPrice(order.price)
+              .setPrice(order.price ?? order?.stopPrice)
               .onCancel('onCancel called', function () {
                 // this.remove();
                 Bybit.cancelOrder(apiStateProps, order);
@@ -204,7 +207,7 @@ export const useTradingViewWidgetHooks = (chartWidget: any, currentDrawingId: an
           }
         });
 
-        if (!openPositions.length) return;
+        if (!openPositions?.length) return;
 
         // Draw new position lines
         for (let i = 0; i < openPositions.length; i++) {

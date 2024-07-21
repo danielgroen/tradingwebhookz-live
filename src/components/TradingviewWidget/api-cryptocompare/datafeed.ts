@@ -1,4 +1,4 @@
-import { makeApiRequest, generateSymbol, parseFullSymbol } from './helpers.js';
+import { makeApiRequest } from './helpers.js';
 import { subscribeOnStream, unsubscribeFromStream } from './streaming.js';
 
 // This is a simple implementation of the CryptoCompare streaming API
@@ -34,32 +34,35 @@ const configurationData = {
 
 // Obtains all symbols for all exchanges supported by CryptoCompare API
 async function getAllSymbols() {
-  const data = await makeApiRequest('data/v3/all/exchanges');
+  const data = await makeApiRequest(`/futures/v1/markets/instruments?market=bybit`);
   let allSymbols = [];
 
   for (const exchange of configurationData.exchanges) {
-    const pairs = data.Data[exchange.value].pairs;
+    const instruments = data.Data[exchange.value].instruments;
 
-    for (const leftPairPart of Object.keys(pairs)) {
-      const symbols = pairs[leftPairPart].map((rightPairPart) => {
-        const symbol = generateSymbol(exchange.value, leftPairPart, rightPairPart);
-        return {
-          symbol: symbol.short,
-          full_name: symbol.full,
-          description: symbol.short,
-          exchange: exchange.value,
-          exchange_logo: 'https://s3-symbol-logo.tradingview.com/provider/bybit.svg',
-          type: 'crypto',
-          ...(import.meta.env.PROD && {
-            logo_urls: [
-              `https://s3-symbol-logo.tradingview.com/crypto/XTVC${leftPairPart}.svg`,
-              `https://s3-symbol-logo.tradingview.com/crypto/XTVC${rightPairPart}.svg`,
-            ],
-          }),
-        };
-      });
-      allSymbols = [...allSymbols, ...symbols];
-    }
+    const symbols = Object.entries(instruments).map(([key, contract]) => {
+      const {
+        INSTRUMENT_MAPPING: { QUOTE_CURRENCY, INDEX_UNDERLYING },
+      } = contract;
+
+      return {
+        symbol: contract.INSTRUMENT,
+        short: key,
+        full_name: `${exchange.value}:${key}`,
+        description: `${contract.INSTRUMENT} PERPETUAL CONTRACT`,
+        exchange: exchange.value,
+        exchange_logo: 'https://s3-symbol-logo.tradingview.com/provider/bybit.svg',
+        type: 'swap crypto',
+        ...(!import.meta.env.PROD && {
+          logo_urls: [
+            `https://s3-symbol-logo.tradingview.com/crypto/XTVC${INDEX_UNDERLYING}.svg`,
+            `https://s3-symbol-logo.tradingview.com/crypto/XTVC${QUOTE_CURRENCY}.svg`,
+          ],
+        }),
+      };
+    });
+
+    allSymbols = [...allSymbols, ...symbols];
   }
   return allSymbols;
 }
@@ -74,9 +77,10 @@ export default {
 
     const newSymbols = symbols.filter((symbol) => {
       const isExchangeValid = exchange === '' || symbol.exchange === exchange;
-      const isFullSymbolContainsInput = symbol.full_name.toLowerCase().indexOf(userInput.toLowerCase()) !== -1;
+      const isFullSymbolContainsInput = symbol.symbol.toLowerCase().indexOf(userInput.toLowerCase()) !== -1;
       return isExchangeValid && isFullSymbolContainsInput;
     });
+
     onResultReadyCallback(newSymbols);
   },
 
@@ -92,7 +96,7 @@ export default {
     // override current url with parameters of new symbol
     let currentUrl = window.location.href;
     let url = new URL(currentUrl);
-    url.searchParams.set('symbol', symbolItem.symbol);
+    url.searchParams.set('symbol', symbolItem.short);
     window.history.pushState({}, '', url);
 
     // Symbol information object
@@ -105,10 +109,7 @@ export default {
       timezone: 'Etc/UTC',
       exchange: symbolItem.exchange,
       minmov: 1,
-      logo_urls: [
-        `https://s3-symbol-logo.tradingview.com/crypto/XTVC${symbolItem.symbol.split('/')[1]}.svg`,
-        `https://s3-symbol-logo.tradingview.com/crypto/XTVC${symbolItem.symbol.split('/')[0]}.svg`,
-      ],
+      logoUrls: symbolItem.logoUrls,
       pricescale: 100,
       has_intraday: true,
       intraday_multipliers: ['1', '60'],
@@ -124,45 +125,46 @@ export default {
 
   getBars: async (symbolInfo, resolution, periodParams, onHistoryCallback, onErrorCallback) => {
     const { from, to, firstDataRequest } = periodParams;
-    const parsedSymbol = parseFullSymbol(symbolInfo.full_name);
 
     let urlParameters = {
-      e: parsedSymbol.exchange,
-      fsym: parsedSymbol.fromSymbol,
-      tsym: parsedSymbol.toSymbol,
-      toTs: to,
+      market: symbolInfo.exchange,
+      instrument: symbolInfo.ticker.split(':')[1],
       limit: 2000,
+      // aggregate: resolution,
     };
 
     let endpoint;
 
     if (['1', '2', '5', '15', '30'].includes(resolution)) {
-      endpoint = 'data/v2/histominute';
+      endpoint = 'futures/v1/historical/minutes';
     } else if (['60', '120', '240', '360', '720'].includes(resolution)) {
-      endpoint = 'data/v2/histohour';
+      endpoint = 'futures/v1/historical/hours';
     } else {
-      endpoint = 'data/v2/histoday'; // Updated to v2 endpoint
+      endpoint = 'futures/v1/historical/days';
     }
+    console.log('=====getBars running', symbolInfo, resolution, periodParams);
 
     const query = Object.keys(urlParameters)
       .map((name) => `${name}=${encodeURIComponent(urlParameters[name])}`)
       .join('&');
 
     try {
-      const data = await makeApiRequest(`${endpoint}?${query}`);
+      const data = await makeApiRequest(`/${endpoint}?${query}`);
 
-      if (!data || data.Response !== 'Success' || !data.Data || data.Data.length === 0) {
+      if (!data || !data.Data || data.Data.length === 0) {
         onHistoryCallback([], { noData: true });
         return;
       }
 
-      let bars = data?.Data?.Data.map((bar) => ({
-        time: bar.time * 1000,
-        low: bar.low,
-        high: bar.high,
-        open: bar.open,
-        close: bar.close,
-        volume: bar.volumefrom,
+      const bars = data.Data.filter(
+        (bar) => bar.TIMESTAMP * 1000 >= from * 1000 && bar.TIMESTAMP * 1000 <= to * 1000
+      ).map((bar) => ({
+        time: bar.TIMESTAMP * 1000,
+        low: bar.LOW,
+        high: bar.HIGH,
+        open: bar.OPEN,
+        close: bar.CLOSE,
+        volume: bar.VOLUME,
       }));
 
       if (firstDataRequest) {
@@ -179,10 +181,12 @@ export default {
   calculateHistoryDepth: (resolution, resolutionBack, intervalBack) => {
     //optional
     console.log('=====calculateHistoryDepth running');
+
     // while optional, this makes sure we request 24 hours of minute data at a time
     // CryptoCompare's minute data endpoint will throw an error if we request data beyond 7 days in the past, and return no data
-    return resolution < 60 ? { resolutionBack: 'D', intervalBack: '1' } : undefined;
+    return resolution < 60 ? { resolutionBack: '1', intervalBack: '2000' } : undefined;
   },
+
   getServerTime: (cb) => {
     console.log('=====getServerTime running');
   },

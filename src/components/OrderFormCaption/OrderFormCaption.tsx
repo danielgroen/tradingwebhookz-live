@@ -42,31 +42,33 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
     const feesLoss = orderTypeStoploss === ORDER_TYPE.MARKET ? taker / 100 : maker / 100;
     const feesProfit = orderTypeTakeProfit === ORDER_TYPE.MARKET ? taker / 100 : maker / 100;
 
-    const riskAmount = orderSize * (parseFloat(risk) / 100);
+    const riskAmount = orderSize * ((parseFloat(risk) + 0.07) / 100);
     const lossPerUnit = entryPrice - sl;
 
-    let positionSizeWithoutFees = riskAmount / (Math.abs(lossPerUnit) + feesOpen + feesLoss);
-    positionSizeWithoutFees = Math.ceil(positionSizeWithoutFees / minimalOrderSize) * minimalOrderSize;
+    // Adjust the position size to ensure that the total loss does not exceed the risk amount
+    let positionSizeWithFees = riskAmount / (Math.abs(lossPerUnit) + feesOpen * entryPrice + feesLoss * entryPrice);
+    positionSizeWithFees = Math.floor(positionSizeWithFees / minimalOrderSize) * minimalOrderSize;
 
-    setQty(`${positionSizeWithoutFees}`);
-
-    const entryFeesInUSDT = positionSizeWithoutFees * feesOpen * entryPrice;
+    const entryFeesInUSDT = positionSizeWithFees * feesOpen * entryPrice;
     // console.log(`Entry Fees in USDT: ${entryFeesInUSDT.toFixed(4)}`);
+    console.log(positionSizeWithFees);
+
+    setQty(`${!!positionSizeWithFees ? positionSizeWithFees : minimalOrderSize}`);
 
     const potentialProfit =
       side === SIDE.BUY
-        ? (tp - entryPrice) * positionSizeWithoutFees - feesProfit * positionSizeWithoutFees
-        : (entryPrice - tp) * positionSizeWithoutFees - feesProfit * positionSizeWithoutFees;
+        ? (tp - entryPrice) * positionSizeWithFees - feesProfit * positionSizeWithFees * tp - entryFeesInUSDT
+        : (entryPrice - tp) * positionSizeWithFees - feesProfit * positionSizeWithFees * tp - entryFeesInUSDT;
 
     const potentialLoss =
       side === SIDE.BUY
-        ? (entryPrice - sl) * positionSizeWithoutFees + feesLoss * positionSizeWithoutFees
-        : (sl - entryPrice) * positionSizeWithoutFees + feesLoss * positionSizeWithoutFees;
+        ? (entryPrice - sl) * positionSizeWithFees + feesLoss * positionSizeWithFees * sl + entryFeesInUSDT
+        : (sl - entryPrice) * positionSizeWithFees + feesLoss * positionSizeWithFees * sl + entryFeesInUSDT;
 
     setPotentialProfit(potentialProfit);
     setPotentialLoss(potentialLoss);
 
-    const positionValue = positionSizeWithoutFees * entryPrice;
+    const positionValue = positionSizeWithFees * entryPrice;
     const requiredLeverage = positionValue / orderSize + 1;
     setLocalLeverage(requiredLeverage.toFixed(stepSizeToFixed(apiLeverageStepSize)));
   }, [
@@ -132,7 +134,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
           <Typography variant="caption" sx={{ display: 'block' }}>
             P:{' '}
             <Typography variant="caption" color={potentialProfit > 0 ? 'success.light' : 'error'}>
-              {((potentialProfit.toFixed(2) / accountBalance) * 100).toFixed(2)}
+              {((+potentialProfit.toFixed(2) / accountBalance) * 100).toFixed(2)}
             </Typography>{' '}
             %
             <Typography variant="caption" sx={{ opacity: 0, marginLeft: -1.5 }}>

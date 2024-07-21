@@ -1,9 +1,6 @@
-import { parseFullSymbol, apiKey } from './helpers.js';
-
-// This is a simple implementation of the CryptoCompare streaming API
-// https://github.com/tradingview/charting-library-tutorial
-
-const socket = new WebSocket('wss://streamer.cryptocompare.com/v2?api_key=' + apiKey);
+// Use Bybit's WebSocket API for live data
+const socket = new WebSocket('wss://stream.bybit.com/v5/public/linear');
+// const socket = new WebSocket('wss://stream.bybit.com/v5/public/inverse');
 const channelToSubscription = new Map();
 
 socket.addEventListener('open', () => {
@@ -20,37 +17,29 @@ socket.addEventListener('error', (error) => {
 
 socket.addEventListener('message', (event) => {
   const data = JSON.parse(event.data);
-  const {
-    TYPE: eventTypeStr,
-    M: exchange,
-    FSYM: fromSymbol,
-    TSYM: toSymbol,
-    TS: tradeTimeStr,
-    P: tradePriceStr,
-  } = data;
+  const { topic, data: klineData } = data;
 
-  if (parseInt(eventTypeStr) !== 0) {
-    // Skip all non-trading events
+  if (!topic || !klineData || !Array.isArray(klineData) || klineData.length === 0) {
     return;
   }
-  const tradePrice = parseFloat(tradePriceStr);
-  const tradeTime = parseInt(tradeTimeStr);
-  const channelString = `0~${exchange}~${fromSymbol}~${toSymbol}`;
-  const subscriptionItem = channelToSubscription.get(channelString);
-  if (subscriptionItem === undefined) {
+
+  const subscriptionItem = channelToSubscription.get(topic);
+  if (!subscriptionItem) {
     return;
   }
+
   const lastBar = subscriptionItem.lastBar;
-  var coeff = subscriptionItem.resolution * 60;
+  const tradeTime = klineData[0].timestamp;
+  const tradePrice = parseFloat(klineData[0].close);
 
-  var rounded = Math.floor(data.TS / coeff) * coeff;
-  var lastBarSec = lastBar.time / 1000;
+  const coeff = subscriptionItem.resolution * 60 * 1000; // Resolution in milliseconds
+  const rounded = Math.floor(tradeTime / coeff) * coeff;
+  const lastBarSec = lastBar.time;
 
   let bar;
   if (rounded > lastBarSec) {
-    // create a new candle
     bar = {
-      time: rounded * 1000,
+      time: rounded,
       open: tradePrice,
       high: tradePrice,
       low: tradePrice,
@@ -64,6 +53,7 @@ socket.addEventListener('message', (event) => {
       close: tradePrice,
     };
   }
+
   subscriptionItem.lastBar = bar;
 
   // Send data to every subscriber of that symbol
@@ -78,36 +68,42 @@ export function subscribeOnStream(
   onResetCacheNeededCallback,
   lastBar
 ) {
-  const parsedSymbol = parseFullSymbol(symbolInfo.full_name);
-  const channelString = `0~${parsedSymbol.exchange}~${parsedSymbol.fromSymbol}~${parsedSymbol.toSymbol}`;
+  const interval = resolution.toString(); // Ensure interval is a string
+  const topic = `kline.${interval}.${symbolInfo.name.replace('-', '')}`; // Remove dashes for Bybit format
+
   const handler = {
     id: subscriberUID,
     callback: onRealtimeCallback,
   };
-  let subscriptionItem = channelToSubscription.get(channelString);
-  if (subscriptionItem && subscriptionItem.resolution === resolution) {
+
+  let subscriptionItem = channelToSubscription.get(topic);
+
+  if (subscriptionItem) {
     // Already subscribed to the channel, use the existing subscription
     subscriptionItem.handlers.push(handler);
     return;
   }
+
   subscriptionItem = {
     subscriberUID,
     resolution,
     lastBar,
     handlers: [handler],
   };
-  channelToSubscription.set(channelString, subscriptionItem);
+
+  channelToSubscription.set(topic, subscriptionItem);
   const subRequest = {
-    action: 'SubAdd',
-    subs: [channelString],
+    op: 'subscribe',
+    args: [topic],
   };
+
   socket.send(JSON.stringify(subRequest));
 }
 
 export function unsubscribeFromStream(subscriberUID) {
   // Find a subscription with id === subscriberUID
-  for (const channelString of channelToSubscription.keys()) {
-    const subscriptionItem = channelToSubscription.get(channelString);
+  for (const topic of channelToSubscription.keys()) {
+    const subscriptionItem = channelToSubscription.get(topic);
     const handlerIndex = subscriptionItem.handlers.findIndex((handler) => handler.id === subscriberUID);
 
     if (handlerIndex !== -1) {
@@ -116,13 +112,13 @@ export function unsubscribeFromStream(subscriberUID) {
 
       if (subscriptionItem.handlers.length === 0) {
         // Unsubscribe from the channel if it was the last handler
-        console.log('[unsubscribeBars]: Unsubscribe from streaming. Channel:', channelString);
+        console.log('[unsubscribeBars]: Unsubscribe from streaming. Topic:', topic);
         const subRequest = {
-          action: 'SubRemove',
-          subs: [channelString],
+          op: 'unsubscribe',
+          args: [topic],
         };
         socket.send(JSON.stringify(subRequest));
-        channelToSubscription.delete(channelString);
+        channelToSubscription.delete(topic);
         break;
       }
     }
