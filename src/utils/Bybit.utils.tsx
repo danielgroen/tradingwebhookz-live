@@ -1,5 +1,5 @@
 import { enqueueSnackbar } from 'notistack';
-import { type SIDE, ORDER_TYPE } from '@constants/index';
+import { SIDE, ORDER_TYPE } from '@constants/index';
 
 // https://docs.ccxt.com/#/exchanges/bybit
 export class Bybit {
@@ -105,6 +105,7 @@ export class Bybit {
     const { orderTypeStoploss, orderTypeTakeProfit } = settingsState;
 
     try {
+      await brokerInstance.setPositionMode(true);
       const order = await brokerInstance?.createOrder(
         tradingPairFormatted(),
         'limit', // base order is always limit
@@ -114,7 +115,7 @@ export class Bybit {
         {
           postOnly: true,
           // 0 for one-way mode, 1 buy side of hedged mode, 2 sell side of hedged mode
-          positionIdx: 0,
+          positionIdx: side === SIDE.BUY ? 1 : 2,
           stopLoss: {
             // type: orderTypeStoploss,
             ...(orderTypeStoploss === ORDER_TYPE.LIMIT && { price: parseFloat(stopLoss) }),
