@@ -134,7 +134,7 @@ export default {
       timezone: 'Etc/UTC',
       exchange: symbolItem.exchange,
       minmov: 1,
-      logo_urls: symbolItem.logo_urls.reverse(),
+      logo_urls: symbolItem.logo_urls?.reverse(),
       pricescale: 100,
       has_intraday: true,
       // intraday_multipliers: ['1', '60'],
