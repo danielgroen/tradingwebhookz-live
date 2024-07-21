@@ -7,7 +7,7 @@ export async function makeApiRequest(path) {
   try {
     // const url = new URL(`https://min-api.cryptocompare.com${path}`);
     const url = new URL(`https://data-api.cryptocompare.com${path}`);
-    // url.searchParams.append('api_key', apiKey);
+    url.searchParams.append('api_key', apiKey);
     const response = await fetch(url.toString());
     return response.json();
   } catch (error) {
