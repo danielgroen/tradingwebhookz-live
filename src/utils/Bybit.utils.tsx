@@ -1,5 +1,5 @@
 import { enqueueSnackbar } from 'notistack';
-import { type SIDE } from '@constants/index';
+import { type SIDE, ORDER_TYPE } from '@constants/index';
 
 // https://docs.ccxt.com/#/exchanges/bybit
 export class Bybit {
@@ -15,7 +15,7 @@ export class Bybit {
       const result = await brokerInstance?.fetchLeverage(tradingPairFormatted());
       const { leverage: ApiLeverage } = result?.info;
       setApiLeverage(ApiLeverage);
-    } catch ({ message }: { message: any }) {
+    } catch ({ message }: any) {
       enqueueSnackbar(`[FETCH LEVERAGE]: ${message}`, {
         variant: 'error',
       });
@@ -41,7 +41,7 @@ export class Bybit {
 
       setApiLeverageMax(result.leverageFilter.maxLeverage);
       setApiLeverageStepSize(result.leverageFilter.leverageStep);
-    } catch ({ message }: { message: any }) {
+    } catch ({ message }: any) {
       enqueueSnackbar(`[SET SYMBOL INFO]: ${message}`, {
         variant: 'error',
       });
@@ -64,7 +64,7 @@ export class Bybit {
         const result = await brokerInstance?.fetchTradingFee(tradingPairFormatted());
         setFees({ maker: result?.info.makerFeeRate * 100, taker: result?.info.takerFeeRate * 100 });
       }
-    } catch ({ message }: { message: any }) {
+    } catch ({ message }: any) {
       enqueueSnackbar(`[SET FEES]: ${message}`, {
         variant: 'error',
       });
@@ -86,7 +86,7 @@ export class Bybit {
         variant: 'success',
         autoHideDuration: 2000,
       });
-    } catch ({ message }: { message: any }) {
+    } catch ({ message }: any) {
       console.log(`[UPDATE LEVERAGE]: ${error}`);
       // enqueueSnackbar(`${message}`, {
       //   variant: 'error',
@@ -116,19 +116,19 @@ export class Bybit {
           // 0 for one-way mode, 1 buy side of hedged mode, 2 sell side of hedged mode
           positionIdx: 0,
           stopLoss: {
-            type: orderTypeStoploss,
-            price: parseFloat(stopLoss),
+            // type: orderTypeStoploss,
+            ...(orderTypeStoploss === ORDER_TYPE.LIMIT && { price: parseFloat(stopLoss) }),
             triggerPrice: parseFloat(stopLoss),
           },
           takeProfit: {
-            type: orderTypeTakeProfit,
-            price: parseFloat(takeProfit),
+            // type: orderTypeTakeProfit,
+            ...(orderTypeTakeProfit === ORDER_TYPE.LIMIT && { price: parseFloat(takeProfit) }),
             triggerPrice: parseFloat(takeProfit),
           },
         }
       );
       setSubmittedOrderId(order.id);
-    } catch ({ message }: { message: any }) {
+    } catch ({ message }: any) {
       enqueueSnackbar(`[SEND ORDER]: ${message}`, {
         variant: 'error',
         autoHideDuration: 6000,
@@ -148,7 +148,7 @@ export class Bybit {
       const getBalance = await brokerInstance?.fetchBalance();
 
       setAccountBalance(getBalance[counterAsset]?.free);
-    } catch ({ message }: { message: any }) {
+    } catch ({ message }: any) {
       enqueueSnackbar(`[GET BALANCE]: ${message}`, {
         variant: 'error',
         autoHideDuration: 6000,
@@ -167,7 +167,7 @@ export class Bybit {
     try {
       const openOrders = await brokerInstance?.fetchOpenOrders(tradingPairFormatted());
       if (oldOpenOrders?.length !== openOrders?.length) setOpenOrders(openOrders);
-    } catch ({ message }: { message: any }) {
+    } catch ({ message }: any) {
       enqueueSnackbar(`[GET OPEN ORDERS]: ${message}`, {
         autoHideDuration: 6000,
         variant: 'error',
@@ -188,7 +188,7 @@ export class Bybit {
         variant: 'success',
         autoHideDuration: 2000,
       });
-    } catch ({ message }: { message: any }) {
+    } catch ({ message }: any) {
       enqueueSnackbar(`[CANCEL ORDER]: ${message}`, {
         autoHideDuration: 6000,
         variant: 'error',
@@ -207,7 +207,7 @@ export class Bybit {
     try {
       const openOrders = await brokerInstance?.fetchPositions([tradingPairFormatted()]);
       setOpenPositions(openOrders);
-    } catch ({ message }: { message: any }) {
+    } catch ({ message }: any) {
       enqueueSnackbar(`[GET POSITION]: ${message}`, {
         autoHideDuration: 6000,
         variant: 'error',
@@ -233,7 +233,7 @@ export class Bybit {
         variant: 'success',
         autoHideDuration: 2000,
       });
-    } catch ({ message }: { message: any }) {
+    } catch ({ message }: any) {
       enqueueSnackbar(`[CLOSE POSITION]: ${message}`, {
         variant: 'error',
         autoHideDuration: 6000,
