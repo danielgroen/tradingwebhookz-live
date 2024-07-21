@@ -14,7 +14,22 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
   const { maker, taker } = fees as { maker: number; taker: number };
 
   useEffect(() => {
-    if (!price || !stopLoss || !takeProfit || !accountBalance || !risk || !apiMinOrderSize || !apiLeverageStepSize)
+    if (side) return;
+    setPotentialLoss(0);
+    setPotentialProfit(0);
+  }, [side]);
+
+  useEffect(() => {
+    if (
+      !price ||
+      !stopLoss ||
+      !takeProfit ||
+      !accountBalance ||
+      !risk ||
+      !apiMinOrderSize ||
+      !apiLeverageStepSize ||
+      !side
+    )
       return;
 
     const minimalOrderSize = parseFloat(apiMinOrderSize);

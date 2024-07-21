@@ -5,17 +5,19 @@ import ccxt from '@ccxt';
 import { GlobalState, AuthState, ApiState } from '@states/index'; // Adjust the import based on your project structure
 
 export const LoginForm = () => {
-  const { apiKey, setApiKey, secret, setSecret, isTestnet, setIsTestnet, rememberMe, setRememberMe } = AuthState();
+  const { apiKey, setApiKey, secret, setSecret, isDemoTrade, setIsDemoTrade, rememberMe, setRememberMe } = AuthState();
   const { setIsLoggedIn, isLoggedIn } = GlobalState();
   const { setBrokerInstance } = ApiState();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [initLoad, setInitLoad] = useState(true);
 
   const handleLogin = async () => {
     if (isLoggedIn) return;
     setIsLoggingIn(true);
 
     const account = new ccxt.bybit({ apiKey, secret });
-    account.setSandboxMode(isTestnet);
+    account.enableDemoTrading(isDemoTrade);
+    // account.setSandboxMode(isTestnet); // testnet
 
     try {
       // Make a test API call to verify the credentials
@@ -39,7 +41,7 @@ export const LoginForm = () => {
   };
 
   useEffect(() => {
-    if (apiKey && secret) handleLogin();
+    if (apiKey && secret && initLoad) handleLogin();
   }, [apiKey, secret]);
 
   if (isLoggingIn) return <Typography variant="body2">Logging in...</Typography>;
@@ -48,7 +50,10 @@ export const LoginForm = () => {
     <>
       <TextField
         value={apiKey}
-        onChange={(e) => setApiKey(e.target.value)}
+        onChange={(e) => {
+          setInitLoad(false);
+          setApiKey(e.target.value);
+        }}
         fullWidth
         size="small"
         sx={{ mb: 2 }}
@@ -56,7 +61,10 @@ export const LoginForm = () => {
       />
       <TextField
         value={secret}
-        onChange={(e) => setSecret(e.target.value)}
+        onChange={(e) => {
+          setInitLoad(false);
+          setSecret(e.target.value);
+        }}
         type="password"
         fullWidth
         size="small"
@@ -65,8 +73,8 @@ export const LoginForm = () => {
       />
       <FormControlLabel
         sx={{ mb: 4, mr: 0 }}
-        control={<Switch checked={isTestnet} color="warning" onChange={() => setIsTestnet(!isTestnet)} />}
-        label="Testnet"
+        control={<Switch checked={isDemoTrade} color="warning" onChange={() => setIsDemoTrade(!isDemoTrade)} />}
+        label="Demo trade"
         labelPlacement="start"
       />
 

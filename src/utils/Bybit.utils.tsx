@@ -57,8 +57,13 @@ export class Bybit {
     const { tradingPairFormatted, brokerInstance, setFees } = apiState;
 
     try {
-      const result = await brokerInstance?.fetchTradingFee(tradingPairFormatted());
-      setFees({ maker: result?.info.makerFeeRate * 100, taker: result?.info.takerFeeRate * 100 });
+      const [enableUnifiedMargin, enableUnifiedAccount] = await brokerInstance.isUnifiedEnabled();
+      if (enableUnifiedAccount) {
+        setFees({ maker: 0.02, taker: 0.055 }); // TODO:: get unified fees.. BUT HOW??
+      } else {
+        const result = await brokerInstance?.fetchTradingFee(tradingPairFormatted());
+        setFees({ maker: result?.info.makerFeeRate * 100, taker: result?.info.takerFeeRate * 100 });
+      }
     } catch ({ message }: { message: any }) {
       enqueueSnackbar(`[SET FEES]: ${message}`, {
         variant: 'error',

@@ -4,7 +4,6 @@ import { OrderButton, OrderFormCaption, OrderFormFooter, OrderFormOrders } from 
 import { SIDE } from '@constants/index';
 import { OrderState, ApiState } from '@states/index';
 import { inputLeft, inputRight, inputBase } from '@utils/index';
-import Test from './Test';
 
 export const OrderForm = () => {
   const {
@@ -18,6 +17,7 @@ export const OrderForm = () => {
     setSide,
     setRiskReward,
     qty,
+    clearOrder,
     setQty,
     localLeverage: appLeverage,
     setLocalLeverage,
@@ -43,11 +43,10 @@ export const OrderForm = () => {
   }, [stopLoss, takeProfit, price, qty, appLeverage]);
 
   useEffect(() => {
-    if (stopLoss === '' && takeProfit === '') {
-      setSide(null);
-      setRiskReward('');
-    } else if (+stopLoss > +price || +takeProfit < +price) setSide(SIDE.SELL);
-    else if (+stopLoss < +price || +takeProfit > +price) setSide(SIDE.BUY);
+    if (stopLoss === '' || takeProfit === '' || !+price) {
+      clearOrder();
+    } else if (price && (+stopLoss > +price || +takeProfit < +price)) setSide(SIDE.SELL);
+    else if (price && (+stopLoss < +price || +takeProfit > +price)) setSide(SIDE.BUY);
   }, [stopLoss, takeProfit, price]);
 
   return (

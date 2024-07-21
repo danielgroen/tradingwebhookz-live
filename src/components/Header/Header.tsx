@@ -13,7 +13,7 @@ export const Header = () => {
   const { setBrokerInstance } = ApiState();
   const { orderbook } = SettingsState();
   const { isLoggedIn, isSettingsOpen, setIsSettingsOpen, setShowSidebar, setIsLoggedIn } = GlobalState();
-  const { clearStore, apiKey, isTestnet } = AuthState();
+  const { clearStore, apiKey, isDemoTrade } = AuthState();
   const { isOrderFilled, clearOrder } = OrderState();
 
   const [openDialog, setOpenDialog] = useState(false);
@@ -37,8 +37,13 @@ export const Header = () => {
         {isLoggedIn ? (
           <>
             <Chip
-              sx={{ mr: 'auto' }}
-              label={`${isTestnet ? '🚧' : '🟢'} ${apiKey.substring(0, 4)}*******${apiKey.substring(11)}`}
+              sx={{
+                mr: 'auto',
+                background: isDemoTrade
+                  ? 'linear-gradient(90deg, rgba(255,153,0,1) 0%, rgba(255,107,87,1) 100%)'
+                  : '#66bb6a',
+              }}
+              label={`${isDemoTrade ? '🚧' : '🟢'} ${apiKey.substring(0, 4)}*******${apiKey.substring(11)}`}
             />
             {!isSettingsOpen ? (
               <FaGear style={{ cursor: 'pointer' }} size={18} onClick={() => setIsSettingsOpen(true)} />
