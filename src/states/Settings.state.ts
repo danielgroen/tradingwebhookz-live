@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { ORDER_TYPE } from '@constants/index';
+import { ORDER_TYPE, CATEGORY } from '@constants/index';
 
 interface SettingsStateProps {
   risk: string;
@@ -8,6 +8,9 @@ interface SettingsStateProps {
 
   autoFill: boolean;
   toggleAutoFill: () => void;
+
+  category: CATEGORY;
+  setCategory: (category: CATEGORY) => void;
 
   autoRemoveDrawings: boolean;
   toggleAutoRemoveDrawings: () => void;
@@ -27,6 +30,9 @@ export const SettingsState = create<SettingsStateProps>()(
     (set, get) => ({
       risk: '1',
       setRisk: (risk) => set({ risk }),
+
+      category: CATEGORY.LINEAR,
+      setCategory: (category) => set({ category }),
 
       autoFill: true,
       toggleAutoFill: () => set({ autoFill: !get().autoFill }),

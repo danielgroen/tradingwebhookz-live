@@ -26,14 +26,14 @@ export class Bybit {
    * @function SetStateGeneralSymbolInfo
    * Update the state of the app with general information for the current trading pair
    */
-  static SetStateGeneralSymbolInfo = async (apiState) => {
+  static SetStateGeneralSymbolInfo = async (apiState, category) => {
     const { setApiLeverageMax, setApiLeverageStepSize, setApiMinOrderSize, setApiMaxOrderSize, tradingPairFormatted } =
       apiState;
 
     // TODO:: FIX HARDCODED CATEGORY
     try {
       const result = await fetch(
-        `https://api.bybit.com/v5/market/instruments-info?category=linear&symbol=${tradingPairFormatted()}`
+        `https://api.bybit.com/v5/market/instruments-info?category=${category}&symbol=${tradingPairFormatted()}`
       )
         .then((res) => res.json())
         .then((data) => data?.result?.list[0]);

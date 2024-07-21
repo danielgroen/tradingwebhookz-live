@@ -79,6 +79,12 @@ class WebSocketManager {
   private handleMessage(data: any) {
     try {
       const parsedData = JSON.parse(data);
+
+      if (parsedData.op === 'subscribe' || parsedData.op === 'unsubscribe') {
+        console.log(`[socket - ${this.category}] ${parsedData.op} acknowledged:`, parsedData);
+        return;
+      }
+
       const { topic, data: klineData } = parsedData;
 
       if (!topic || !klineData || !Array.isArray(klineData) || klineData.length === 0) {
@@ -88,7 +94,7 @@ class WebSocketManager {
 
       const subscriptionItem = channelToSubscription.get(topic);
       if (!subscriptionItem) {
-        console.warn(`[socket - ${this.category}] No subscription found for topic`, topic);
+        console.warn(`[socket - ${this.category}] No subscription found for topic ${topic}`);
         return;
       }
 
@@ -156,6 +162,13 @@ export function subscribeOnStream(
     return;
   }
 
+  // Unsubscribe from previous timeframe if necessary
+  for (const [existingTopic, existingSubscriptionItem] of channelToSubscription.entries()) {
+    if (existingSubscriptionItem.subscriberUID === subscriberUID && existingTopic !== topic) {
+      unsubscribeFromStream(subscriberUID);
+    }
+  }
+
   subscriptionItem = {
     subscriberUID,
     resolution,
@@ -177,28 +190,39 @@ export function subscribeOnStream(
   socketManager.send(subRequest);
 }
 
-export function unsubscribeFromStream(subscriberUID) {
-  // Find a subscription with id === subscriberUID
-  for (const topic of channelToSubscription.keys()) {
-    const subscriptionItem = channelToSubscription.get(topic);
+export function unsubscribeFromStream(subscriberUID: string) {
+  for (const [topic, subscriptionItem] of channelToSubscription.entries()) {
     const handlerIndex = subscriptionItem.handlers.findIndex((handler) => handler.id === subscriberUID);
 
     if (handlerIndex !== -1) {
-      // Remove from handlers
+      // Remove the handler from the subscription
       subscriptionItem.handlers.splice(handlerIndex, 1);
 
       if (subscriptionItem.handlers.length === 0) {
-        // Unsubscribe from the channel if it was the last handler
-        console.log('[unsubscribeBars]: Unsubscribe from streaming. Topic:', topic);
+        // Unsubscribe if no handlers are left
+        console.log(`[unsubscribeBars]: Unsubscribe from streaming. Topic: ${topic}`);
         const subRequest = {
           op: 'unsubscribe',
           args: [topic],
         };
+
         const socketManager = topic.includes('linear') ? linearSocketManager : inverseSocketManager;
         socketManager.send(subRequest);
-        channelToSubscription.delete(topic);
-        break;
+
+        // Wait for unsubscription to be acknowledged before deleting the subscription
+        socketManager.socket?.addEventListener('message', function handleUnsubscribeAck(event) {
+          const data = JSON.parse(event.data);
+          if (data.op === 'unsubscribe' && data.args[0] === topic && data.success) {
+            channelToSubscription.delete(topic);
+            console.log(`[unsubscribeBars]: Successfully unsubscribed from topic: ${topic}`);
+            socketManager.socket?.removeEventListener('message', handleUnsubscribeAck);
+          }
+        });
+      } else {
+        console.log(`[unsubscribeBars]: Remaining handlers for topic ${topic}: ${subscriptionItem.handlers.length}`);
       }
+
+      break; // Exit the loop once the subscription is found and handled
     }
   }
 }

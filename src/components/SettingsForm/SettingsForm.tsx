@@ -11,9 +11,10 @@ import {
   Switch,
 } from '@mui/material';
 import { enqueueSnackbar } from 'notistack';
-import { ORDER_TYPE } from '@constants/index';
+import { ORDER_TYPE, CATEGORY } from '@constants/index';
 import { SettingsState } from '@states/index';
 import { inputLeft, inputRight, inputBase } from '@utils/index';
+import { useEffect } from 'react';
 
 export const SettingsForm = () => {
   const {
@@ -27,6 +28,7 @@ export const SettingsForm = () => {
     setOrderTypeTakeProfit,
     autoFill,
     toggleAutoFill,
+    category,
     autoRemoveDrawings,
     toggleAutoRemoveDrawings,
   } = SettingsState();
@@ -47,14 +49,6 @@ export const SettingsForm = () => {
           label="Max risk"
           inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
           InputProps={{ endAdornment: '%' }}
-        />
-
-        <FormControlLabel
-          // {...inputLeft}
-          sx={{ ml: 0 }}
-          control={<Switch checked={autoFill} onChange={toggleAutoFill} />}
-          label="Form autofill"
-          labelPlacement="start"
         />
 
         <TextField
@@ -114,14 +108,14 @@ export const SettingsForm = () => {
           </Select>
         </FormControl>
 
-        <ToggleButtonGroup fullWidth color="primary" value="derivates" size="small" exclusive onChange={() => {}}>
+        <ToggleButtonGroup fullWidth color="primary" value={category} size="small" exclusive onChange={() => {}}>
           <ToggleButton disabled value="spot">
             spot
           </ToggleButton>
-          <ToggleButton disabled value="linear">
+          <ToggleButton disabled value={CATEGORY.LINEAR}>
             Derivates
           </ToggleButton>
-          <ToggleButton disabled value="inverse">
+          <ToggleButton disabled value={CATEGORY.INVERSE}>
             Inverse
           </ToggleButton>
         </ToggleButtonGroup>
@@ -132,6 +126,12 @@ export const SettingsForm = () => {
           control={<Switch checked={autoRemoveDrawings} onChange={toggleAutoRemoveDrawings} />}
           label="Auto remove drawings"
           // labelPlacement="start"
+        />
+        <FormControlLabel
+          // {...inputLeft}
+          sx={{ ml: 'auto', mt: 2 }}
+          control={<Switch checked={autoFill} onChange={toggleAutoFill} />}
+          label="Form autofill"
         />
       </div>
     </>

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { IChartingLibraryWidget } from 'charting_library';
 import { GlobalState, OrderState, ApiState, SettingsState } from '@states/index';
-import { SIDE } from '@constants/index';
+import { SIDE, CATEGORY } from '@constants/index';
 import { Bybit, stepSizeToFixed } from '@utils/index';
 
 export const useTradingViewWidgetHooks = (chartWidget: any, currentDrawingId: any) => {
@@ -18,7 +18,7 @@ export const useTradingViewWidgetHooks = (chartWidget: any, currentDrawingId: an
     openOrders,
     openPositions,
   } = OrderState();
-  const { autoRemoveDrawings } = SettingsState();
+  const { autoRemoveDrawings, ...settingsStateProps } = SettingsState();
   const { ...apiStateProps } = ApiState();
   const [openOrderLines, setOpenOrderLines] = useState([]);
   const orderLinesRef = useRef({});
@@ -26,6 +26,7 @@ export const useTradingViewWidgetHooks = (chartWidget: any, currentDrawingId: an
 
   const isLoggedInRef = useRef(isLoggedIn);
   const apiStatePropsRef = useRef(apiStateProps);
+  const settingsStatePropsRef = useRef(settingsStateProps);
 
   const canFindShape = () => {
     if (!chartWidget.current) return;
@@ -47,10 +48,14 @@ export const useTradingViewWidgetHooks = (chartWidget: any, currentDrawingId: an
     let currentUrl = window.location.href;
     let url = new URL(currentUrl);
     const symbolQuery = url.searchParams.get('symbol');
+    const { setCategory } = settingsStatePropsRef.current;
+    console.log(symbolQuery);
+    const newCategory = symbolQuery?.includes('INVERSE') ? CATEGORY.INVERSE : CATEGORY.LINEAR;
+    setCategory(newCategory);
 
     await apiStatePropsRef.current.setTradingPair(`${symbolQuery}`);
     await Bybit.SetStateLeverage(apiStatePropsRef.current);
-    await Bybit.SetStateGeneralSymbolInfo(apiStatePropsRef.current);
+    await Bybit.SetStateGeneralSymbolInfo(apiStatePropsRef.current, newCategory);
     await Bybit.SetStateFees(apiStatePropsRef.current);
   };
 
