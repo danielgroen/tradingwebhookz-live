@@ -1,4 +1,4 @@
-import { makeApiRequest } from './helpers.js';
+import { makeApiRequest, makeApiRequestBybit } from './helpers.js';
 import { subscribeOnStream, unsubscribeFromStream } from './streaming.js';
 
 // This is a simple implementation of the CryptoCompare streaming API
@@ -6,10 +6,26 @@ import { subscribeOnStream, unsubscribeFromStream } from './streaming.js';
 
 const lastBarsCache = new Map();
 
+export const supported_resolutions = [
+  '1',
+  '3',
+  '5',
+  '15',
+  '30',
+  '60',
+  '120',
+  '240',
+  // '360',
+  // '720',
+  'D',
+  // 'M',
+  // 'W',
+];
+
 // DatafeedConfiguration implementation
 const configurationData = {
   // Represents the resolutions for bars supported by your datafeed
-  supported_resolutions: ['1', '2', '5', '15', '30', '60', '120', '240', '360', '720', 'D', '1D', 'W', '1W'],
+  supported_resolutions,
   supports_group_request: false,
   supports_marks: false,
   supports_search: true,
@@ -26,8 +42,16 @@ const configurationData = {
   // The `symbols_types` arguments are used for the `searchSymbols` method if a user selects this symbol type
   symbols_types: [
     {
-      name: 'crypto',
-      value: 'crypto',
+      name: 'All',
+      value: '',
+    },
+    {
+      name: 'Perpetuals',
+      value: 'linear',
+    },
+    {
+      name: 'Inverse',
+      value: 'inverse',
     },
   ],
 };
@@ -45,6 +69,7 @@ async function getAllSymbols() {
         INSTRUMENT_MAPPING: { QUOTE_CURRENCY, INDEX_UNDERLYING },
       } = contract;
 
+      const type = contract.MAPPED_INSTRUMENT.includes('INVERSE') ? 'inverse' : 'linear';
       return {
         symbol: contract.INSTRUMENT,
         short: key,
@@ -52,7 +77,7 @@ async function getAllSymbols() {
         description: `${contract.INSTRUMENT} PERPETUAL CONTRACT`,
         exchange: exchange.value,
         exchange_logo: 'https://s3-symbol-logo.tradingview.com/provider/bybit.svg',
-        type: 'swap crypto',
+        type,
         ...(!import.meta.env.PROD && {
           logo_urls: [
             `https://s3-symbol-logo.tradingview.com/crypto/XTVC${INDEX_UNDERLYING}.svg`,
@@ -78,7 +103,7 @@ export default {
     const newSymbols = symbols.filter((symbol) => {
       const isExchangeValid = exchange === '' || symbol.exchange === exchange;
       const isFullSymbolContainsInput = symbol.symbol.toLowerCase().indexOf(userInput.toLowerCase()) !== -1;
-      return isExchangeValid && isFullSymbolContainsInput;
+      return isExchangeValid && isFullSymbolContainsInput && (symbol.type === symbolType || !symbolType);
     });
 
     onResultReadyCallback(newSymbols);
@@ -112,9 +137,9 @@ export default {
       logoUrls: symbolItem.logoUrls,
       pricescale: 100,
       has_intraday: true,
-      intraday_multipliers: ['1', '60'],
+      // intraday_multipliers: ['1', '60'],
       has_no_volume: true,
-      has_weekly_and_monthly: false,
+      has_weekly_and_monthly: true,
       supported_resolutions: configurationData.supported_resolutions,
       volume_precision: 2,
       data_status: 'streaming',
@@ -126,45 +151,36 @@ export default {
   getBars: async (symbolInfo, resolution, periodParams, onHistoryCallback, onErrorCallback) => {
     const { from, to, firstDataRequest } = periodParams;
 
+    const interval = resolution.replace(/\d+(?=[A-Za-z])/g, '');
+    console.log(interval, resolution);
+
     let urlParameters = {
-      market: symbolInfo.exchange,
-      instrument: symbolInfo.ticker.split(':')[1],
-      limit: 2000,
-      // aggregate: resolution,
+      category: symbolInfo.type,
+      symbol: symbolInfo.name,
+      interval,
+      limit: 1000, // max
     };
-
-    let endpoint;
-
-    if (['1', '2', '5', '15', '30'].includes(resolution)) {
-      endpoint = 'futures/v1/historical/minutes';
-    } else if (['60', '120', '240', '360', '720'].includes(resolution)) {
-      endpoint = 'futures/v1/historical/hours';
-    } else {
-      endpoint = 'futures/v1/historical/days';
-    }
-    console.log('=====getBars running', symbolInfo, resolution, periodParams);
 
     const query = Object.keys(urlParameters)
       .map((name) => `${name}=${encodeURIComponent(urlParameters[name])}`)
       .join('&');
 
     try {
-      const data = await makeApiRequest(`/${endpoint}?${query}`);
+      const data = await makeApiRequestBybit(`/v5/market/kline?${query}`);
 
-      if (!data || !data.Data || data.Data.length === 0) {
+      if (!data || !data.result || !data.result.list?.length) {
         onHistoryCallback([], { noData: true });
         return;
       }
 
-      const bars = data.Data.filter(
-        (bar) => bar.TIMESTAMP * 1000 >= from * 1000 && bar.TIMESTAMP * 1000 <= to * 1000
-      ).map((bar) => ({
-        time: bar.TIMESTAMP * 1000,
-        low: bar.LOW,
-        high: bar.HIGH,
-        open: bar.OPEN,
-        close: bar.CLOSE,
-        volume: bar.VOLUME,
+      const list = data.result.list;
+      const bars = list.reverse().map((bar) => ({
+        time: +bar[0],
+        open: +bar[1],
+        high: +bar[2],
+        low: +bar[3],
+        close: +bar[4],
+        volume: +bar[5],
       }));
 
       if (firstDataRequest) {
@@ -178,22 +194,20 @@ export default {
     }
   },
 
-  calculateHistoryDepth: (resolution, resolutionBack, intervalBack) => {
-    //optional
-    console.log('=====calculateHistoryDepth running');
+  // calculateHistoryDepth: (resolution, resolutionBack, intervalBack) => {
+  //   //optional
+  //   console.log('=====calculateHistoryDepth running');
 
-    // while optional, this makes sure we request 24 hours of minute data at a time
-    // CryptoCompare's minute data endpoint will throw an error if we request data beyond 7 days in the past, and return no data
-    return resolution < 60 ? { resolutionBack: '1', intervalBack: '2000' } : undefined;
-  },
+  //   // while optional, this makes sure we request 24 hours of minute data at a time
+  //   // CryptoCompare's minute data endpoint will throw an error if we request data beyond 7 days in the past, and return no data
+  //   return resolution < 60 ? { resolutionBack: '1', intervalBack: '1000' } : undefined;
+  // },
 
   getServerTime: (cb) => {
     console.log('=====getServerTime running');
   },
 
   subscribeBars: (symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback) => {
-    const category = symbolInfo.ticker.includes('INVERSE') ? 'inverse' : 'linear';
-
     subscribeOnStream(
       symbolInfo,
       resolution,
@@ -201,7 +215,7 @@ export default {
       subscriberUID,
       onResetCacheNeededCallback,
       lastBarsCache.get(symbolInfo.full_name),
-      category
+      symbolInfo.type
     );
   },
 

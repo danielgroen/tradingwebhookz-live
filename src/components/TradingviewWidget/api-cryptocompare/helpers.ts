@@ -14,3 +14,14 @@ export async function makeApiRequest(path) {
     throw new Error(`CryptoCompare request error: ${error.status}`);
   }
 }
+
+export async function makeApiRequestBybit(path) {
+  try {
+    // const url = new URL(`https://min-api.cryptocompare.com${path}`);
+    const url = new URL(`https://api.bybit.com${path}`);
+    const response = await fetch(url.toString());
+    return response.json();
+  } catch (error) {
+    throw new Error(`${error}`);
+  }
+}

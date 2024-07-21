@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { widget, type ChartingLibraryWidgetOptions as WidgetOptions } from 'charting_library';
 // import datafeed from './api-bybit/datafeed';
-import datafeed from './api-cryptocompare/datafeed';
+import datafeed, { supported_resolutions } from './api-cryptocompare/datafeed';
 import { ApiState, GlobalState } from '@states/index';
 import { useTradingViewWidgetHooks } from './TradingviewWidget.hook';
 
@@ -48,7 +48,7 @@ export const TradingviewWidget = () => {
       user_id: 'tradingmaestro12',
       autosize: true,
       studies_overrides: {},
-      favorites: { intervals: ['1', '2', '5', '15', '30', '1H', '4H', '1D', '1W'] as any },
+      favorites: { intervals: supported_resolutions as any },
       drawings_access: { type: 'black', tools: [{ name: 'Long Position' }, { name: 'Short Position' }] },
       enabled_features: ['chart_property_page_trading', 'show_exchange_logos', 'show_symbol_logos'],
       disabled_features: ['header_quick_search', 'header_saveload', 'popup_hints', 'header_indicators'],
