@@ -138,7 +138,7 @@ export default {
       pricescale: 100,
       has_intraday: true,
       // intraday_multipliers: ['1', '60'],
-      has_no_volume: true,
+      // has_no_volume: true,
       has_weekly_and_monthly: true,
       supported_resolutions: configurationData.supported_resolutions,
       volume_precision: 2,
