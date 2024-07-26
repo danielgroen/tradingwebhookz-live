@@ -38,7 +38,7 @@ export const Sidebar = () => {
           Tradingview
         </Link>{' '}
         is a platform for traders and high-performance market data to help track coins like{' '}
-        <Link fontSize={10} href="https://www.tradingview.com/symbols/BTCUSD/" rel="noopener nofollow" target="_blank">
+        <Link fontSize={10} href="https://www.tradingview.com/symbols/BTCUSDT/" rel="noopener nofollow" target="_blank">
           BTCUSDT
         </Link>{' '}
         prices on charts.
