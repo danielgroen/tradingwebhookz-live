@@ -34,11 +34,11 @@ export const Sidebar = () => {
         height={'39px'}
         sx={{ p: '5px', borderTop: '1px solid #2a2e39', background: '#131722', opacity: 0.8 }}
       >
-        <Link fontSize={10} href="https://www.tradingview.com" rel="noopener nofollow" target="_blank">
+        <Link fontSize={10} href="https://www.tradingview.com" rel="noopener dofollow" target="_blank">
           Tradingview
         </Link>{' '}
         is a platform for traders and high-performance market data to help track coins like{' '}
-        <Link fontSize={10} href="https://www.tradingview.com/symbols/BTCUSDT/" rel="noopener nofollow" target="_blank">
+        <Link fontSize={10} href="https://www.tradingview.com/symbols/BTCUSDT/" rel="noopener dofollow" target="_blank">
           BTCUSDT
         </Link>{' '}
         prices on charts.
