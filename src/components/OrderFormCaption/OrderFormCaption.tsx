@@ -24,7 +24,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
       !price ||
       !stopLoss ||
       !takeProfit ||
-      !accountBalance ||
+      !accountBalance?.free ||
       !risk ||
       !apiMinOrderSize ||
       !apiLeverageStepSize ||
@@ -36,7 +36,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
     const entryPrice = parseFloat(price);
     const sl = parseFloat(stopLoss);
     const tp = parseFloat(takeProfit);
-    const orderSize = accountBalance * (orderPercent / 100);
+    const orderSize = accountBalance.free * (orderPercent / 100);
 
     const feesOpen = maker / 100;
     const feesLoss = orderTypeStoploss === ORDER_TYPE.MARKET ? taker / 100 : maker / 100;
@@ -123,7 +123,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
           <Typography variant="caption" sx={{ display: 'block' }}>
             L:{' '}
             <Typography variant="caption" color="error">
-              {((-Math.abs(potentialLoss).toFixed(2) / accountBalance) * 100).toFixed(2)}
+              {((-Math.abs(potentialLoss).toFixed(2) / accountBalance?.free) * 100).toFixed(2)}
             </Typography>{' '}
             %
           </Typography>
@@ -133,7 +133,7 @@ export const OrderFormCaption: FC<any> = ({ accountBalance }) => {
           <Typography variant="caption" sx={{ display: 'block' }}>
             P:{' '}
             <Typography variant="caption" color={potentialProfit > 0 ? 'success.light' : 'error'}>
-              {((+potentialProfit.toFixed(2) / accountBalance) * 100).toFixed(2)}
+              {((+potentialProfit.toFixed(2) / accountBalance?.free) * 100).toFixed(2)}
             </Typography>{' '}
             %
             <Typography variant="caption" sx={{ opacity: 0, marginLeft: -1.5 }}>

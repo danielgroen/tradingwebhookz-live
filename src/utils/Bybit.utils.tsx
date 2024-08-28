@@ -150,7 +150,7 @@ export class Bybit {
     try {
       const getBalance = await brokerInstance?.fetchBalance();
 
-      setAccountBalance(getBalance[counterAsset]?.free);
+      setAccountBalance(getBalance[counterAsset]);
     } catch ({ message }: any) {
       enqueueSnackbar(`[GET BALANCE]: ${message}`, {
         variant: 'error',

@@ -4,6 +4,7 @@ import { ORDER_TYPE } from '@constants/index';
 import { OrderState, SettingsState, ApiState } from '@states/index';
 import { stepSizeToFixed } from '@utils/index';
 
+// NOTE NOTE NOTE.... THIS IS A TEST COMPONENT... NOT A REAL COMPONENT
 export const RiskCalculator: FC = () => {
   const [accountBalance, setAccountBalance] = useState<number>(1000); // Fixed account balance
   const [risk, setRisk] = useState<number>(1);

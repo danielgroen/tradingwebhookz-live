@@ -31,7 +31,11 @@ export const OrderForm = () => {
   const [localQty, setLocalQty] = useState(qty);
   const [localLeverage, setLocalLeverageState] = useState(appLeverage);
 
-  const [accountBalance, setAccountBalance] = useState(null);
+  const [accountBalance, setAccountBalance] = useState<{ free: number; total: number; used: number }>({
+    free: 0,
+    total: 0,
+    used: 0,
+  });
   const { primaryPair, counterAsset } = ApiState();
 
   useEffect(() => {
@@ -138,7 +142,7 @@ export const OrderForm = () => {
       </div>
 
       <OrderFormOrders sx={{ marginTop: 'auto', py: 2 }} />
-      {accountBalance === 0 ? (
+      {accountBalance?.free === 0 ? (
         <Button disabled variant="outlined" fullWidth>
           Insufficient {counterAsset}
         </Button>

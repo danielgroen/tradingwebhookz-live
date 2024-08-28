@@ -49,7 +49,6 @@ export const useTradingViewWidgetHooks = (chartWidget: any, currentDrawingId: an
     let url = new URL(currentUrl);
     const symbolQuery = url.searchParams.get('symbol');
     const { setCategory } = settingsStatePropsRef.current;
-    console.log(symbolQuery);
     const newCategory = symbolQuery?.includes('INVERSE') ? CATEGORY.INVERSE : CATEGORY.LINEAR;
     setCategory(newCategory);
 
@@ -179,7 +178,7 @@ export const useTradingViewWidgetHooks = (chartWidget: any, currentDrawingId: an
                 Bybit.cancelOrder(apiStateProps, order);
               })
               .setQuantity(order.amount)
-              .setText(`${textPrefix}: ${order.price}`);
+              .setText(`${textPrefix}: ${order.price ?? order?.stopPrice}`);
 
             if (orderLine && orderLine._line && orderLine._line._id) {
               const orderLineId = orderLine._line._id;
@@ -236,7 +235,7 @@ export const useTradingViewWidgetHooks = (chartWidget: any, currentDrawingId: an
             .setQuantityBackgroundColor(color)
             .setQuantityBorderColor(color)
             .setQuantityTextColor('#000')
-            .setLineLength(40)
+            // .setLineLength(40)
             .setCancelButtonBackgroundColor('#000')
             .setBodyBackgroundColor('#000')
             .setLineColor(color)
