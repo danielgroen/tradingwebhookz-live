@@ -171,7 +171,8 @@ export class Bybit {
     try {
       // const openOrders = await brokerInstance?.fetchOpenOrders(tradingPairFormatted());
       const openOrders = await brokerInstance?.fetchOpenOrders();
-      if (oldOpenOrders?.length !== openOrders?.length) setOpenOrders(openOrders);
+      // if (oldOpenOrders?.length !== openOrders?.length)
+      setOpenOrders(openOrders);
     } catch ({ message }: any) {
       enqueueSnackbar(`[GET OPEN ORDERS]: ${message}`, {
         autoHideDuration: 6000,

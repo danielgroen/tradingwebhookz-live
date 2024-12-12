@@ -178,7 +178,7 @@ export const useTradingViewWidgetHooks = (chartWidget: any, currentDrawingId: an
               })
               .onMove(order, function (order) {
                 const updatedPrice = this.getPrice();
-                this.setPrice(updatedPrice);
+                // this.setPrice(updatedPrice);
                 Bybit.editOrder(apiStateProps, order, updatedPrice);
               })
               .setQuantity(order.amount)

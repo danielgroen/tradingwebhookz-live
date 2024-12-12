@@ -1,4 +1,4 @@
-import { FC, useEffect, useState, useRef } from 'react';
+import { FC, useEffect, useState } from 'react';
 import {
   Typography,
   Link,
@@ -20,19 +20,14 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
   const { ...apiStateProps } = ApiState();
   const { ...orderStateProps } = OrderState();
   const { openOrders, openPositions } = orderStateProps;
+
   const [isFormOpen, setIsFormOpen] = useState(0);
-
   const [modalActions, setModalActions] = useState<any>(null);
-  const [initialOrderState, setInitialOrderState] = useState<any>({ openOrders: null, openPositions: null });
+  const [initialOrderState, setInitialOrderState] = useState<any>({
+    openOrders: null,
+    openPositions: null,
+  });
   const [open, setOpen] = useState(false);
-
-  const openOrdersRef = useRef(openOrders);
-  const openPositionsRef = useRef(openPositions);
-
-  useEffect(() => {
-    openOrdersRef.current = openOrders;
-    openPositionsRef.current = openPositions;
-  }, [openOrders, openPositions]);
 
   const handleOpenModal = (order: any, type: 'cancel' | 'close') => {
     setModalActions({ type, order });
@@ -57,8 +52,8 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
   };
 
   const fetchOrders = () => {
-    Bybit.getOpenOrders(apiStateProps, { ...orderStateProps, openOrders: openOrdersRef.current });
-    Bybit.getPositions(apiStateProps, { ...orderStateProps, openPositions: openPositionsRef.current });
+    Bybit.getOpenOrders(apiStateProps, { ...orderStateProps, openOrders });
+    Bybit.getPositions(apiStateProps, { ...orderStateProps, openPositions });
   };
 
   useEffect(() => {
@@ -84,7 +79,7 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
     if (filteredOpenPosition.length > 0) {
       setIsFormOpen(1);
 
-      if (!!initialOrderState.openPositions) {
+      if (initialOrderState.openPositions !== null) {
         enqueueSnackbar('Your order has been filled', {
           variant: 'success',
           autoHideDuration: 2000,
@@ -93,7 +88,7 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
     } else if (filteredOpenPosition.length === 0 && openOrders.length === 0) {
       setIsFormOpen(0);
 
-      if (!!initialOrderState.openOrders) {
+      if (initialOrderState.openOrders !== null) {
         enqueueSnackbar('Your order has been closed', {
           variant: 'success',
           autoHideDuration: 2000,
@@ -101,7 +96,10 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
       }
     }
 
-    setInitialOrderState({ openOrders: openOrders.length, openPositions: filteredOpenPosition.length });
+    setInitialOrderState({
+      openOrders: openOrders.length,
+      openPositions: filteredOpenPosition.length,
+    });
   }, [openOrders, openPositions]);
 
   return (
@@ -118,7 +116,7 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
         </Dialog>
       )}
       <Box {...restBoxProps}>
-        <ButtonGroup sx={{ mb: -1, ml: 0.3 }} variant="text" size="small">
+        <ButtonGroup sx={{ mb: -1, ml: 0.3 }} variant="text" size="small" key={openOrders.length}>
           <Button
             sx={{ borderBottom: '0 !important' }}
             onClick={() => setIsFormOpen(0)}
@@ -184,7 +182,7 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
                         {!order?.triggerPrice && (
                           <>
                             <Typography sx={{ ml: 1 }}>LIMIT</Typography>
-                            <Typography sx={{ ml: 1 }}>${order?.takeProfitPrice?.toLocaleString('en-US')}</Typography>
+                            <Typography sx={{ ml: 1 }}>${order?.price?.toLocaleString('en-US')}</Typography>
                           </>
                         )}
                         {order?.triggerPrice && order?.takeProfitPrice && (
