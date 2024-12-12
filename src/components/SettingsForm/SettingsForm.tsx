@@ -73,7 +73,7 @@ export const SettingsForm = () => {
             id="demo-select-small"
             value={orderTypeStoploss}
             label="Stoploss order"
-            onChange={(e) => setOrderTypeStoploss(e.target.value)}
+            onChange={(e: any) => setOrderTypeStoploss(e.target.value)}
             color="error"
             sx={{ textTransform: 'capitalize' }}
           >

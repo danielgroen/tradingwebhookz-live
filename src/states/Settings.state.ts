@@ -40,7 +40,7 @@ export const SettingsState = create<SettingsStateProps>()(
       autoRemoveDrawings: true,
       toggleAutoRemoveDrawings: () => set({ autoRemoveDrawings: !get().autoRemoveDrawings }),
 
-      orderbook: '',
+      orderbook: 'docs.google.com/spreadsheets/d/1JJGoDZYhmY6LrdQ1IaUOOHuzJPG6lvWeDDiinLZlk0c/edit?gid=0#gid=0',
       setOrderbook: (orderbook) => set({ orderbook }),
 
       orderTypeStoploss: ORDER_TYPE.MARKET,

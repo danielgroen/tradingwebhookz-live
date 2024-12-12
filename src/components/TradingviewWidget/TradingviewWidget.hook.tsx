@@ -174,11 +174,15 @@ export const useTradingViewWidgetHooks = (chartWidget: any, currentDrawingId: an
               .setLineColor(color)
               .setPrice(order.price ?? order?.stopPrice)
               .onCancel('onCancel called', function () {
-                // this.remove();
                 Bybit.cancelOrder(apiStateProps, order);
               })
+              .onMove(order, function (order) {
+                const updatedPrice = this.getPrice();
+                this.setPrice(updatedPrice);
+                Bybit.editOrder(apiStateProps, order, updatedPrice);
+              })
               .setQuantity(order.amount)
-              .setText(`${textPrefix}: ${order.price ?? order?.stopPrice}`);
+              .setText(`${textPrefix}`);
 
             if (orderLine && orderLine._line && orderLine._line._id) {
               const orderLineId = orderLine._line._id;
@@ -240,7 +244,11 @@ export const useTradingViewWidgetHooks = (chartWidget: any, currentDrawingId: an
             .setBodyBackgroundColor('#000')
             .setLineColor(color)
             .setPrice(position.entryPrice)
+            .setCancelTooltip('Close order')
             .setQuantity(Number(position?.info?.unrealisedPnl).toFixed(2))
+            .onCancel('onCancel called', function () {
+              Bybit.closeCurrentPosition(apiStateProps, position);
+            })
             .setText(`PNL`);
 
           if (positionLine && positionLine._line && positionLine._line._id) {

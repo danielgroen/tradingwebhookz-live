@@ -20,10 +20,10 @@ export interface AuthStateProps {
 export const AuthState = create<AuthStateProps>()(
   persist(
     (set) => ({
-      apiKey: import.meta.env.DEV ? 'db6HYPwcYRQ9HPEGzL' : '',
+      apiKey: import.meta.env.DEV ? 'eD81rV0QA3kCJ2nzsE' : '',
       setApiKey: (apiKey) => set({ apiKey }),
 
-      secret: import.meta.env.DEV ? 'GtKFBO8CbBo61jT8yRiJSENjHMF16IkcLBzE' : '',
+      secret: import.meta.env.DEV ? '5UazSPpvnNQ7rjBXW2d0azYOUx59duA927BC' : '',
       setSecret: (secret) => set({ secret }),
 
       isDemoTrade: import.meta.env.DEV ? true : false,

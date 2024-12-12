@@ -89,7 +89,7 @@ export class Bybit {
         autoHideDuration: 2000,
       });
     } catch ({ message }: any) {
-      console.log(`[UPDATE LEVERAGE]: ${error}`);
+      console.log(`[UPDATE LEVERAGE]: ${message}`);
       // enqueueSnackbar(`${message}`, {
       //   variant: 'error',
       // });
@@ -116,6 +116,7 @@ export class Bybit {
         parseFloat(price),
         {
           postOnly: true,
+          hedged: false, // enforce one-way mode
           // 0 for one-way mode, 1 buy side of hedged mode, 2 sell side of hedged mode
           positionIdx: side === SIDE.BUY ? 1 : 2,
           stopLoss: {
@@ -168,7 +169,8 @@ export class Bybit {
     const { setOpenOrders, openOrders: oldOpenOrders } = orderStateProps;
     const { tradingPairFormatted, brokerInstance } = apiState;
     try {
-      const openOrders = await brokerInstance?.fetchOpenOrders(tradingPairFormatted());
+      // const openOrders = await brokerInstance?.fetchOpenOrders(tradingPairFormatted());
+      const openOrders = await brokerInstance?.fetchOpenOrders();
       if (oldOpenOrders?.length !== openOrders?.length) setOpenOrders(openOrders);
     } catch ({ message }: any) {
       enqueueSnackbar(`[GET OPEN ORDERS]: ${message}`, {
@@ -200,6 +202,37 @@ export class Bybit {
   };
 
   /*
+   * @function editOrder
+   * Cancel an order for the current trading pair
+   * https://docs.ccxt.com/#/exchanges/bybit?id=editorder
+   */
+  static editOrder = async (apiState, position, newPrice) => {
+    const { brokerInstance } = apiState;
+    const price = position.reduceOnly ? undefined : newPrice;
+
+    try {
+      brokerInstance.editOrder(position.id, position.symbol, position.type, position.side, position.amount, price, {
+        ...(position.takeProfitPrice && { takeProfitPrice: newPrice }),
+        ...(position.stopLossPrice && { stopLossPrice: newPrice }),
+        // stopPrice: newPrice,
+        // stopLossPrice: newPrice,
+        // ...(position.stopPrice && { stopPrice: newPrice }),
+        // ...(position.triggerPrice && { triggerPrice: newPrice }),
+        // ...(position.entryPrice && { entryPrice: newPrice }),
+      });
+      enqueueSnackbar('Editted order', {
+        variant: 'success',
+        autoHideDuration: 2000,
+      });
+    } catch ({ message }: any) {
+      enqueueSnackbar(`[EDIT ORDER]: ${message}`, {
+        autoHideDuration: 6000,
+        variant: 'error',
+      });
+    }
+  };
+
+  /*
    * @function getPositions
    * Get the open positions for the current trading pair
    * https://docs.ccxt.com/#/exchanges/bybit?id=fetchpositions
@@ -207,9 +240,10 @@ export class Bybit {
   static getPositions = async (apiState, orderStateProps) => {
     const { setOpenPositions } = orderStateProps;
     const { tradingPairFormatted, brokerInstance } = apiState;
+
     try {
       const openOrders = await brokerInstance?.fetchPositions([tradingPairFormatted()]);
-      setOpenPositions(openOrders);
+      setOpenPositions(openOrders?.filter((order) => !!order.side));
     } catch ({ message }: any) {
       enqueueSnackbar(`[GET POSITION]: ${message}`, {
         autoHideDuration: 6000,

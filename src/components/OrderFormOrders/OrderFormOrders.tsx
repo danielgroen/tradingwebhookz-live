@@ -1,5 +1,15 @@
 import { FC, useEffect, useState, useRef } from 'react';
-import { Typography, ButtonGroup, Button, Box, type BoxProps, Dialog, DialogTitle, DialogActions } from '@mui/material';
+import {
+  Typography,
+  Link,
+  ButtonGroup,
+  Button,
+  Box,
+  type BoxProps,
+  Dialog,
+  DialogTitle,
+  DialogActions,
+} from '@mui/material';
 import { Bybit } from '@utils/Bybit.utils';
 import { ApiState, OrderState } from '@src/states';
 import { enqueueSnackbar } from 'notistack';
@@ -58,9 +68,12 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
   }, []);
 
   useEffect(() => {
-    const filteredOpenPosition = openPositions.filter(
-      (order) => order.info.symbol === apiStateProps.tradingPairFormatted() && !!Number(order.info.size)
-    );
+    // todo:: add a toggle: to show all orders or only of the current symbol
+    // const filteredOpenPosition = openPositions.filter(
+    //   (order) => order.info.symbol === apiStateProps.tradingPairFormatted() && !!Number(order.info.size)
+    // );
+    const filteredOpenPosition = openPositions;
+    // End todo
 
     if (
       initialOrderState.openPositions === filteredOpenPosition.length &&
@@ -130,10 +143,9 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
          */}
         {isFormOpen === 0 && (
           <Box className="flex items-center flex-col bg-slate-900 w-full rounded-md min-h-36 max-h-36 p-3 text-sky-900 overflow-x-auto relative">
-            {/* filter on this symbol */}
             {!!openOrders.length &&
               openOrders
-                .filter((order) => order.info.symbol === apiStateProps.tradingPairFormatted())
+                // .filter((order) => order.info.symbol === apiStateProps.tradingPairFormatted())
                 .map((order) => (
                   <Box
                     key={order.id}
@@ -149,15 +161,30 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
                     }}
                   >
                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                      <Typography sx={{ ml: 1 }}>{order?.info.symbol}</Typography>
+                      <Link
+                        onClick={() => {
+                          const valueArr = order.symbol.replace('/', ':').split(':');
+                          const [symbol, collateral, contract] = valueArr;
+                          const contractToUrl = contract === 'USDT' ? 'VANILLA-PERPETUAL' : 'INVERSE-PERPETUAL';
+
+                          window.open(`/?symbol=${symbol}-${collateral}-${contractToUrl}`, '_self');
+                        }}
+                        sx={{ ml: 1, cursor: 'pointer' }}
+                      >
+                        {order?.info.symbol}
+                      </Link>
+                      <Typography sx={{ ml: 1 }}>{order.side === 'buy' ? '🌲LONG' : '🔻SHORT'}</Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                      <Typography sx={{ ml: 1 }}>QTY</Typography>
                       <Typography sx={{ ml: 1 }}>{order?.amount}</Typography>
                     </Box>
                     <Typography sx={{ ml: 1 }} fontSize={14}>
                       <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                         {!order?.triggerPrice && (
                           <>
-                            <Typography sx={{ ml: 1, color: '#00b0ff' }}>Limit order</Typography>
-                            <Typography sx={{ ml: 1 }}>{order?.takeProfitPrice?.toLocaleString('en-US')}</Typography>
+                            <Typography sx={{ ml: 1 }}>LIMIT</Typography>
+                            <Typography sx={{ ml: 1 }}>${order?.takeProfitPrice?.toLocaleString('en-US')}</Typography>
                           </>
                         )}
                         {order?.triggerPrice && order?.takeProfitPrice && (
@@ -210,19 +237,25 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
                   >
                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                       <Typography sx={{ ml: 1 }}>{order.info.symbol}</Typography>
-                      <Typography sx={{ ml: 1 }}>{order.contracts}</Typography>
+                      <Typography sx={{ ml: 1, color: order?.unrealizedPnl > 0 ? '#66bb6a' : '#f44336' }}>
+                        {order?.unrealizedPnl >= 0 ? '+ ' : '- '}$
+                        {order?.unrealizedPnl?.toFixed(2)?.toLocaleString('en-US') ?? 0}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                      <Typography sx={{ ml: 1 }}>QTY</Typography>
+                      <Typography sx={{ ml: 1 }}>{order?.contracts}</Typography>
                     </Box>
                     <Box sx={{ display: 'flex', flexDirection: 'column', minWidth: '60px' }}>
                       {!order.triggerPrice && (
                         <>
-                          <Typography sx={{ color: '#00b0ff' }}>Limit order</Typography>
-                          <Typography sx={{}}>{Number(order?.info?.avgPrice)?.toLocaleString('en-US') ?? 0}</Typography>
+                          <Typography sx={{}}>LIMIT</Typography>
+                          <Typography sx={{}}>
+                            ${Number(order?.info?.avgPrice)?.toLocaleString('en-US') ?? 0}
+                          </Typography>
                         </>
                       )}
                     </Box>
-                    <Typography sx={{ color: order?.unrealizedPnl > 0 ? '#66bb6a' : '#f44336' }}>
-                      {order?.unrealizedPnl?.toFixed(2)?.toLocaleString('en-US') ?? 0}
-                    </Typography>
                     <Button
                       sx={{ marginLeft: 'auto', minWidth: '0 !important' }}
                       onClick={() => handleOpenModal(order, 'close')}
