@@ -49,7 +49,13 @@ export const LoginForm = () => {
 
   return (
     <>
-      <img alt="Logo" decoding="async" data-nimg="1" className="h-20 block px-12 w-auto mt-5" src={Logo}></img>
+      <img
+        alt="Logo"
+        decoding="async"
+        data-nimg="1"
+        className="h-20 block px-12 w-auto mt-5 drop-shadow-[0_0_1em_#646cffaa]"
+        src={Logo}
+      ></img>
       <h6 className="pb-10 text-center">Tradingwebhookz</h6>
       <TextField
         value={apiKey}
