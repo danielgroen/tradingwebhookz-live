@@ -105,6 +105,7 @@ export class Bybit {
     const { side, qty, price, stopLoss, takeProfit, setSubmittedOrderId } = orderstateProps;
     const { tradingPairFormatted, brokerInstance } = apiState;
     const { orderTypeStoploss, orderTypeTakeProfit, category } = settingsState;
+    console.log(settingsState, CATEGORY.LINEAR);
 
     try {
       await brokerInstance.setPositionMode(true);
@@ -112,13 +113,13 @@ export class Bybit {
         tradingPairFormatted(),
         'limit', // base order is always limit
         side as SIDE,
-        category === CATEGORY.LINEAR ? qty : qty * price,
+        category === CATEGORY.INVERSE ? qty * price : qty,
         parseFloat(price),
         {
           postOnly: true,
           hedged: false, // enforce one-way mode
           // 0 for one-way mode, 1 buy side of hedged mode, 2 sell side of hedged mode
-          // positionIdx: side === SIDE.BUY ? 1 : 2,
+          positionIdx: side === SIDE.BUY ? 1 : 2,
           stopLoss: {
             // type: orderTypeStoploss,
             ...(orderTypeStoploss === ORDER_TYPE.LIMIT && { price: parseFloat(stopLoss) }),
