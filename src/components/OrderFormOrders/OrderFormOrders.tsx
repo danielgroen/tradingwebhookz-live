@@ -162,8 +162,8 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
                       <Link
                         onClick={() => {
                           const valueArr = order.symbol.replace('/', ':').split(':');
-                          const [symbol, collateral, contract] = valueArr;
-                          const contractToUrl = contract === 'USDT' ? 'VANILLA-PERPETUAL' : 'INVERSE-PERPETUAL';
+                          const [symbol, collateral] = valueArr;
+                          const contractToUrl = collateral.includes('USD') ? 'VANILLA-PERPETUAL' : 'INVERSE-PERPETUAL';
 
                           window.open(`/?symbol=${symbol}-${collateral}-${contractToUrl}`, '_self');
                         }}
@@ -177,7 +177,7 @@ export const OrderFormOrders: FC<Props> = ({ ...restBoxProps }) => {
                       <Typography sx={{ ml: 1 }}>QTY</Typography>
                       <Typography sx={{ ml: 1 }}>{order?.amount}</Typography>
                     </Box>
-                    <Typography sx={{ ml: 1 }} fontSize={14}>
+                    <Typography component="span" sx={{ ml: 1 }} fontSize={14}>
                       <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                         {!order?.triggerPrice && (
                           <>

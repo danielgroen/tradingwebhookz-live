@@ -108,18 +108,6 @@ export const SettingsForm = () => {
           </Select>
         </FormControl>
 
-        <ToggleButtonGroup fullWidth color="primary" value={category} size="small" exclusive onChange={() => {}}>
-          <ToggleButton disabled value="spot">
-            spot
-          </ToggleButton>
-          <ToggleButton disabled value={CATEGORY.LINEAR}>
-            Derivates
-          </ToggleButton>
-          <ToggleButton disabled value={CATEGORY.INVERSE}>
-            Inverse
-          </ToggleButton>
-        </ToggleButtonGroup>
-
         <FormControlLabel
           // {...inputLeft}
           sx={{ ml: 'auto', mt: 2 }}

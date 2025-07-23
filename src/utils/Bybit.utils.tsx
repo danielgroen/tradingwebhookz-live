@@ -1,5 +1,5 @@
 import { enqueueSnackbar } from 'notistack';
-import { SIDE, ORDER_TYPE } from '@constants/index';
+import { SIDE, CATEGORY, ORDER_TYPE } from '@constants/index';
 
 // https://docs.ccxt.com/#/exchanges/bybit
 export class Bybit {
@@ -104,7 +104,7 @@ export class Bybit {
   static SendOrder = async (orderstateProps, apiState, settingsState, cb) => {
     const { side, qty, price, stopLoss, takeProfit, setSubmittedOrderId } = orderstateProps;
     const { tradingPairFormatted, brokerInstance } = apiState;
-    const { orderTypeStoploss, orderTypeTakeProfit } = settingsState;
+    const { orderTypeStoploss, orderTypeTakeProfit, category } = settingsState;
 
     try {
       await brokerInstance.setPositionMode(true);
@@ -112,13 +112,13 @@ export class Bybit {
         tradingPairFormatted(),
         'limit', // base order is always limit
         side as SIDE,
-        qty,
+        category === CATEGORY.LINEAR ? qty : qty * price,
         parseFloat(price),
         {
           postOnly: true,
           hedged: false, // enforce one-way mode
           // 0 for one-way mode, 1 buy side of hedged mode, 2 sell side of hedged mode
-          positionIdx: side === SIDE.BUY ? 1 : 2,
+          // positionIdx: side === SIDE.BUY ? 1 : 2,
           stopLoss: {
             // type: orderTypeStoploss,
             ...(orderTypeStoploss === ORDER_TYPE.LIMIT && { price: parseFloat(stopLoss) }),
@@ -150,7 +150,6 @@ export class Bybit {
     const { counterAsset, brokerInstance } = apiState;
     try {
       const getBalance = await brokerInstance?.fetchBalance();
-
       setAccountBalance(getBalance[counterAsset]);
     } catch ({ message }: any) {
       enqueueSnackbar(`[GET BALANCE]: ${message}`, {

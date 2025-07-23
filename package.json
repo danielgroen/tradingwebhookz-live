@@ -11,7 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "ccxt": "^4.3.44",
+    "ccxt": "^4.4.96",
     "charting_library": "github:tradingview/charting_library",
     "crypto-browserify": "^3.12.0",
     "immer": "^10.1.1",

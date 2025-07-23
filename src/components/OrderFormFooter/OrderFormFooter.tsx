@@ -5,7 +5,7 @@ import { Bybit } from '@utils/index';
 
 interface Props extends BoxProps {
   accountBalance: { free: number; total: number; used: number };
-  setAccountBalance: Dispatch<SetStateAction<null>>;
+  setAccountBalance: Dispatch<SetStateAction<{ free: number; total: number; used: number }>>;
 }
 
 export const OrderFormFooter: FC<Props> = ({ accountBalance, setAccountBalance, ...restBoxProps }) => {
@@ -67,11 +67,11 @@ export const OrderFormFooter: FC<Props> = ({ accountBalance, setAccountBalance, 
                     {(+accountBalance?.total?.toFixed(2)).toLocaleString('en-US')} {counterAsset}
                   </span>
                 </div>
-                {accountBalance?.free !== accountBalance?.total && (
+                {accountBalance?.total !== accountBalance?.total && (
                   <div>
                     Free:{' '}
                     <span style={{ color: '#66bb6a' }}>
-                      {(+accountBalance?.free?.toFixed(2)).toLocaleString('en-US')} {counterAsset}
+                      {(+accountBalance?.total?.toFixed(2)).toLocaleString('en-US')} {counterAsset}
                     </span>
                   </div>
                 )}

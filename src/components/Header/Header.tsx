@@ -5,6 +5,7 @@ import { FaGear } from 'react-icons/fa6';
 import { GiBroom } from 'react-icons/gi';
 import { GoInfo } from 'react-icons/go';
 import { IoClose, IoLogOutOutline, IoChevronBack } from 'react-icons/io5';
+import { TbLayoutSidebarRightCollapseFilled } from 'react-icons/tb';
 import { SiMicrosoftexcel } from 'react-icons/si';
 import { InfoDialog } from '@components/index';
 import { AuthState, GlobalState, SettingsState, OrderState, ApiState } from '@states/index';
@@ -57,7 +58,11 @@ export const Header = () => {
             Log in
           </Typography>
         )}
-        <IoClose style={{ cursor: 'pointer', marginLeft: 12 }} size={24} onClick={() => setShowSidebar(false)} />
+        <TbLayoutSidebarRightCollapseFilled
+          style={{ cursor: 'pointer', marginLeft: 12 }}
+          size={24}
+          onClick={() => setShowSidebar(false)}
+        />
       </div>
       {isLoggedIn && (
         <div className="flex items-center justify-end mb-[-26px] gap-3 z-10">

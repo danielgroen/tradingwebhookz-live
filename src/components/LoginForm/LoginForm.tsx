@@ -82,8 +82,8 @@ export const LoginForm = () => {
       />
       <FormControlLabel
         sx={{ mb: 4, mr: 0 }}
-        control={<Switch checked={isDemoTrade} color="warning" onChange={() => setIsDemoTrade(!isDemoTrade)} />}
-        label="Demo account"
+        control={<Switch checked={isDemoTrade} color={'warning'} onChange={() => setIsDemoTrade(!isDemoTrade)} />}
+        label={isDemoTrade ? 'Demo trading' : 'Live trading'}
         labelPlacement="start"
       />
 
@@ -92,7 +92,7 @@ export const LoginForm = () => {
       </Button>
 
       <div className="flex justify-between items-center">
-        <Typography variant="caption" sx={{ ml: 1 }}>
+        <Typography component="span" variant="caption" sx={{ ml: 1 }}>
           or{' '}
           <Link href="https://www.bybit.com/invite?ref=GDRBYQD" target="_blank">
             Register at Bybit

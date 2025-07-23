@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { TextField, Typography, Chip, Button, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import { OrderButton, OrderFormCaption, OrderFormFooter, OrderFormOrders } from '@components/index';
-import { SIDE } from '@constants/index';
-import { OrderState, ApiState } from '@states/index';
+import { SIDE, CATEGORY } from '@constants/index';
+import { OrderState, ApiState, SettingsState } from '@states/index';
 import { inputLeft, inputRight, inputBase } from '@utils/index';
 
 export const OrderForm = () => {
@@ -25,6 +25,7 @@ export const OrderForm = () => {
     setOrderPercent,
   } = OrderState();
 
+  const { category } = SettingsState();
   const [localStopLoss, setLocalStopLoss] = useState(stopLoss);
   const [localTakeProfit, setLocalTakeProfit] = useState(takeProfit);
   const [localPrice, setLocalPrice] = useState(price);
@@ -56,7 +57,7 @@ export const OrderForm = () => {
   return (
     <>
       <div>
-        <Typography variant="h6" sx={{ mb: 2 }} className="block">
+        <Typography component="span" variant="h6" sx={{ mb: 2 }} className="block">
           Place order
           {side && (
             <Chip
@@ -75,6 +76,7 @@ export const OrderForm = () => {
           onBlur={() => setQty(localQty)}
           label={`Order in ${counterAsset}`}
           InputProps={{ endAdornment: counterAsset }}
+          // InputProps={{ endAdornment: category === CATEGORY.LINEAR ? counterAsset : primaryPair }}
         />
         <TextField
           {...inputBase}
@@ -83,6 +85,7 @@ export const OrderForm = () => {
           onBlur={() => setQty(localQty)}
           label="Order by qty"
           InputProps={{ endAdornment: primaryPair }}
+          // InputProps={{ endAdornment: category === CATEGORY.LINEAR ? primaryPair : counterAsset }}
         />
         <ToggleButtonGroup
           fullWidth
@@ -142,7 +145,7 @@ export const OrderForm = () => {
       </div>
 
       <OrderFormOrders sx={{ marginTop: 'auto', py: 2 }} />
-      {accountBalance?.free === 0 ? (
+      {(accountBalance?.free || accountBalance?.total) === 0 ? (
         <Button disabled variant="outlined" fullWidth>
           Insufficient {counterAsset}
         </Button>

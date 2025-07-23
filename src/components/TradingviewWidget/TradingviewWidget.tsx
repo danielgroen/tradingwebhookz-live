@@ -8,7 +8,6 @@ import { useTradingViewWidgetHooks } from './TradingviewWidget.hook';
 export const TradingviewWidget = () => {
   const chartContainerRef = useRef<HTMLDivElement>() as React.MutableRefObject<HTMLInputElement>;
   const buttonLongRef = useRef<HTMLButtonElement | null>(null);
-  const buttonTradingPanelRef = useRef<HTMLButtonElement | null>(null);
   const buttonShortRef = useRef<HTMLButtonElement | null>(null);
 
   const [chartWidget, setChartWidget] = useState<any>(null);
@@ -18,7 +17,7 @@ export const TradingviewWidget = () => {
   const drawingIdRef = useRef<string | null>(null);
 
   const { tradingPair } = ApiState();
-  const { isLoggedIn, toggleSidebar } = GlobalState();
+  const { isLoggedIn } = GlobalState();
 
   const { onSymbolChange, onDraw } = useTradingViewWidgetHooks(chartWidgetRef, drawingIdRef);
 
@@ -100,21 +99,6 @@ export const TradingviewWidget = () => {
 
   useEffect(() => {
     if (chartWidget) {
-      if (!buttonTradingPanelRef.current) {
-        const buttonTradingPanel = chartWidget.createButton();
-        buttonTradingPanel.setAttribute('title', 'Click to activate the Long Position tool');
-        buttonTradingPanel.innerHTML = '⚙️ Trading panel';
-        buttonTradingPanel.style.color = '#2962ff';
-        buttonTradingPanel.classList.add('apply-common-tooltip', 'tv-header-toolbar__button');
-        buttonTradingPanel.addEventListener('click', () => {
-          toggleSidebar();
-
-          if (buttonTradingPanel.style.color === '') buttonTradingPanel.style.color = '#2962ff';
-          else buttonTradingPanel.style.color = '';
-        });
-        buttonTradingPanelRef.current = buttonTradingPanel;
-      }
-
       if (isLoggedIn) {
         if (!buttonLongRef.current) {
           const buttonLong = chartWidget.createButton();
